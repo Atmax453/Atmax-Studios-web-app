@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="en" data-mode="desktop">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Cinebox – Stream Films</title>
+<link rel="stylesheet" href="tailwind.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root { --bg:#141414; --surface:#181818; --text:#ffffff; --muted:#b3b3b3; --accent:#e50914; }
+  html[data-mode="desktop"] { --pad:4%; --card-w:16rem; --card-ar:16/9; --hero-h:82vh; --nav-h:4.25rem; }
+  html[data-mode="mobile"]  { --pad:1rem; --card-w:8.5rem; --card-ar:2/3; --hero-h:68vh; --nav-h:3.5rem; }
+
+  html, body { overflow-x:hidden; max-width:100%; background:#000; color:var(--text); font-family:'Sora',system-ui,sans-serif; }
+  #app { position:relative; width:100%; min-height:100vh; background:var(--bg); overflow-x:clip; }
+  html[data-mode="mobile"] #app { max-width:430px; margin:0 auto; box-shadow:0 0 0 1px #2a2a2a; padding-bottom:4.5rem; }
+
+  /* Navbar: transparent -> solid */
+  #nav { position:sticky; top:0; z-index:40; height:var(--nav-h); padding:0 var(--pad); display:flex; align-items:center; gap:1rem;
+         background:linear-gradient(#141414cc,transparent); transition:background .3s; }
+  #nav.solid { background:#141414; }
+  .hide-scroll { scrollbar-width:none; -ms-overflow-style:none; }
+  .hide-scroll::-webkit-scrollbar { display:none; }
+  html[data-mode="mobile"] .desk-only { display:none !important; }
+  html[data-mode="desktop"] .mob-only { display:none !important; }
+
+  /* Hero */
+  #hero { position:relative; height:var(--hero-h); min-height:26rem; margin-top:calc(var(--nav-h) * -1); display:flex; align-items:flex-end; background-size:cover; background-position:center; }
+  #hero::after { content:""; position:absolute; inset:0; background:
+      linear-gradient(to top,var(--bg) 4%,transparent 55%),
+      linear-gradient(to right,#141414e6 0%,transparent 65%); }
+  #hero > div { position:relative; z-index:1; padding:0 var(--pad) 3.5rem; max-width:42rem; }
+  html[data-mode="mobile"] #hero::after { background:linear-gradient(to top,var(--bg) 6%,#14141466 60%,#14141499); }
+  html[data-mode="mobile"] #hero > div { padding-bottom:2rem; }
+
+  /* Rows & cards */
+  .row-scroll { display:flex; gap:.6rem; overflow-x:auto; padding:2.2rem var(--pad); margin:-2.2rem 0; scroll-behavior:smooth; }
+  html[data-mode="mobile"] .row-scroll { scroll-snap-type:x proximity; gap:.5rem; padding:1rem var(--pad); margin:0; -webkit-overflow-scrolling:touch; }
+  .card { position:relative; flex:0 0 var(--card-w); aspect-ratio:var(--card-ar); border-radius:.4rem; background-size:cover; background-position:center;
+          cursor:pointer; transition:transform .25s, box-shadow .25s; scroll-snap-align:start; overflow:hidden; border:0; text-align:left; color:inherit; }
+  .card .t { position:absolute; inset:auto 0 0 0; padding:1.6rem .7rem .6rem; font-weight:600; font-size:.85rem; background:linear-gradient(transparent,#000c); }
+  .card .more { position:absolute; inset:0; padding:.8rem; display:flex; flex-direction:column; justify-content:flex-end; gap:.3rem;
+                background:linear-gradient(transparent 20%,#000f); opacity:0; transition:opacity .2s; font-size:.72rem; color:var(--muted); }
+  html[data-mode="desktop"] .card:hover, html[data-mode="desktop"] .card:focus-visible { transform:scale(1.18); z-index:5; box-shadow:0 12px 30px #000a; }
+  html[data-mode="desktop"] .card:first-child:hover { transform-origin:left center; }
+  html[data-mode="desktop"] .card:last-child:hover { transform-origin:right center; }
+  html[data-mode="desktop"] .card:hover .more, html[data-mode="desktop"] .card:focus-visible .more { opacity:1; }
+  html[data-mode="desktop"] .card:hover .t, html[data-mode="desktop"] .card:focus-visible .t { opacity:0; }
+  html[data-mode="mobile"] .more { display:none; }
+  .arrow { position:absolute; top:2.2rem; bottom:2.2rem; width:var(--pad); min-width:2.5rem; z-index:6; background:#141414b3; font-size:1.6rem; opacity:0; transition:opacity .2s; }
+  section:hover .arrow { opacity:1; }
+  html[data-mode="mobile"] .arrow { display:none; }
+
+  /* Modals */
+  .overlay { position:fixed; inset:0; z-index:60; background:#000c; display:none; align-items:center; justify-content:center; padding:1rem; overflow-y:auto; }
+  .overlay.open { display:flex; }
+  .sheet { width:100%; background:var(--surface); border-radius:.6rem; overflow:hidden; position:relative; max-height:96vh; overflow-y:auto; }
+  .btn { display:inline-flex; align-items:center; gap:.45rem; padding:.55rem 1.3rem; border-radius:.3rem; font-weight:700; font-size:.95rem; cursor:pointer; transition:filter .15s; }
+  .btn:hover { filter:brightness(1.12); }
+  .btn-primary { background:var(--accent); color:#fff; }
+  .btn-ghost { background:#6d6d6eb3; color:#fff; }
+  :focus-visible { outline:2px solid var(--accent); outline-offset:2px; }
+  .field { width:100%; background:#333; border:1px solid #444; border-radius:.3rem; padding:.7rem .8rem; color:#fff; }
+  .bottom-nav { position:fixed; bottom:0; left:50%; transform:translateX(-50%); width:min(100%,430px); z-index:45; background:#141414f2; border-top:1px solid #2a2a2a;
+                display:flex; justify-content:space-around; padding:.5rem 0 calc(.5rem + env(safe-area-inset-bottom)); }
+  .bottom-nav a { display:flex; flex-direction:column; align-items:center; gap:.15rem; font-size:.65rem; color:var(--muted); padding:.2rem .6rem; }
+  @media (prefers-reduced-motion:reduce) { * { transition:none !important; scroll-behavior:auto !important; } }
+</style>
+</head>
+<body>
+<div id="app">
+
+  <!-- NAVBAR -->
+  <header id="nav">
+    <a href="#top" class="font-extrabold text-xl tracking-tight" style="color:var(--accent)" id="brand">CINEBOX</a>
+    <nav id="navlinks" class="desk-only flex gap-5 text-sm text-[color:var(--muted)]"></nav>
+    <div class="ml-auto flex items-center gap-2">
+      <button id="modeBtn" class="btn btn-ghost !py-1.5 !px-3 !text-xs" aria-label="Switch view mode" title="Switch view mode"></button>
+      <button id="adminBtn" class="btn btn-ghost !py-1.5 !px-3 !text-xs hidden">⚙ Admin</button>
+      <button id="authBtn" class="btn btn-primary !py-1.5 !px-3 !text-xs">Sign in</button>
+      <button id="outBtn" class="btn btn-ghost !py-1.5 !px-3 !text-xs hidden">Sign out</button>
+    </div>
+  </header>
+
+  <main id="top">
+    <section id="hero"></section>
+    <div id="rows" class="relative z-10 -mt-6 pb-12 flex flex-col gap-5"></div>
+  </main>
+
+  <footer class="px-[var(--pad)] pb-10 text-xs text-[color:var(--muted)]">© <span id="yr"></span> Cinebox. All films belong to their creators.</footer>
+
+  <nav id="bottomNav" class="bottom-nav mob-only"></nav>
+</div>
+
+<!-- VIDEO / DETAILS MODAL -->
+<div id="videoModal" class="overlay" role="dialog" aria-modal="true" aria-label="Film player">
+  <div class="sheet" style="max-width:56rem">
+    <button class="absolute top-2 right-3 z-10 text-3xl leading-none bg-black/60 rounded-full w-9 h-9" data-close aria-label="Close">×</button>
+    <iframe id="frame" class="w-full bg-black hidden" style="aspect-ratio:16/9;border:0" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen title="Film player"></iframe>
+    <video id="player" class="w-full bg-black" style="aspect-ratio:16/9" controls playsinline preload="none"></video>
+    <div class="p-5">
+      <h2 id="vTitle" class="text-2xl font-bold"></h2>
+      <p id="vMeta" class="text-sm text-[color:var(--muted)] mt-1"></p>
+      <p id="vSyn" class="mt-3 text-sm leading-relaxed max-w-prose"></p>
+    </div>
+  </div>
+</div>
+
+<!-- ADMIN MODAL -->
+<div id="adminModal" class="overlay" role="dialog" aria-modal="true" aria-label="Admin">
+  <div class="sheet p-6" style="max-width:40rem">
+    <button class="absolute top-2 right-3 text-3xl leading-none" data-close aria-label="Close">×</button>
+    <h2 class="text-xl font-bold mb-4">Add a film</h2>
+    <form id="filmForm" class="grid gap-3 sm:grid-cols-2">
+      <input class="field sm:col-span-2" name="title" placeholder="Title" required>
+      <input class="field" name="category" list="catList" placeholder="Row name (e.g. Short Films)" required>
+      <datalist id="catList"></datalist>
+      <input class="field" name="genre" placeholder="Genre">
+      <input class="field" name="year" type="number" placeholder="Year">
+      <input class="field" name="duration" placeholder="Length (e.g. 1h 42m)">
+      <input class="field" name="rating" placeholder="Rating (e.g. PG)">
+      <label class="flex items-center gap-2 text-sm"><input type="checkbox" name="featured"> Show in the big banner</label>
+      <textarea class="field sm:col-span-2" name="synopsis" rows="3" placeholder="Short description"></textarea>
+      <fieldset class="sm:col-span-2 border border-[#444] rounded p-3 flex flex-col gap-2">
+        <legend class="px-1 text-sm font-semibold">Video</legend>
+        <div class="flex gap-5 text-sm">
+          <label class="flex items-center gap-2"><input type="radio" name="source" value="link" checked> Paste a link</label>
+          <label class="flex items-center gap-2"><input type="radio" name="source" value="upload"> Upload a file</label>
+        </div>
+        <input class="field" name="videoLink" placeholder="Google Drive, YouTube, Vimeo or .mp4 link">
+        <input class="field hidden" name="videoFile" type="file" accept="video/*">
+        <p id="srcHelp" class="text-xs text-[color:var(--muted)]">Google Drive: open the file, click Share, and set General access to "Anyone with the link". Then paste the link here.</p>
+      </fieldset>
+      <fieldset class="sm:col-span-2 border border-[#444] rounded p-3 flex flex-col gap-2">
+        <legend class="px-1 text-sm font-semibold">Poster picture (optional)</legend>
+        <input class="field" name="posterUrl" placeholder="Link to a picture (a direct image link)">
+        <input class="field" name="posterFile" type="file" accept="image/*">
+      </fieldset>
+      <p id="filmMsg" class="sm:col-span-2 text-sm min-h-[1.25rem] text-[color:var(--muted)]" role="status"></p>
+      <button class="btn btn-primary sm:col-span-2 justify-center" id="filmSubmit">Add film</button>
+    </form>
+    <h3 class="font-bold mt-6 mb-2">Films on the site</h3>
+    <div id="adminList" class="flex flex-col gap-2 text-sm"></div>
+  </div>
+</div>
+
+<!-- AUTH MODAL -->
+<div id="authModal" class="overlay" role="dialog" aria-modal="true" aria-label="Account">
+  <div class="sheet p-6" style="max-width:24rem">
+    <button class="absolute top-2 right-3 text-3xl leading-none" data-close aria-label="Close">×</button>
+    <div id="accountPane" class="hidden">
+      <p class="text-sm text-[color:var(--muted)]">Signed in as</p>
+      <p id="acctEmail" class="font-bold break-all mb-5"></p>
+      <button id="signOutBtn" class="btn btn-primary w-full justify-center">Sign out</button>
+    </div>
+    <div id="authPane">
+    <div class="flex gap-4 mb-5 text-lg font-bold">
+      <button id="tabIn" data-tab="in">Sign in</button>
+      <button id="tabUp" data-tab="up" class="text-[color:var(--muted)]">Sign up</button>
+    </div>
+    <form id="authForm" class="flex flex-col gap-3">
+      <input class="field" type="email" name="email" placeholder="Email" autocomplete="email" required>
+      <input class="field" type="password" name="password" placeholder="Password" autocomplete="current-password" minlength="6" required>
+      <p id="authMsg" class="text-sm min-h-[1.25rem] text-[color:var(--muted)]" role="status"></p>
+      <button class="btn btn-primary justify-center" id="authSubmit">Sign in</button>
+    </form>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ============ 1. SUPABASE: all films and accounts come from here ============ */
+const SUPABASE_URL = "https://xzeahvkmvrdpxcfsgwqh.supabase.co";
+const SUPABASE_ANON_KEY = "YOUR-ANON-KEY";          // public anon key only, never the service key
+const configured = !SUPABASE_URL.includes("YOUR-PROJECT") && !SUPABASE_ANON_KEY.includes("YOUR-ANON");
+const sb = configured && window.supabase ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY) : null;
+
+async function fetchMovies() {
+  const { data, error } = await sb.from("movies").select("*").order("id");
+  if (error) throw error;
+  return data || [];
+}
+async function authRequest(kind, email, password) {       // kind: "in" | "up"
+  if (!sb) throw new Error("Supabase is not connected yet. Add your project URL and anon key in index.html.");
+  const fn = kind === "in" ? sb.auth.signInWithPassword : sb.auth.signUp;
+  const { data, error } = await fn.call(sb.auth, { email, password });
+  if (error) throw error;
+  return data;
+}
+
+/* ---- Video links: Google Drive / YouTube / Vimeo play in an embedded player, everything else in the normal player ---- */
+function embedFor(url, autoplay) {
+  const u = (url || "").trim(); let m;
+  if ((m = u.match(/drive\.google\.com\/(?:file\/d\/|open\?id=|uc\?(?:[^#]*&)?id=)([\w-]+)/))) return { iframe:`https://drive.google.com/file/d/${m[1]}/preview` };
+  if ((m = u.match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?(?:[^#]*&)?v=|embed\/|shorts\/))([\w-]{11})/))) return { iframe:`https://www.youtube-nocookie.com/embed/${m[1]}${autoplay ? "?autoplay=1" : ""}` };
+  if ((m = u.match(/vimeo\.com\/(?:video\/)?(\d+)/))) return { iframe:`https://player.vimeo.com/video/${m[1]}${autoplay ? "?autoplay=1" : ""}` };
+  return { video:u };
+}
+
+/* ============ 2. HELPERS ============ */
+const $ = (s, el = document) => el.querySelector(s);
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;" }[c]));
+const slug = s => s.toLowerCase().replace(/[^a-z0-9]+/g, "-");
+const art = (m, wide) => m.poster || (wide && m.backdrop) ? `url('${esc(wide && m.backdrop || m.poster)}')`
+  : `linear-gradient(145deg,hsl(${m.hue} 55% 32%),hsl(${(m.hue + 40) % 360} 60% 12%))`;
+let movies = [], user = null;
+
+/* ============ 3. VIEW MODE (auto / desktop / mobile) ============ */
+const mq = matchMedia("(max-width:767px), (orientation:portrait) and (max-width:1024px)");
+let override = null;                                            // null = auto-detect
+function applyMode() {
+  const mode = override || (mq.matches ? "mobile" : "desktop");
+  document.documentElement.dataset.mode = mode;
+  $("#modeBtn").textContent = (override ? "" : "Auto · ") + (mode === "mobile" ? "📱 Mobile" : "🖥 Desktop");
+}
+mq.addEventListener("change", applyMode);
+$("#modeBtn").onclick = () => {                                 // auto → opposite → other → auto
+  const cur = document.documentElement.dataset.mode, auto = mq.matches ? "mobile" : "desktop";
+  override = override === null ? (auto === "mobile" ? "desktop" : "mobile") : override !== auto ? auto : null;
+  applyMode();
+};
+
+/* ============ 4. RENDER ============ */
+const cats = () => [...new Set(movies.map(m => m.category))];
+
+function renderHero() {
+  const m = movies.find(x => x.featured) || movies[0];
+  if (!m) return;
+  const hero = $("#hero");
+  hero.style.backgroundImage = art(m, true);
+  hero.innerHTML = `<div>
+      <p class="text-sm text-[color:var(--accent)] font-semibold mb-2">${esc(m.genre)} · ${esc(m.year)} · ${esc(m.duration)}</p>
+      <h1 class="text-4xl md:text-6xl font-extrabold leading-tight">${esc(m.title)}</h1>
+      <p class="mt-3 text-sm md:text-base text-[#d8d4cc] max-w-prose">${esc(m.synopsis)}</p>
+      <div class="mt-5 flex gap-3">
+        <button class="btn btn-primary" data-play="${m.id}">▶ Play</button>
+        <button class="btn btn-ghost" data-info="${m.id}">ⓘ More info</button>
+      </div></div>`;
+}
+
+function renderRows() {
+  $("#rows").innerHTML = cats().map(c => `
+    <section id="row-${slug(c)}" class="relative" aria-label="${esc(c)}">
+      <h2 class="px-[var(--pad)] mb-1 text-lg md:text-xl font-bold">${esc(c)}</h2>
+      <button class="arrow left-0" data-scroll="-1" aria-label="Scroll left">‹</button>
+      <div class="row-scroll hide-scroll">
+        ${movies.filter(m => m.category === c).map(m => `
+          <button class="card" style="background-image:${art(m)}" data-info="${m.id}" aria-label="${esc(m.title)}">
+            <span class="t">${esc(m.title)}</span>
+            <span class="more"><b class="text-white text-sm">${esc(m.title)}</b>
+              <span>${esc(m.rating)} · ${esc(m.duration)} · ${esc(m.genre)}</span>
+              <span class="line-clamp-2">${esc(m.synopsis)}</span>
+              <span class="btn btn-primary !py-1 !px-3 !text-xs w-fit" data-play="${m.id}">▶ Play</span></span>
+          </button>`).join("")}
+      </div>
+      <button class="arrow right-0" data-scroll="1" aria-label="Scroll right">›</button>
+    </section>`).join("");
+
+  const links = cats().map(c => `<a class="hover:text-white" href="#row-${slug(c)}">${esc(c)}</a>`).join("");
+  $("#navlinks").innerHTML = `<a class="text-white" href="#top">Home</a>${links}`;
+  const icons = ["⌂", "🎬", "⏱", "🎞"];
+  $("#bottomNav").innerHTML = [["Home", "#top"], ...cats().map(c => [c.split(" ")[0], `#row-${slug(c)}`])]
+    .map(([l, h], i) => `<a href="${h}"><span class="text-lg">${icons[i] || "•"}</span>${esc(l)}</a>`).join("")
+    + `<a href="#" data-open-auth><span class="text-lg">👤</span>${user ? "Profile" : "Sign in"}</a>`;
+}
+
+/* ============ 5. MODALS ============ */
+const open = id => $(id).classList.add("open");
+function closeAll() {
+  document.querySelectorAll(".overlay.open").forEach(o => o.classList.remove("open"));
+  const p = $("#player"); p.pause(); p.removeAttribute("src"); p.load();
+  $("#frame").removeAttribute("src");
+}
+function openMovie(id, autoplay) {
+  const m = movies.find(x => x.id == id); if (!m) return;
+  const p = $("#player"), fr = $("#frame"), e = embedFor(m.video, autoplay);
+  fr.classList.toggle("hidden", !e.iframe); p.classList.toggle("hidden", !!e.iframe);
+  if (e.iframe) { fr.src = e.iframe; p.removeAttribute("src"); }
+  else { fr.removeAttribute("src"); p.poster = m.backdrop || m.poster || ""; p.src = e.video || ""; }
+  $("#vTitle").textContent = m.title;
+  $("#vMeta").textContent = [m.rating, m.year, m.duration, m.genre].filter(Boolean).join(" · ");
+  $("#vSyn").textContent = m.synopsis || "";
+  open("#videoModal");
+  if (autoplay && !e.iframe) p.play().catch(() => {});
+}
+let authKind = "in";
+function setTab(k) {
+  authKind = k;
+  $("#tabIn").classList.toggle("text-[color:var(--muted)]", k !== "in");
+  $("#tabUp").classList.toggle("text-[color:var(--muted)]", k !== "up");
+  $("#authSubmit").textContent = k === "in" ? "Sign in" : "Create account";
+  $("#authMsg").textContent = "";
+}
+function paintAuth() {
+  $("#authBtn").textContent = user ? "👤 " + user.email.split("@")[0] : "Sign in";
+  $("#outBtn").classList.toggle("hidden", !user);
+  const bn = $("#bottomNav [data-open-auth]");
+  if (bn) bn.lastChild.textContent = user ? "Profile" : "Sign in";
+}
+function showAuthPane() {
+  $("#accountPane").classList.toggle("hidden", !user);
+  $("#authPane").classList.toggle("hidden", !!user);
+  if (user) $("#acctEmail").textContent = user.email;
+}
+async function signOut() { if (sb) await sb.auth.signOut(); user = null; isAdmin = false; $("#adminBtn").classList.add("hidden"); paintAuth(); closeAll(); }
+function showNotice(msg) {
+  const h = $("#hero"); h.style.backgroundImage = "none";
+  h.innerHTML = `<div><h1 class="text-2xl font-bold">Cinebox</h1><p class="mt-2 text-[color:var(--muted)]">${esc(msg)}</p></div>`;
+  renderRows();
+}
+
+/* ============ ADMIN: add and remove films ============ */
+let isAdmin = false;
+async function checkAdmin() {
+  isAdmin = false;
+  if (sb && user) {
+    const { data } = await sb.from("admins").select("user_id").eq("user_id", user.id).maybeSingle();
+    isAdmin = !!data;
+  }
+  $("#adminBtn").classList.toggle("hidden", !isAdmin);
+}
+async function uploadFile(file, folder) {
+  const ext = (file.name.split(".").pop() || "bin").toLowerCase();
+  const path = `${folder}/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
+  const { error } = await sb.storage.from("films").upload(path, file, { cacheControl:"3600", contentType:file.type });
+  if (error) throw error;
+  return sb.storage.from("films").getPublicUrl(path).data.publicUrl;
+}
+function renderAdminList() {
+  $("#catList").innerHTML = cats().map(c => `<option value="${esc(c)}">`).join("");
+  $("#adminList").innerHTML = movies.length ? movies.map(m => `
+    <div class="flex items-center justify-between gap-3 bg-[#2a2a2a] rounded px-3 py-2">
+      <span class="truncate">${esc(m.title)} <span class="text-[color:var(--muted)]">· ${esc(m.category)}${m.featured ? " · banner" : ""}</span></span>
+      <button class="btn btn-ghost !py-1 !px-3 !text-xs" data-del="${m.id}">Delete</button>
+    </div>`).join("") : '<p class="text-[color:var(--muted)]">No films yet.</p>';
+}
+async function deleteFilm(id) {
+  const m = movies.find(x => x.id == id);
+  if (!m || !confirm(`Delete "${m.title}"? This cannot be undone.`)) return;
+  const paths = [m.video, m.poster].map(u => (u || "").split("/object/public/films/")[1]).filter(Boolean).map(decodeURIComponent);
+  if (paths.length) await sb.storage.from("films").remove(paths);
+  const { error } = await sb.from("movies").delete().eq("id", id);
+  if (error) return alert("Couldn't delete: " + error.message);
+  await refresh();
+}
+function toggleSource() {
+  const up = $("#filmForm").elements.source.value === "upload";
+  $("#filmForm").elements.videoLink.classList.toggle("hidden", up);
+  $("#filmForm").elements.videoFile.classList.toggle("hidden", !up);
+  $("#srcHelp").textContent = up
+    ? "Uploads are stored in your Supabase storage. Large files may be refused by your plan's per-file limit; use a link for full-length films."
+    : 'Google Drive: open the file, click Share, and set General access to "Anyone with the link". Then paste the link here.';
+}
+
+/* ============ 6. EVENTS ============ */
+document.addEventListener("click", e => {
+  const t = e.target;
+  const play = t.closest("[data-play]");
+  if (play) { e.stopPropagation(); return openMovie(play.dataset.play, true); }
+  const info = t.closest("[data-info]");
+  if (info) return openMovie(info.dataset.info, false);
+  const sc = t.closest("[data-scroll]");
+  if (sc) { const r = sc.parentElement.querySelector(".row-scroll"); return r.scrollBy({ left: sc.dataset.scroll * r.clientWidth * .85 }); }
+  if (t.closest("#authBtn, [data-open-auth]")) { e.preventDefault(); showAuthPane(); open("#authModal"); return; }
+  if (t.closest("#outBtn, #signOutBtn")) return signOut();
+  if (t.closest("#adminBtn")) { renderAdminList(); return open("#adminModal"); }
+  const del = t.closest("[data-del]"); if (del) return deleteFilm(del.dataset.del);
+  if (t.closest("[data-close]") || t.classList.contains("overlay")) return closeAll();
+  const tab = t.closest("[data-tab]"); if (tab) setTab(tab.dataset.tab);
+});
+document.addEventListener("keydown", e => e.key === "Escape" && closeAll());
+window.addEventListener("scroll", () => $("#nav").classList.toggle("solid", scrollY > 30), { passive: true });
+
+$("#authForm").addEventListener("submit", async e => {
+  e.preventDefault();
+  const f = new FormData(e.target), msg = $("#authMsg");
+  msg.textContent = "Please wait…";
+  try {
+    const res = await authRequest(authKind, f.get("email"), f.get("password"));
+    if (!res.session) { msg.textContent = "Check your email to confirm your account, then sign in."; return; }
+    user = res.user; paintAuth(); closeAll(); e.target.reset();
+  } catch (err) { msg.textContent = err.message || "Something went wrong. Check your details and try again."; }
+});
+
+$("#filmForm").addEventListener("change", e => { if (e.target.name === "source") toggleSource(); });
+$("#filmForm").addEventListener("submit", async e => {
+  e.preventDefault();
+  const form = e.target, f = new FormData(form), msg = $("#filmMsg"), btn = $("#filmSubmit");
+  btn.disabled = true;
+  try {
+    let video = (f.get("videoLink") || "").trim();
+    if (f.get("source") === "upload") {
+      const vf = f.get("videoFile");
+      if (!vf || !vf.size) throw new Error("Choose a video file to upload.");
+      msg.textContent = "Uploading the video. Keep this window open…";
+      video = await uploadFile(vf, "videos");
+    } else {
+      if (!video) throw new Error("Paste a video link.");
+      if (/drive\.google\.com\/drive\/folders/.test(video)) throw new Error("That is a folder link. Open the film file itself, click Share, and copy that link.");
+      if (/drive\.google\.com/.test(video) && !embedFor(video).iframe) throw new Error("Couldn't read that Google Drive link. Copy the Share link of the film file.");
+    }
+    let poster = (f.get("posterUrl") || "").trim();
+    const pf = f.get("posterFile");
+    if (pf && pf.size) { msg.textContent = "Uploading the poster…"; poster = await uploadFile(pf, "posters"); }
+    const featured = !!f.get("featured");
+    if (featured) await sb.from("movies").update({ featured:false }).eq("featured", true);
+    const { error } = await sb.from("movies").insert({
+      title: f.get("title").trim(), category: f.get("category").trim(), genre: f.get("genre") || null,
+      year: f.get("year") ? Number(f.get("year")) : null, duration: f.get("duration") || null,
+      rating: f.get("rating") || null, synopsis: f.get("synopsis") || null,
+      poster, video, featured, hue: Math.floor(Math.random() * 360)
+    });
+    if (error) throw error;
+    msg.textContent = "Film added."; form.reset(); toggleSource(); await refresh();
+  } catch (err) { msg.textContent = err.message || "Couldn't add the film."; }
+  btn.disabled = false;
+});
+
+/* ============ 7. INIT ============ */
+async function refresh() {
+  try { movies = await fetchMovies(); }
+  catch (err) { return showNotice("Couldn't load films from Supabase: " + err.message); }
+  if (!movies.length) { renderAdminList(); return showNotice(isAdmin ? "No films yet. Click Admin to add your first film." : "No films yet. Check back soon."); }
+  renderHero(); renderRows(); paintAuth(); renderAdminList();
+}
+(async function init() {
+  $("#yr").textContent = new Date().getFullYear();
+  applyMode();
+  if (!sb) return showNotice("Connect Supabase to load films: add your project URL and anon key near the top of the script in index.html.");
+  sb.auth.onAuthStateChange((_event, session) => {
+    user = session?.user || null; paintAuth();
+    setTimeout(async () => { await checkAdmin(); if (!movies.length) refresh(); }, 0);   // setTimeout: avoids a Supabase callback deadlock
+  });
+  user = (await sb.auth.getSession()).data.session?.user || null;
+  await checkAdmin();
+  await refresh();
+})();
+</script>
+</body>
+</html>
