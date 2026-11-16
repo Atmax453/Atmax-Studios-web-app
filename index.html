@@ -81,6 +81,7 @@ main{animation:fi .7s ease both}.hero{animation:fi .9s ease both;box-shadow:inse
 #adm .ht:hover{transform:translateY(-4px);box-shadow:0 12px 26px rgba(155,44,75,.18);border-color:var(--wine)}#adm .ht h3{margin:0 0 .4rem;font-size:1.15rem;color:var(--wine)}#adm .ht span{color:var(--mute);font-size:.88rem}
 #adm .bw{display:grid;grid-template-columns:minmax(80px,1fr) 2fr 2rem;gap:.6rem;align-items:center;margin:.4rem 0}#adm .bw i{height:10px;border-radius:5px;background:var(--wine);display:block}
 @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
+.sb{background:none;border:0;color:#d9a441;font-size:1.3rem;padding:0 .1rem}.cf{display:flex;gap:.5rem;margin:.6rem 0}.cl p{margin:.3rem 0;font-size:.92rem}.hint{font-size:.82rem;color:var(--mute);margin-top:.4rem}
 </style></head>
 <body><div id="app"></div>
 <script>
@@ -99,10 +100,10 @@ async function init(){
  S.set=data?.data||{};theme();
  const {data:{session}}=await sb.auth.getSession();S.user=session?.user||null;go()}
 async function go(msg){
- if(!S.user)return login(msg);
+ if(!S.user)return guest();
  const {data:p}=await sb.from("profiles").select("blocked,role").eq("id",S.user.id).single();
  if(!p||p.blocked){await sb.auth.signOut();S.user=null;return login("This account is blocked. Contact support.")}
- S.isAdmin=p.role==="admin";sb.rpc("touch_me").then(()=>{});
+ S.isAdmin=p.role==="admin";if(S.sub&&!S.sub.id)S.sub=null;sb.rpc("touch_me").then(()=>{});
  if(S.set.maint&&!S.isAdmin){app.innerHTML=`<div class="login"><div class="card"><h1>Back soon</h1><p>${esc(S.set.brand||"ATMAX")} is down for maintenance.</p><button class="btn" id="mo">Sign out</button></div></div>`;$("#mo").onclick=out;return}
  if(S.isAdmin&&!S.preview)return ADMIN.start();
  S.sub?browse():picker()}
@@ -115,6 +116,7 @@ function login(msg){
  <button class="btn" id="go">${up?"Create account":"Sign in"}</button>${GOOGLE_LOGIN?`<button class="btn ghost" id="gg">Continue with Google</button>`:""}
  <div class="alt">${up?"Have an account?":"New here?"} <button id="sw">${up?"Sign in":"Create account"}</button></div></div></div>`;
  $("#sw").onclick=()=>{S.mode=up?"in":"up";login()};
+ const kb=document.createElement("button");kb.className="btn ghost";kb.textContent="Keep browsing";kb.onclick=()=>go();$("#go").after(kb);
  const gg=$("#gg");if(gg)gg.onclick=async()=>{const {error}=await sb.auth.signInWithOAuth({provider:"google",options:{redirectTo:location.origin+location.pathname}});if(error)$("#err").textContent=error.message};
  $("#go").onclick=async()=>{
   const email=$("#em").value.trim(),password=$("#pw").value;
@@ -122,7 +124,7 @@ function login(msg){
   if(error)return $("#err").textContent=error.message;
   if(!data.session)return $("#err").textContent="Check your email to confirm your account, then sign in.";
   S.user=data.user;go()}}
-async function out(){await sb.auth.signOut();S.user=null;S.sub=null;S.isAdmin=false;S.preview=false;S.H=[];login()}
+async function out(){await sb.auth.signOut();S.user=null;S.sub=null;S.isAdmin=false;S.preview=false;S.H=[];go()}
 async function picker(){
  const {data}=await sb.from("sub_profiles").select("*").order("id"),l=data||[];
  app.innerHTML=`<div class="profiles"><h1>Who's watching?</h1><div class="plist">${l.map(p=>`<button class="prof" data-i="${p.id}"><div class="av">${esc(p.name[0].toUpperCase())}</div>${esc(p.name)}</button>`).join("")}${l.length<(S.set.maxp||5)?`<button class="prof" id="add"><div class="av add">+</div>Add profile</button>`:""}</div><button class="btn ghost" id="out">Sign out</button></div>`;
@@ -130,18 +132,20 @@ async function picker(){
  const a=$("#add");if(a)a.onclick=async()=>{const name=(prompt("Profile name")||"").trim().slice(0,14);if(name){await sb.from("sub_profiles").insert({name});picker()}};
  $("#out").onclick=out}
 async function browse(){
- const [r,t,m,h]=await Promise.all([sb.from("rows").select("*").order("position"),sb.from("titles").select("*").order("id"),sb.from("my_list").select("title_id").eq("sub_id",S.sub.id),sb.from("watch_history").select("*").eq("sub_id",S.sub.id)]);
- S.R=r.data||[];S.T=(t.data||[]).filter(x=>x.status!=="draft");S.L=(m.data||[]).map(x=>x.title_id);S.H=h.data||[];draw()}
+ const g=!S.user,E={data:[]},C="id,title,year,genre,description,poster_url,trailer_url,row_id,featured,status,runtime,allow_rate,allow_comment";
+ const [r,t,m,h,ra,co]=await Promise.all([sb.from("rows").select("*").order("position"),sb.from("titles").select(g?C:"*").order("id"),g?E:sb.from("my_list").select("title_id").eq("sub_id",S.sub.id),g?E:sb.from("watch_history").select("*").eq("sub_id",S.sub.id),sb.from("ratings").select("title_id,user_id,stars"),sb.from("comments").select("*").order("created_at",{ascending:false})]);
+ S.R=r.data||[];S.T=(t.data||[]).filter(x=>x.status!=="draft");S.L=(m.data||[]).map(x=>x.title_id);S.H=h.data||[];S.RT=ra.data||[];S.CM=co.data||[];draw()}
 const art=t=>t.poster_url?`linear-gradient(transparent 45%,rgba(0,0,0,.85)),url("${esc(t.poster_url)}")`:`linear-gradient(160deg,hsl(${(t.id*37)%40+330} 55% 30%),hsl(${(t.id*37)%40+330} 60% 14%))`;
 const bar=t=>{const h=S.H.find(x=>x.title_id==t.id);return h&&h.duration>0&&h.position>5?`<i class="bar" style="width:${Math.min(100,Math.round(h.position/h.duration*100))}%"></i>`:""};
 const hist=()=>[...S.H].sort((a,b)=>new Date(b.watched_at)-new Date(a.watched_at)).map(x=>S.T.find(t=>t.id==x.title_id)).filter(Boolean);
-const tile=t=>`<button class="tile" data-id="${t.id}" style="background-image:${art(t)}"><div class="gl"><b>${esc(t.title)}</b><small>${esc([t.year,t.genre].filter(Boolean).join(" · "))}</small><em>▶ View details</em></div>${bar(t)}</button>`;
+const tile=t=>`<button class="tile" data-id="${t.id}" style="background-image:${art(t)}"><div class="gl"><b>${esc(t.title)}</b><small>${esc([t.year,t.genre].filter(Boolean).join(" · "))}</small><em>${t.status==="soon"?"Coming soon":"▶ View details"}</em></div>${bar(t)}</button>`;
 const ph=n=>`<div class="tile ph" aria-hidden="true"><div class="gl"><b>Coming soon</b><small>${esc(n)}</small></div></div>`;
 const rail=(n,a,min)=>{const k=S.set.ph===false?0:Math.max(0,(min||0)-a.length);if(!a.length&&!k)return"";return `<section class="rw"><h3 class="rowt">${esc(n)}</h3><div class="rc"><button class="ar l" aria-label="Scroll left">‹</button><div class="rail">${a.map(tile).join("")}${Array.from({length:k},()=>ph(n)).join("")}</div><button class="ar r" aria-label="Scroll right">›</button></div></section>`};
 function draw(){document.body.classList.add("dk");
  app.innerHTML=`<nav>${brand()}<div class="tabs"><button data-v="home" class="${S.view=="home"?"on":""}">Home</button><button data-v="list" class="${S.view=="list"?"on":""}">My list (${S.L.length})</button><button data-v="history" class="${S.view=="history"?"on":""}">Watched</button></div>
  <input id="q" type="search" placeholder="Search titles" aria-label="Search titles" value="${esc(S.q)}"><button class="btn ghost" id="sw" style="padding:.4rem .8rem">${esc(S.sub.name)}</button>${S.isAdmin?`<button class="btn ghost" id="toadm" style="padding:.4rem .8rem">Admin panel</button>`:""}<button class="btn ghost" id="out" style="padding:.4rem .8rem">Sign out</button></nav>${S.set.announceOn&&S.set.announce?`<div class="ann" role="status">${esc(S.set.announce)}</div>`:""}<div id="body"></div>`;
  document.querySelectorAll("[data-v]").forEach(b=>b.onclick=()=>{S.view=b.dataset.v;S.q="";draw()});
+ if(!S.user){$("#sw").remove();document.querySelector('[data-v="list"]').remove();document.querySelector('[data-v="history"]').remove();const o=$("#out");o.textContent="Sign in";o.onclick=()=>{S.mode="in";login()};const su=document.createElement("button");su.className="btn";su.style.padding=".4rem .8rem";su.textContent="Sign up";su.onclick=()=>{S.mode="up";login()};o.after(su);$("#q").oninput=e=>{S.q=e.target.value;body()};body();return}
  $("#sw").onclick=()=>{S.sub=null;picker()};$("#out").onclick=out;const ta=$("#toadm");if(ta)ta.onclick=()=>{S.preview=false;S.sub=null;go()};$("#q").oninput=e=>{S.q=e.target.value;body()};body()}
 function body(){
  const q=S.q.trim().toLowerCase();let h="";
@@ -161,14 +165,25 @@ function body(){
  document.querySelectorAll(".rc").forEach(c=>{const r=c.querySelector(".rail");c.querySelector(".l").onclick=()=>r.scrollBy({left:-r.clientWidth*.9,behavior:"smooth"});c.querySelector(".r").onclick=()=>r.scrollBy({left:r.clientWidth*.9,behavior:"smooth"})});
  document.querySelectorAll("[data-id]").forEach(b=>b.onclick=()=>detail(+b.dataset.id));
  document.querySelectorAll("[data-play]").forEach(b=>b.onclick=()=>play(+b.dataset.play))}
+function guest(){S.sub={id:0,name:"Guest"};browse()}
+function gate(m,soon){const d=document.createElement("div");d.className="mod";d.innerHTML=`<div class="mbox"><div class="mbody"><h3>${soon?"Coming soon":"Sign in to continue"}</h3><p>${soon?esc(m):"Create a free account or sign in to "+esc(m)+"."}</p><div class="acts">${soon?"":`<button class="btn" id="g1">Sign up</button><button class="btn ghost" id="g2">Sign in</button>`}<button class="btn ghost" id="g3">Close</button></div></div></div>`;document.body.appendChild(d);d.querySelector("#g3").onclick=()=>d.remove();if(!soon){d.querySelector("#g1").onclick=()=>{d.remove();S.mode="up";login()};d.querySelector("#g2").onclick=()=>{d.remove();S.mode="in";login()}}}
+async function rfr(){const [a,b]=await Promise.all([sb.from("ratings").select("title_id,user_id,stars"),sb.from("comments").select("*").order("created_at",{ascending:false})]);S.RT=a.data||[];S.CM=b.data||[]}
+function avg(id){const a=(S.RT||[]).filter(x=>x.title_id==id);return a.length?(a.reduce((s,x)=>s+x.stars,0)/a.length).toFixed(1)+" ★ ("+a.length+" ratings)":"No ratings yet"}
+function rc(t){const mine=S.user&&(S.RT||[]).find(x=>x.title_id==t.id&&x.user_id==S.user.id),NR=S.set.noRate||t.allow_rate===false,NC=S.set.noCom||t.allow_comment===false;
+ return `<hr><p><b>${avg(t.id)}</b></p>${NR?"":`<div>${[1,2,3,4,5].map(n=>`<button class="sb" data-s="${n}" aria-label="${n} stars">${mine&&mine.stars>=n?"★":"☆"}</button>`).join("")}</div>`}${NC?"":`<form class="cf"><input name="b" maxlength="500" placeholder="${S.user?"Write a comment":"Sign in to comment"}" style="flex:1;padding:.5rem"><button class="btn">Post</button></form>`}<div class="cl">${(S.CM||[]).filter(c=>c.title_id==t.id).slice(0,20).map(c=>`<p><b>${esc(c.name)}</b> ${esc(c.body)}${S.isAdmin||S.user&&c.user_id==S.user.id?` <button class="sb" data-dc="${c.id}" aria-label="Delete comment">✕</button>`:""}</p>`).join("")}</div>`}
 function detail(id){
  const t=S.T.find(x=>x.id==id),has=S.L.includes(id),m=document.createElement("div");
  m.className="mod";m.setAttribute("role","dialog");m.setAttribute("aria-modal","true");
- m.innerHTML=`<div class="mbox"><div class="mart" style="background-image:${art(t)}"><button class="x" aria-label="Close">✕</button><h3>${esc(t.title)}</h3></div><div class="mbody"><p>${esc([t.year,t.genre].filter(Boolean).join(" · "))}</p><p>${esc(t.description)}</p><div class="acts"><button class="btn" id="pl">Play</button><button class="btn ghost" id="ls">${has?"Remove from list":"Add to list"}</button></div></div></div>`;
+ m.innerHTML=`<div class="mbox"><div class="mart" style="background-image:${art(t)}"><button class="x" aria-label="Close">✕</button><h3>${esc(t.title)}</h3></div><div class="mbody"><p>${esc([t.year,t.genre,t.runtime?Math.floor(t.runtime/3600)+"h "+Math.round(t.runtime%3600/60)+"m":""].filter(Boolean).join(" · "))}</p><p>${esc(t.description)}</p><div class="acts"><button class="btn" id="pl">Play</button><button class="btn ghost" id="ls">${has?"Remove from list":"Add to list"}</button>${t.trailer_url?`<button class="btn ghost" id="tr">Watch trailer</button>`:""}</div>${rc(t)}</div></div>`;
  document.body.appendChild(m);const close=()=>m.remove();
  m.onclick=e=>{if(e.target===m)close()};m.querySelector(".x").onclick=close;m.querySelector(".x").focus();
  m.querySelector("#pl").onclick=()=>{close();play(id)};
- m.querySelector("#ls").onclick=async()=>{
+ const tb=m.querySelector("#tr");if(tb)tb.onclick=()=>{close();play(id,1)};
+ const re=async f=>{await f;await rfr();close();detail(id)};
+ m.querySelectorAll(".sb[data-s]").forEach(b=>b.onclick=()=>{if(!S.user)return gate("rate films");re(sb.from("ratings").upsert({title_id:id,stars:+b.dataset.s},{onConflict:"title_id,user_id"}))});
+ const cf=m.querySelector(".cf");if(cf)cf.onsubmit=e=>{e.preventDefault();if(!S.user)return gate("comment");const b=cf.elements.b.value.trim();if(b)re(sb.from("comments").insert({title_id:id,name:(S.user.email||"user").split("@")[0],body:b}))};
+ m.querySelectorAll("[data-dc]").forEach(b=>b.onclick=()=>re(sb.from("comments").delete().eq("id",b.dataset.dc)));
+ m.querySelector("#ls").onclick=async()=>{if(!S.user)return gate("save films to your list");
   if(has)await sb.from("my_list").delete().eq("sub_id",S.sub.id).eq("title_id",id);else await sb.from("my_list").insert({sub_id:S.sub.id,title_id:id});
   S.L=has?S.L.filter(x=>x!=id):[...S.L,id];close();draw()}}
 /* Google Drive / YouTube / Vimeo links play in an embedded player; anything else plays in the normal video player */
@@ -179,18 +194,18 @@ function embedFor(url){
  if((m=u.match(/vimeo\.com\/(?:video\/)?(\d+)/)))return{iframe:`https://player.vimeo.com/video/${m[1]}?autoplay=1`};
  return{video:u}}
 async function mark(t,pos,dur){
- if(!S.sub)return;
+ if(!S.sub||!S.user||t.id<0)return;
  const row={sub_id:S.sub.id,title_id:t.id,watched_at:new Date().toISOString()};
  if(pos!=null&&dur>0){row.position=pos>dur-15?0:Math.floor(pos);row.duration=Math.floor(dur)}
  const h=S.H.find(x=>x.title_id==t.id);h?Object.assign(h,row):S.H.unshift({position:0,duration:0,...row});
  await sb.from("watch_history").upsert(row,{onConflict:"sub_id,title_id"})}
-function play(id){
- const t=S.T.find(x=>x.id==id),p=document.createElement("div");p.className="player";
+function play(id,tr){
+ const t0=S.T.find(x=>x.id==id);if(!tr){if(!S.user)return gate("watch the full film");if(t0.status==="soon")return gate("This film is not out yet. Check back soon.",1)}const t=tr?{...t0,video_url:t0.trailer_url,id:-1}:t0,p=document.createElement("div");p.className="player";
  const e=t.video_url?embedFor(t.video_url):null,h=S.H.find(x=>x.title_id==id);
  p.innerHTML=(e?(e.iframe?`<iframe src="${esc(e.iframe)}" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen title="${esc(t.title)}"></iframe>`:`<video controls autoplay playsinline src="${esc(e.video)}"></video>`):`<div class="nov"><div><h3>${esc(t.title)}</h3><p>No video has been added for this title yet.</p></div></div>`)+`<button class="btn ghost" id="cl" style="color:#fff">Close player</button>`;
  document.body.appendChild(p);
  const v=p.querySelector("video");
- if(t.video_url)mark(t);                       // log that this title was watched (embedded players can't report progress)
+ if(t.video_url&&!tr)mark(t);                       // log that this title was watched (embedded players can't report progress)
  if(v){let last=0;
   v.onloadedmetadata=()=>{if(h&&h.position>5&&h.position<v.duration-15)v.currentTime=h.position};   // resume where they stopped
   v.ontimeupdate=()=>{if(Date.now()-last>15000){last=Date.now();mark(t,v.currentTime,v.duration)}};
@@ -205,7 +220,7 @@ const T9=[["films","Films","Add, edit and hide films"],["rows","Home layout","Ro
 function home(){const day=864e5,now=Date.now(),n=(a,f)=>a.filter(f).length;
  const st=[["Films",S.T.length],["Accounts",S.U.length],["New this week",n(S.U,u=>now-new Date(u.created_at)<7*day)],["Active today",n(S.U,u=>u.last_seen&&now-new Date(u.last_seen)<day)]];
  return `<div class="sts">${st.map(s=>`<div class="st"><b>${s[1]}</b>${s[0]}</div>`).join("")}</div><div class="hub">${T9.map(t=>`<button class="ht" data-t="${t[0]}"><h3>${t[1]}</h3><span>${t[2]}</span></button>`).join("")}</div>`}
-function site(){const d=S.set;return `<form id="sf" class="panel"><h3>Site rules</h3><label class="chk"><input type="checkbox" name="ph" ${d.ph!==false?"checked":""}> Show "Coming soon" tiles in rows with few films</label><label class="chk"><input type="checkbox" name="maint" ${d.maint?"checked":""}> Maintenance mode (viewers see a "back soon" page, admins still get in)</label><label>Profiles allowed per account<input type="number" name="maxp" min="1" max="10" value="${d.maxp||5}"></label><div class="acts"><button class="btn">Save site rules</button></div>${note()}</form>`}
+function site(){const d=S.set;return `<form id="sf" class="panel"><h3>Site rules</h3><label class="chk"><input type="checkbox" name="ph" ${d.ph!==false?"checked":""}> Show "Coming soon" tiles in rows with few films</label><label class="chk"><input type="checkbox" name="maint" ${d.maint?"checked":""}> Maintenance mode (viewers see a "back soon" page, admins still get in)</label><label class="chk"><input type="checkbox" name="norate" ${d.noRate?"checked":""}> Turn off ratings everywhere</label><label class="chk"><input type="checkbox" name="nocom" ${d.noCom?"checked":""}> Turn off comments everywhere</label><label>Profiles allowed per account<input type="number" name="maxp" min="1" max="10" value="${d.maxp||5}"></label><div class="acts"><button class="btn">Save site rules</button></div>${note()}</form>`}
 function ann(){const d=S.set;return `<form id="af" class="panel"><h3>Announcement banner</h3><label>Message shown at the top of the viewer site<input name="announce" maxlength="160" value="${esc(d.announce)}"></label><label class="chk"><input type="checkbox" name="on" ${d.announceOn?"checked":""}> Show the banner</label><div class="acts"><button class="btn">Save announcement</button></div>${note()}</form>`}
 function stats(){const top=[...S.T].sort((a,b)=>(S.V[b.id]||0)-(S.V[a.id]||0)).slice(0,10),mx=Math.max(1,...top.map(t=>S.V[t.id]||0));
  return `<div class="panel"><h3>Most watched titles</h3>${top.length?top.map(t=>`<div class="bw"><span>${esc(t.title)}</span><i style="width:${(S.V[t.id]||0)/mx*100}%"></i><b>${S.V[t.id]||0}</b></div>`).join(""):"<p>No films yet.</p>"}<p style="color:var(--mute)">Counts are plays logged by viewers.</p></div>`}
@@ -223,13 +238,13 @@ function films(){
  return `<form id="f" class="panel"><h3>${e.id?"Edit film":"Add film"}</h3>
  <label>Title<input name="title" required value="${esc(e.title)}"></label><label>Year<input name="year" type="number" value="${esc(e.year)}"></label><label>Genre<input name="genre" value="${esc(e.genre)}"></label>
  <label>Description<textarea name="description" rows="3">${esc(e.description)}</textarea></label>
- <label>Poster picture: paste an image link<input name="poster_url" value="${esc(e.poster_url)}"></label><label>…or upload a poster picture<input type="file" name="poster_file" accept="image/*"></label>
+ <label>Poster picture: paste an image link<input name="poster_url" value="${esc(e.poster_url)}"></label><label>…or upload a poster picture<input type="file" name="poster_file" accept="image/*"></label><div class="hint">Recommended: poster 2:3 (1000×1500). Banner 16:9 (1920×1080) with faces and text kept near the middle. Links must be open: no password, no sign-in.</div>
  <label class="chk"><input type="radio" name="source" value="link" checked> Video: paste a link</label><label class="chk"><input type="radio" name="source" value="upload"> Video: upload a file</label>
  <label id="vl">Video link (Google Drive, YouTube, Vimeo or .mp4)<input name="video_url" value="${esc(e.video_url)}"></label><label id="vf" style="display:none">Video file<input type="file" name="video_file" accept="video/*"></label>
  <div style="font-size:.82rem;color:var(--mute)">Google Drive: open the file, click Share, set General access to "Anyone with the link", then paste the link. Uploads are limited by your Supabase plan's per-file size; use a link for full-length films.</div>
- <label>Status<select name="status"><option value="published" ${e.status!=="draft"?"selected":""}>Published</option><option value="draft" ${e.status==="draft"?"selected":""}>Draft (hidden from viewers)</option></select></label><label>Row<select name="row_id"><option value="">None</option>${opts}</select></label>
+ <label>Trailer link (open link, no password)<input name="trailer_url" value="${esc(e.trailer_url)}"></label><label>…or upload a trailer<input type="file" name="trailer_file" accept="video/*"></label><label class="chk"><input type="checkbox" name="allow_rate" ${e.allow_rate!==false?"checked":""}> Allow ratings</label><label class="chk"><input type="checkbox" name="allow_comment" ${e.allow_comment!==false?"checked":""}> Allow comments</label><label>Status<select name="status"><option value="published" ${e.status!=="draft"?"selected":""}>Published</option><option value="soon" ${e.status==="soon"?"selected":""}>Coming soon (trailer only)</option><option value="draft" ${e.status==="draft"?"selected":""}>Draft (hidden from viewers)</option></select></label><label>Row<select name="row_id"><option value="">None</option>${opts}</select></label>
  <label class="chk"><input type="checkbox" name="featured" ${e.featured?"checked":""}> Show as the featured title on Home</label>
- <div class="acts"><button class="btn">${e.id?"Save changes":"Add film"}</button>${e.id?`<button type="button" class="btn ghost" id="cancel">Cancel</button>`:""}</div>${note()}</form>
+ <h3>Preview</h3><div class="acts" style="margin-top:0"><button type="button" class="btn ghost" data-pv="pc">PC</button><button type="button" class="btn ghost" data-pv="ph">Phone</button></div><div id="pv"></div><div class="acts"><button class="btn">${e.id?"Save changes":"Add film"}</button>${e.id?`<button type="button" class="btn ghost" id="cancel">Cancel</button>`:""}</div>${note()}</form>
  <div class="panel scroll"><h3>All films (${S.T.length})</h3><table><tr><th>Title</th><th>Row</th><th></th></tr>${S.T.map(t=>`<tr><td>${esc(t.title)}${t.featured?" ★":""}${t.status==="draft"?" (draft)":""}</td><td>${esc(S.R.find(r=>r.id==t.row_id)?.name||"—")}</td><td><button class="btn ghost" data-edit="${t.id}">Edit</button> <button class="btn del" data-del="${t.id}">Delete</button></td></tr>`).join("")}</table></div>`}
 function rows(){
  return `<div class="panel scroll"><h3>Rows on Home</h3><p style="color:var(--mute);margin:0 0 .6rem">Lower numbers appear higher on the page.</p><table><tr><th>Name</th><th>Order</th><th></th></tr>
@@ -240,6 +255,7 @@ function look(){
  return `<form id="lf" class="panel"><h3>Look & feel</h3>${t("brand","Brand name")}${t("logo","Logo image URL (leave empty to show the name)")}${c("accent","Accent color (buttons, highlights)")}${c("dark","Top bar and profile screen color")}${c("bg","Page background color")}${t("bgImage","Page background image URL (optional, overrides color)")}<div class="acts"><button class="btn">Save look & feel</button></div>${note()}</form>`}
 function users(){
  return `<div class="panel"><h3>Admin emails</h3><p style="color:var(--mute);margin:0 0 .6rem">Anyone who signs in with one of these emails opens the admin panel.</p>${S.AE.map(a=>`<div style="display:flex;gap:.6rem;align-items:center;padding:.3rem 0">${esc(a.email)}${a.email.toLowerCase()==(S.me.email||"").toLowerCase()?" (you)":` <button class="btn del" data-rmadm="${esc(a.email)}" style="padding:.25rem .6rem;font-size:.8rem">Remove</button>`}</div>`).join("")}<div class="acts"><input id="newadm" type="email" placeholder="email@example.com" aria-label="New admin email" style="max-width:280px"><button class="btn" id="addadm">Add admin</button></div></div><div class="panel scroll"><h3>Accounts (${S.U.length})</h3><table><tr><th>Email</th><th>Role</th><th>Blocked</th><th>Last active</th><th>Titles watched</th></tr>${S.U.map(u=>{const me=u.id==S.me.id;return `<tr><td>${esc(u.email)}${me?" (you)":""}</td><td><select data-role="${u.id}" ${me?"disabled":""} aria-label="Role"><option value="viewer" ${u.role=="viewer"?"selected":""}>Viewer</option><option value="admin" ${u.role=="admin"?"selected":""}>Admin</option></select></td><td><input type="checkbox" data-block="${u.id}" ${u.blocked?"checked":""} ${me?"disabled":""} aria-label="Blocked"></td><td>${u.last_seen?new Date(u.last_seen).toLocaleDateString():"—"}</td><td>${S.W[u.id]||0}</td></tr>`}).join("")}</table>${note()}</div>`}
+const dur=u=>new Promise(r=>{const v=document.createElement("video");v.preload="metadata";v.onloadedmetadata=()=>r(Math.round(v.duration)||null);v.onerror=()=>r(null);v.src=u;setTimeout(()=>r(null),8000)});
 async function upload(file,folder){
  const ext=(file.name.split(".").pop()||"bin").toLowerCase(),path=`${folder}/${Date.now()}-${Math.random().toString(36).slice(2,8)}.${ext}`;
  const {error}=await sb.storage.from("films").upload(path,file,{cacheControl:"3600",contentType:file.type});
@@ -256,11 +272,14 @@ function bind(){
     ok.textContent="Uploading the video. Keep this page open…";video=await upload(v.video_file,"videos")}
    else if(/drive\.google\.com\/drive\/folders/.test(video))throw new Error("That is a folder link. Open the film file itself, click Share and copy that link.");
    if(v.poster_file&&v.poster_file.size){ok.textContent="Uploading the poster…";poster=await upload(v.poster_file,"posters")}
-   const row={title:v.title.trim(),year:v.year?+v.year:null,genre:v.genre||null,description:v.description||null,poster_url:poster||null,video_url:video||null,row_id:v.row_id?+v.row_id:null,featured:!!v.featured,status:v.status||"published"};
+   let trailer=(v.trailer_url||"").trim();if(v.trailer_file&&v.trailer_file.size){ok.textContent="Uploading the trailer…";trailer=await upload(v.trailer_file,"trailers")}
+   let rt=S.edit&&S.edit.video_url===video?S.edit.runtime:null;if(v.source==="upload"&&v.video_file&&v.video_file.size)rt=await dur(URL.createObjectURL(v.video_file));else if(/\.(mp4|webm|mov|m4v)(\?|$)/i.test(video))rt=await dur(video);
+   const row={trailer_url:trailer||null,allow_rate:!!v.allow_rate,allow_comment:!!v.allow_comment,runtime:rt,title:v.title.trim(),year:v.year?+v.year:null,genre:v.genre||null,description:v.description||null,poster_url:poster||null,video_url:video||null,row_id:v.row_id?+v.row_id:null,featured:!!v.featured,status:v.status||"published"};
    if(row.featured)await sb.from("titles").update({featured:false}).eq("featured",true);
    r=S.edit?await sb.from("titles").update(row).eq("id",S.edit.id):await sb.from("titles").insert(row);
   }catch(err){ok.textContent=err.message||"Something went wrong.";btn.disabled=false;return}
   S.edit=null;done(r.error?r.error.message:"Saved.")};
+ if(f){let mode="pc";const pv=()=>{const g=n=>f.elements[n].value,fl=f.elements.poster_file.files[0],img=fl?URL.createObjectURL(fl):g("poster_url"),pc=mode=="pc";$("#pv").innerHTML=`<div style="margin:.6rem auto;width:${pc?"100%":"230px"};max-width:100%;aspect-ratio:${pc?"16/9":"4/5"};border-radius:10px;color:#fff;padding:1rem;display:flex;flex-direction:column;justify-content:flex-end;background:linear-gradient(100deg,#0a0809 5%,transparent 90%),${img?`url('${esc(img)}') center/cover,`:""}linear-gradient(100deg,#0e0b0c,#9b2c4b)"><b style="font-size:${pc?"1.8rem":"1.2rem"}">${esc(g("title")||"Film title")}</b><span style="font-size:.85rem;max-height:3.6em;overflow:hidden">${esc(g("description"))}</span><span><i style="background:#fff;color:#141012;border-radius:6px;padding:.3rem .8rem;font-style:normal;font-weight:600;display:inline-block;margin-top:.5rem">Play</i></span></div>`};f.addEventListener("input",pv);f.querySelectorAll("[data-pv]").forEach(b=>b.onclick=()=>{mode=b.dataset.pv;pv()});pv()}
  if(f)f.querySelectorAll("[name=source]").forEach(r=>r.onchange=()=>{const up=f.elements.source.value==="upload";$("#vl").style.display=up?"none":"";$("#vf").style.display=up?"":"none"});
  const c=$("#cancel");if(c)c.onclick=()=>{S.edit=null;shell()};
  document.querySelectorAll("[data-edit]").forEach(b=>b.onclick=()=>{S.edit=S.T.find(t=>t.id==b.dataset.edit);shell();scrollTo(0,0)});
@@ -277,7 +296,7 @@ function bind(){
  const aa=$("#addadm");if(aa)aa.onclick=async()=>{const em=$("#newadm").value.trim().toLowerCase();if(!em)return;const r=await sb.from("admin_emails").insert({email:em});done(r.error?r.error.message:"Admin added.")};
  document.querySelectorAll("[data-rmadm]").forEach(b=>b.onclick=async()=>{if(confirm("Remove admin access for "+b.dataset.rmadm+"?")){await sb.from("admin_emails").delete().eq("email",b.dataset.rmadm);done("Admin removed.")}});
  const sv=(f,fn,m)=>{const x=$(f);if(x)x.onsubmit=async e=>{e.preventDefault();const v=new FormData(x),r=await sb.from("settings").update({data:{...S.set,...fn(v)}}).eq("id",1);done(r.error?r.error.message:m)}};
- sv("#sf",v=>({ph:!!v.get("ph"),maint:!!v.get("maint"),maxp:Math.min(10,Math.max(1,+v.get("maxp")||5))}),"Saved.");
+ sv("#sf",v=>({ph:!!v.get("ph"),maint:!!v.get("maint"),maxp:Math.min(10,Math.max(1,+v.get("maxp")||5)),noRate:!!v.get("norate"),noCom:!!v.get("nocom")}),"Saved.");
  sv("#af",v=>({announce:v.get("announce")||"",announceOn:!!v.get("on")}),"Saved.");
  document.querySelectorAll("[data-exp]").forEach(b=>b.onclick=()=>{const k=b.dataset.exp,rows=k=="films"?S.T.map(t=>[t.title,t.year,t.genre,t.status,t.video_url]):S.U.map(u=>[u.email,u.role,u.blocked,u.created_at]),head=k=="films"?["title","year","genre","status","video"]:["email","role","blocked","joined"],q=c=>`"${String(c??"").replace(/"/g,'""')}"`,a=document.createElement("a");a.href=URL.createObjectURL(new Blob([[head,...rows].map(r=>r.map(q).join(",")).join("\n")],{type:"text/csv"}));a.download=k+".csv";a.click()})}
 
