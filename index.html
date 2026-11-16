@@ -1,443 +1,249 @@
 <!DOCTYPE html>
-<html lang="en" data-mode="desktop">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>ATMAX – Stream Films</title>
-<link rel="stylesheet" href="tailwind.css">
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>ATMAX</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&display=swap" rel="stylesheet">
 <style>
-  :root { --bg:#141414; --surface:#181818; --text:#ffffff; --muted:#b3b3b3; --accent:#e50914; }
-  html[data-mode="desktop"] { --pad:4%; --card-w:16rem; --card-ar:16/9; --hero-h:82vh; --nav-h:4.25rem; }
-  html[data-mode="mobile"]  { --pad:1rem; --card-w:8.5rem; --card-ar:2/3; --hero-h:68vh; --nav-h:3.5rem; }
-
-  html, body { overflow-x:hidden; max-width:100%; background:#000; color:var(--text); font-family:'Sora',system-ui,sans-serif; }
-  #app { position:relative; width:100%; min-height:100vh; background:var(--bg); overflow-x:clip; }
-  html[data-mode="mobile"] #app { max-width:430px; margin:0 auto; box-shadow:0 0 0 1px #2a2a2a; padding-bottom:4.5rem; }
-
-  /* Navbar: transparent -> solid */
-  #nav { position:sticky; top:0; z-index:40; height:var(--nav-h); padding:0 var(--pad); display:flex; align-items:center; gap:1rem;
-         background:linear-gradient(#141414cc,transparent); transition:background .3s; }
-  #nav.solid { background:#141414; }
-  .hide-scroll { scrollbar-width:none; -ms-overflow-style:none; }
-  .hide-scroll::-webkit-scrollbar { display:none; }
-  html[data-mode="mobile"] .desk-only { display:none !important; }
-  html[data-mode="desktop"] .mob-only { display:none !important; }
-
-  /* Hero */
-  #hero { position:relative; height:var(--hero-h); min-height:26rem; margin-top:calc(var(--nav-h) * -1); display:flex; align-items:flex-end; background-size:cover; background-position:center; }
-  #hero::after { content:""; position:absolute; inset:0; background:
-      linear-gradient(to top,var(--bg) 4%,transparent 55%),
-      linear-gradient(to right,#141414e6 0%,transparent 65%); }
-  #hero > div { position:relative; z-index:1; padding:0 var(--pad) 3.5rem; max-width:42rem; }
-  html[data-mode="mobile"] #hero::after { background:linear-gradient(to top,var(--bg) 6%,#14141466 60%,#14141499); }
-  html[data-mode="mobile"] #hero > div { padding-bottom:2rem; }
-
-  /* Rows & cards */
-  .row-scroll { display:flex; gap:.6rem; overflow-x:auto; padding:2.2rem var(--pad); margin:-2.2rem 0; scroll-behavior:smooth; }
-  html[data-mode="mobile"] .row-scroll { scroll-snap-type:x proximity; gap:.5rem; padding:1rem var(--pad); margin:0; -webkit-overflow-scrolling:touch; }
-  .card { position:relative; flex:0 0 var(--card-w); aspect-ratio:var(--card-ar); border-radius:.4rem; background-size:cover; background-position:center;
-          cursor:pointer; transition:transform .25s, box-shadow .25s; scroll-snap-align:start; overflow:hidden; border:0; text-align:left; color:inherit; }
-  .card .t { position:absolute; inset:auto 0 0 0; padding:1.6rem .7rem .6rem; font-weight:600; font-size:.85rem; background:linear-gradient(transparent,#000c); }
-  .card .more { position:absolute; inset:0; padding:.8rem; display:flex; flex-direction:column; justify-content:flex-end; gap:.3rem;
-                background:linear-gradient(transparent 20%,#000f); opacity:0; transition:opacity .2s; font-size:.72rem; color:var(--muted); }
-  html[data-mode="desktop"] .card:hover, html[data-mode="desktop"] .card:focus-visible { transform:scale(1.18); z-index:5; box-shadow:0 12px 30px #000a; }
-  html[data-mode="desktop"] .card:first-child:hover { transform-origin:left center; }
-  html[data-mode="desktop"] .card:last-child:hover { transform-origin:right center; }
-  html[data-mode="desktop"] .card:hover .more, html[data-mode="desktop"] .card:focus-visible .more { opacity:1; }
-  html[data-mode="desktop"] .card:hover .t, html[data-mode="desktop"] .card:focus-visible .t { opacity:0; }
-  html[data-mode="mobile"] .more { display:none; }
-  .arrow { position:absolute; top:2.2rem; bottom:2.2rem; width:var(--pad); min-width:2.5rem; z-index:6; background:#141414b3; font-size:1.6rem; opacity:0; transition:opacity .2s; }
-  section:hover .arrow { opacity:1; }
-  html[data-mode="mobile"] .arrow { display:none; }
-
-  /* Modals */
-  .overlay { position:fixed; inset:0; z-index:60; background:#000c; display:none; align-items:center; justify-content:center; padding:1rem; overflow-y:auto; }
-  .overlay.open { display:flex; }
-  .sheet { width:100%; background:var(--surface); border-radius:.6rem; overflow:hidden; position:relative; max-height:96vh; overflow-y:auto; }
-  .btn { display:inline-flex; align-items:center; gap:.45rem; padding:.55rem 1.3rem; border-radius:.3rem; font-weight:700; font-size:.95rem; cursor:pointer; transition:filter .15s; }
-  .btn:hover { filter:brightness(1.12); }
-  .btn-primary { background:var(--accent); color:#fff; }
-  .btn-ghost { background:#6d6d6eb3; color:#fff; }
-  :focus-visible { outline:2px solid var(--accent); outline-offset:2px; }
-  .field { width:100%; background:#333; border:1px solid #444; border-radius:.3rem; padding:.7rem .8rem; color:#fff; }
-  .bottom-nav { position:fixed; bottom:0; left:50%; transform:translateX(-50%); width:min(100%,430px); z-index:45; background:#141414f2; border-top:1px solid #2a2a2a;
-                display:flex; justify-content:space-around; padding:.5rem 0 calc(.5rem + env(safe-area-inset-bottom)); }
-  .bottom-nav a { display:flex; flex-direction:column; align-items:center; gap:.15rem; font-size:.65rem; color:var(--muted); padding:.2rem .6rem; }
-  @media (prefers-reduced-motion:reduce) { * { transition:none !important; scroll-behavior:auto !important; } }
-</style>
-</head>
-<body>
-<div id="app">
-
-  <!-- NAVBAR -->
-  <header id="nav">
-    <a href="#top" class="font-extrabold text-xl tracking-tight" style="color:var(--accent)" id="brand">ATMAX</a>
-    <nav id="navlinks" class="desk-only flex gap-5 text-sm text-[color:var(--muted)]"></nav>
-    <div class="ml-auto flex items-center gap-2">
-      <button id="modeBtn" class="btn btn-ghost !py-1.5 !px-3 !text-xs" aria-label="Switch view mode" title="Switch view mode"></button>
-      <button id="adminBtn" class="btn btn-ghost !py-1.5 !px-3 !text-xs hidden">⚙ Admin</button>
-      <button id="authBtn" class="btn btn-primary !py-1.5 !px-3 !text-xs">Sign in</button>
-      <button id="outBtn" class="btn btn-ghost !py-1.5 !px-3 !text-xs hidden">Sign out</button>
-    </div>
-  </header>
-
-  <main id="top">
-    <section id="hero"></section>
-    <div id="rows" class="relative z-10 -mt-6 pb-12 flex flex-col gap-5"></div>
-  </main>
-
-  <footer class="px-[var(--pad)] pb-10 text-xs text-[color:var(--muted)]">© <span id="yr"></span> ATMAX. All films belong to their creators.</footer>
-
-  <nav id="bottomNav" class="bottom-nav mob-only"></nav>
-</div>
-
-<!-- VIDEO / DETAILS MODAL -->
-<div id="videoModal" class="overlay" role="dialog" aria-modal="true" aria-label="Film player">
-  <div class="sheet" style="max-width:56rem">
-    <button class="absolute top-2 right-3 z-10 text-3xl leading-none bg-black/60 rounded-full w-9 h-9" data-close aria-label="Close">×</button>
-    <iframe id="frame" class="w-full bg-black hidden" style="aspect-ratio:16/9;border:0" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen title="Film player"></iframe>
-    <video id="player" class="w-full bg-black" style="aspect-ratio:16/9" controls playsinline preload="none"></video>
-    <div class="p-5">
-      <h2 id="vTitle" class="text-2xl font-bold"></h2>
-      <p id="vMeta" class="text-sm text-[color:var(--muted)] mt-1"></p>
-      <p id="vSyn" class="mt-3 text-sm leading-relaxed max-w-prose"></p>
-    </div>
-  </div>
-</div>
-
-<!-- ADMIN MODAL -->
-<div id="adminModal" class="overlay" role="dialog" aria-modal="true" aria-label="Admin">
-  <div class="sheet p-6" style="max-width:40rem">
-    <button class="absolute top-2 right-3 text-3xl leading-none" data-close aria-label="Close">×</button>
-    <h2 class="text-xl font-bold mb-4">Add a film</h2>
-    <form id="filmForm" class="grid gap-3 sm:grid-cols-2">
-      <input class="field sm:col-span-2" name="title" placeholder="Title" required>
-      <input class="field" name="category" list="catList" placeholder="Row name (e.g. Short Films)" required>
-      <datalist id="catList"></datalist>
-      <input class="field" name="genre" placeholder="Genre">
-      <input class="field" name="year" type="number" placeholder="Year">
-      <input class="field" name="duration" placeholder="Length (e.g. 1h 42m)">
-      <input class="field" name="rating" placeholder="Rating (e.g. PG)">
-      <label class="flex items-center gap-2 text-sm"><input type="checkbox" name="featured"> Show in the big banner</label>
-      <textarea class="field sm:col-span-2" name="synopsis" rows="3" placeholder="Short description"></textarea>
-      <fieldset class="sm:col-span-2 border border-[#444] rounded p-3 flex flex-col gap-2">
-        <legend class="px-1 text-sm font-semibold">Video</legend>
-        <div class="flex gap-5 text-sm">
-          <label class="flex items-center gap-2"><input type="radio" name="source" value="link" checked> Paste a link</label>
-          <label class="flex items-center gap-2"><input type="radio" name="source" value="upload"> Upload a file</label>
-        </div>
-        <input class="field" name="videoLink" placeholder="Google Drive, YouTube, Vimeo or .mp4 link">
-        <input class="field hidden" name="videoFile" type="file" accept="video/*">
-        <p id="srcHelp" class="text-xs text-[color:var(--muted)]">Google Drive: open the file, click Share, and set General access to "Anyone with the link". Then paste the link here.</p>
-      </fieldset>
-      <fieldset class="sm:col-span-2 border border-[#444] rounded p-3 flex flex-col gap-2">
-        <legend class="px-1 text-sm font-semibold">Poster picture (optional)</legend>
-        <input class="field" name="posterUrl" placeholder="Link to a picture (a direct image link)">
-        <input class="field" name="posterFile" type="file" accept="image/*">
-      </fieldset>
-      <p id="filmMsg" class="sm:col-span-2 text-sm min-h-[1.25rem] text-[color:var(--muted)]" role="status"></p>
-      <button class="btn btn-primary sm:col-span-2 justify-center" id="filmSubmit">Add film</button>
-    </form>
-    <h3 class="font-bold mt-6 mb-2">Films on the site</h3>
-    <div id="adminList" class="flex flex-col gap-2 text-sm"></div>
-  </div>
-</div>
-
-<!-- AUTH MODAL -->
-<div id="authModal" class="overlay" role="dialog" aria-modal="true" aria-label="Account">
-  <div class="sheet p-6" style="max-width:24rem">
-    <button class="absolute top-2 right-3 text-3xl leading-none" data-close aria-label="Close">×</button>
-    <div id="accountPane" class="hidden">
-      <p class="text-sm text-[color:var(--muted)]">Signed in as</p>
-      <p id="acctEmail" class="font-bold break-all mb-5"></p>
-      <button id="signOutBtn" class="btn btn-primary w-full justify-center">Sign out</button>
-    </div>
-    <div id="authPane">
-    <div class="flex gap-4 mb-5 text-lg font-bold">
-      <button id="tabIn" data-tab="in">Sign in</button>
-      <button id="tabUp" data-tab="up" class="text-[color:var(--muted)]">Sign up</button>
-    </div>
-    <form id="authForm" class="flex flex-col gap-3">
-      <input class="field" type="email" name="email" placeholder="Email" autocomplete="email" required>
-      <input class="field" type="password" name="password" placeholder="Password" autocomplete="current-password" minlength="6" required>
-      <p id="authMsg" class="text-sm min-h-[1.25rem] text-[color:var(--muted)]" role="status"></p>
-      <button class="btn btn-primary justify-center" id="authSubmit">Sign in</button>
-    </form>
-    </div>
-  </div>
-</div>
-
+:root{--bg:#fff;--ink:#141012;--wine:#9b2c4b;--bar:#0e0b0c;--mute:#6f6368;--line:#eadde1;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+html,body{overflow-x:hidden;max-width:100%}*{box-sizing:border-box}body{margin:0;background:var(--bg) center/cover fixed;color:var(--ink);font-family:system-ui,-apple-system,'Segoe UI',sans-serif;min-height:100vh}
+button,input{font:inherit}button{cursor:pointer}:focus-visible{outline:3px solid var(--wine);outline-offset:2px}
+.btn{border:0;border-radius:6px;padding:.7rem 1.3rem;font-weight:600;background:var(--wine);color:#fff}.btn.ghost{background:none;color:inherit;border:1.5px solid currentColor}
+.logo{font-weight:800;font-size:1.3rem;color:var(--wine)}.logo img{display:block}
+.login{min-height:100vh;display:grid;place-items:center;padding:1rem;background:linear-gradient(135deg,var(--bar),var(--wine))}
+.card{background:#fff;color:#141012;width:100%;max-width:400px;border-radius:10px;padding:2rem 1.7rem}
+.card h1{margin:.5rem 0 1rem;font-size:1.5rem}.card label{display:block;font-size:.85rem;color:var(--mute);margin:.9rem 0 .3rem}
+.card input{width:100%;padding:.7rem;border:1.5px solid var(--line);border-radius:6px}
+.card .btn{width:100%;margin-top:1.2rem}.alt{margin-top:1rem;font-size:.9rem;color:var(--mute)}.alt button{background:none;border:0;color:var(--wine);font-weight:600;padding:0}
+.err{color:#c0182f;font-size:.85rem;min-height:1.2rem;margin-top:.6rem}
+.profiles{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2rem;padding:1.5rem;background:var(--bar);color:#fff;text-align:center}
+.plist{display:flex;gap:1.2rem;flex-wrap:wrap;justify-content:center}.prof{background:none;border:0;color:#d8c9ce;width:100px}
+.av{width:100px;height:100px;border-radius:10px;display:grid;place-items:center;font-size:2.4rem;font-weight:800;color:#fff;background:var(--wine);margin-bottom:.5rem;border:3px solid transparent}.av.add{background:#2a2024}.prof:hover .av{border-color:#fff}
+nav{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;display:flex;align-items:center;gap:1rem;padding:.8rem 4%;background:var(--bar);color:#fff;flex-wrap:wrap}
+nav .tabs{display:flex;gap:1rem;flex:1}nav .tabs button{background:none;border:0;color:#cdbfc4;border-bottom:2px solid transparent;padding:.3rem 0}nav .tabs .on{color:#fff;border-color:var(--wine)}
+nav input{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.25);border-radius:6px;color:#fff;padding:.45rem .7rem;width:min(180px,40vw)}
+.hero{color:#fff;padding:clamp(3rem,10vw,7rem) 4% 3rem;min-height:55vh;display:flex;flex-direction:column;justify-content:flex-end;background-size:cover;background-position:center}
+.hero h2{font-size:clamp(2rem,6vw,3.8rem);margin:0 0 .6rem;max-width:14ch;line-height:1.05}.hero p{max-width:52ch;line-height:1.6;margin:0 0 1.3rem}
+.hero .btn{background:#fff;color:#141012}.hero .ghost{background:none;color:#fff}.hero .b{display:flex;gap:.7rem;flex-wrap:wrap}
+main{padding-bottom:3rem;background:color-mix(in srgb,var(--bg) 90%,transparent)}
+.rowt{margin:0;padding:1.8rem 4% .7rem;font-size:1.1rem}
+.rail{display:flex;gap:.7rem;overflow-x:auto;padding:.2rem 4% .8rem}
+.tile{flex:0 0 auto;width:min(200px,42vw);aspect-ratio:2/3;border-radius:8px;border:0;color:#fff;text-align:left;padding:.9rem;display:flex;flex-direction:column;justify-content:flex-end;background-size:cover;background-position:center}
+.tile small{opacity:.85}.empty{padding:2rem 4%;color:var(--mute)}
+.mod{position:fixed;inset:0;background:rgba(14,11,12,.75);display:grid;place-items:center;z-index:20;padding:1rem}
+.mbox{background:#fff;color:#141012;width:100%;max-width:620px;max-height:92vh;overflow:auto;border-radius:10px}
+.mart{aspect-ratio:16/8;display:flex;align-items:flex-end;padding:1.2rem;color:#fff;position:relative;background-size:cover;background-position:center}
+.mart h3{margin:0;font-size:1.7rem}.x{position:absolute;top:.6rem;right:.6rem;background:rgba(0,0,0,.6);border:0;color:#fff;width:34px;height:34px;border-radius:50%}
+.mbody{padding:1.2rem}.mbody p{line-height:1.6}.acts{display:flex;gap:.6rem;flex-wrap:wrap}.acts .ghost{color:var(--wine)}
+.player{position:fixed;inset:0;background:#000;color:#fff;z-index:30;display:flex;flex-direction:column}
+.player video,.player iframe{flex:1;width:100%;min-height:0;border:0}.player .nov{flex:1;display:grid;place-items:center;padding:1.5rem;text-align:center}.player .btn{margin:1rem auto}
+#adm{background:#faf6f7;color:#141012;min-height:100vh}
+#adm .btn{border:0;border-radius:6px;padding:.6rem 1.1rem;font-weight:600;background:var(--wine);color:#fff}
+#adm .btn.ghost{background:none;color:var(--wine);border:1.5px solid var(--wine)}
+#adm .btn.del{background:#c0182f}
+#adm input,#adm select,#adm textarea{width:100%;padding:.6rem;border:1.5px solid var(--line);border-radius:6px;background:#fff}
+#adm input[type=color]{padding:.15rem;height:42px}
+#adm input[type=checkbox],#adm input[type=radio]{width:auto}
+#adm label{display:block;font-size:.85rem;color:var(--mute);margin:.7rem 0 .25rem}
+#adm .chk{display:flex;gap:.5rem;align-items:center}
+#adm header{background:var(--bar);color:#fff;padding:.8rem 4%;display:flex;gap:1rem;align-items:center;flex-wrap:wrap}
+#adm header b{color:#fff;flex:1}
+#adm header .tabs{display:flex;gap:1rem}
+#adm header .tabs button{background:none;border:0;color:#cdbfc4;padding:.3rem 0;border-bottom:2px solid transparent}
+#adm header .tabs .on{color:#fff;border-color:var(--wine)}
+#adm header .btn.ghost{color:#fff;border-color:#fff}
+#adm main{padding:1.2rem 4% 3rem;max-width:960px;margin:auto}
+#adm .panel{background:#fff;border:1px solid var(--line);border-radius:10px;padding:1.1rem;margin-bottom:1.2rem}
+#adm .panel h3{margin:0 0 .4rem}
+#adm .acts{display:flex;gap:.6rem;margin-top:1rem;flex-wrap:wrap}
+#adm .scroll{overflow-x:auto}
+#adm table{width:100%;border-collapse:collapse;font-size:.92rem}
+#adm th,#adm td{text-align:left;padding:.55rem .4rem;border-bottom:1px solid var(--line);vertical-align:middle}
+#adm td .btn{padding:.35rem .7rem;font-size:.85rem}
+#adm td input{min-width:90px}
+#adm .ok{color:#1b7a3b;font-size:.9rem;min-height:1.2rem;margin-top:.5rem}
+.tile{position:relative;overflow:hidden}.bar{position:absolute;left:0;bottom:0;height:4px;background:var(--wine)}
+</style></head>
+<body><div id="app"></div>
 <script>
-/* ============ 1. SUPABASE: all films and accounts come from here ============ */
-const SUPABASE_URL = "https://xzeahvkmvrdpxcfsgwqh.supabase.co";
-const SUPABASE_ANON_KEY = "sb_publishable_LCRngOPZzgc6E-QwT6jjZQ_hb0qqLjY";          // public anon key only, never the service key
-const configured = !SUPABASE_URL.includes("YOUR-PROJECT") && !SUPABASE_ANON_KEY.includes("YOUR-ANON");
-const sb = configured && window.supabase ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY) : null;
+const SUPABASE_URL="https://xzeahvkmvrdpxcfsgwqh.supabase.co",SUPABASE_KEY="sb_publishable_LCRngOPZzgc6E-QwT6jjZQ_hb0qqLjY";
+const GOOGLE_LOGIN=true; // set to false to hide the "Continue with Google" button
+const sb=supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
+const $=s=>document.querySelector(s),app=$("#app");
+const esc=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+let S={set:{},user:null,sub:null,view:"home",q:"",mode:"in",T:[],R:[],L:[],H:[],isAdmin:false,preview:false};window.__ROOT=S;
+const brand=()=>`<div class="logo">${S.set.logo?`<img src="${esc(S.set.logo)}" alt="${esc(S.set.brand)}" height="30">`:esc(S.set.brand||"ATMAX")}</div>`;
+function theme(){const d=S.set,r=document.documentElement.style;
+ r.setProperty("--wine",d.accent||"#9b2c4b");r.setProperty("--bar",d.dark||"#0e0b0c");r.setProperty("--bg",d.bg||"#ffffff");
+ document.body.style.backgroundImage=d.bgImage?`url("${d.bgImage}")`:"";document.title=d.brand||"Watch"}
+async function init(){
+ const {data}=await sb.from("settings").select("data").eq("id",1).single();
+ S.set=data?.data||{};theme();
+ const {data:{session}}=await sb.auth.getSession();S.user=session?.user||null;go()}
+async function go(msg){
+ if(!S.user)return login(msg);
+ const {data:p}=await sb.from("profiles").select("blocked,role").eq("id",S.user.id).single();
+ if(!p||p.blocked){await sb.auth.signOut();S.user=null;return login("This account is blocked. Contact support.")}
+ S.isAdmin=p.role==="admin";sb.rpc("touch_me").then(()=>{});
+ if(S.isAdmin&&!S.preview)return ADMIN.start();
+ S.sub?browse():picker()}
+function login(msg){
+ const up=S.mode==="up";
+ app.innerHTML=`<div class="login"><div class="card">${brand()}<h1>${up?"Create account":"Sign in"}</h1>
+ <label for="em">Email</label><input id="em" type="email" autocomplete="email">
+ <label for="pw">Password</label><input id="pw" type="password" autocomplete="${up?"new-password":"current-password"}">
+ <div class="err" id="err" role="alert">${esc(msg||"")}</div>
+ <button class="btn" id="go">${up?"Create account":"Sign in"}</button>${GOOGLE_LOGIN?`<button class="btn ghost" id="gg">Continue with Google</button>`:""}
+ <div class="alt">${up?"Have an account?":"New here?"} <button id="sw">${up?"Sign in":"Create account"}</button></div></div></div>`;
+ $("#sw").onclick=()=>{S.mode=up?"in":"up";login()};
+ const gg=$("#gg");if(gg)gg.onclick=async()=>{const {error}=await sb.auth.signInWithOAuth({provider:"google",options:{redirectTo:location.origin+location.pathname}});if(error)$("#err").textContent=error.message};
+ $("#go").onclick=async()=>{
+  const email=$("#em").value.trim(),password=$("#pw").value;
+  const {data,error}=await(up?sb.auth.signUp({email,password}):sb.auth.signInWithPassword({email,password}));
+  if(error)return $("#err").textContent=error.message;
+  if(!data.session)return $("#err").textContent="Check your email to confirm your account, then sign in.";
+  S.user=data.user;go()}}
+async function out(){await sb.auth.signOut();S.user=null;S.sub=null;S.isAdmin=false;S.preview=false;S.H=[];login()}
+async function picker(){
+ const {data}=await sb.from("sub_profiles").select("*").order("id"),l=data||[];
+ app.innerHTML=`<div class="profiles"><h1>Who's watching?</h1><div class="plist">${l.map(p=>`<button class="prof" data-i="${p.id}"><div class="av">${esc(p.name[0].toUpperCase())}</div>${esc(p.name)}</button>`).join("")}${l.length<5?`<button class="prof" id="add"><div class="av add">+</div>Add profile</button>`:""}</div><button class="btn ghost" id="out">Sign out</button></div>`;
+ document.querySelectorAll("[data-i]").forEach(b=>b.onclick=()=>{S.sub=l.find(p=>p.id==b.dataset.i);S.view="home";S.q="";browse()});
+ const a=$("#add");if(a)a.onclick=async()=>{const name=(prompt("Profile name")||"").trim().slice(0,14);if(name){await sb.from("sub_profiles").insert({name});picker()}};
+ $("#out").onclick=out}
+async function browse(){
+ const [r,t,m,h]=await Promise.all([sb.from("rows").select("*").order("position"),sb.from("titles").select("*").order("id"),sb.from("my_list").select("title_id").eq("sub_id",S.sub.id),sb.from("watch_history").select("*").eq("sub_id",S.sub.id)]);
+ S.R=r.data||[];S.T=t.data||[];S.L=(m.data||[]).map(x=>x.title_id);S.H=h.data||[];draw()}
+const art=t=>t.poster_url?`linear-gradient(transparent 45%,rgba(0,0,0,.85)),url("${esc(t.poster_url)}")`:`linear-gradient(160deg,hsl(${(t.id*37)%40+330} 55% 30%),hsl(${(t.id*37)%40+330} 60% 14%))`;
+const bar=t=>{const h=S.H.find(x=>x.title_id==t.id);return h&&h.duration>0&&h.position>5?`<i class="bar" style="width:${Math.min(100,Math.round(h.position/h.duration*100))}%"></i>`:""};
+const hist=()=>[...S.H].sort((a,b)=>new Date(b.watched_at)-new Date(a.watched_at)).map(x=>S.T.find(t=>t.id==x.title_id)).filter(Boolean);
+const tile=t=>`<button class="tile" data-id="${t.id}" style="background-image:${art(t)}"><b>${esc(t.title)}</b><small>${esc([t.year,t.genre].filter(Boolean).join(" · "))}</small>${bar(t)}</button>`;
+const rail=(n,a)=>a.length?`<h3 class="rowt">${esc(n)}</h3><div class="rail">${a.map(tile).join("")}</div>`:"";
+function draw(){
+ app.innerHTML=`<nav>${brand()}<div class="tabs"><button data-v="home" class="${S.view=="home"?"on":""}">Home</button><button data-v="list" class="${S.view=="list"?"on":""}">My list (${S.L.length})</button><button data-v="history" class="${S.view=="history"?"on":""}">Watched</button></div>
+ <input id="q" type="search" placeholder="Search titles" aria-label="Search titles" value="${esc(S.q)}"><button class="btn ghost" id="sw" style="padding:.4rem .8rem">${esc(S.sub.name)}</button>${S.isAdmin?`<button class="btn ghost" id="toadm" style="padding:.4rem .8rem">Admin panel</button>`:""}<button class="btn ghost" id="out" style="padding:.4rem .8rem">Sign out</button></nav><div id="body"></div>`;
+ document.querySelectorAll("[data-v]").forEach(b=>b.onclick=()=>{S.view=b.dataset.v;S.q="";draw()});
+ $("#sw").onclick=()=>{S.sub=null;picker()};$("#out").onclick=out;const ta=$("#toadm");if(ta)ta.onclick=()=>{S.preview=false;S.sub=null;go()};$("#q").oninput=e=>{S.q=e.target.value;body()};body()}
+function body(){
+ const q=S.q.trim().toLowerCase();let h="";
+ if(q){const r=S.T.filter(t=>(t.title+" "+(t.genre||"")).toLowerCase().includes(q));h=r.length?rail("Results",r):`<p class="empty">No titles match “${esc(S.q)}”. Try a genre.</p>`}
+ else if(S.view=="history"){const r=hist();h=r.length?rail("Watched",r):`<p class="empty">Titles you play will appear here.</p>`}
+ else if(S.view=="list"){const r=S.T.filter(t=>S.L.includes(t.id));h=r.length?rail("My list",r):`<p class="empty">Your list is empty. Open a title and select Add to list.</p>`}
+ else{const f=S.T.find(t=>t.featured)||S.T[0];
+  if(f)h+=`<section class="hero" style="background-image:linear-gradient(100deg,var(--bar) 5%,transparent 90%),${f.poster_url?`url('${esc(f.poster_url)}'),`:""}linear-gradient(100deg,var(--bar),var(--wine))"><h2>${esc(f.title)}</h2><p>${esc(f.description)}</p><div class="b"><button class="btn" data-play="${f.id}">Play</button><button class="btn ghost" data-id="${f.id}">More info</button></div></section>`;
+  h+=rail("Continue watching",hist().filter(t=>{const x=S.H.find(y=>y.title_id==t.id);return x.position>5}));
+  h+=S.R.map(r=>rail(r.name,S.T.filter(t=>t.row_id==r.id))).join("");
+  const loose=S.T.filter(t=>!t.row_id);h+=rail("More to watch",loose);
+  if(!S.T.length)h+=`<p class="empty">No films yet. Add some in the admin panel.</p>`}
+ $("#body").innerHTML="<main>"+h+"</main>";
+ document.querySelectorAll("[data-id]").forEach(b=>b.onclick=()=>detail(+b.dataset.id));
+ document.querySelectorAll("[data-play]").forEach(b=>b.onclick=()=>play(+b.dataset.play))}
+function detail(id){
+ const t=S.T.find(x=>x.id==id),has=S.L.includes(id),m=document.createElement("div");
+ m.className="mod";m.setAttribute("role","dialog");m.setAttribute("aria-modal","true");
+ m.innerHTML=`<div class="mbox"><div class="mart" style="background-image:${art(t)}"><button class="x" aria-label="Close">✕</button><h3>${esc(t.title)}</h3></div><div class="mbody"><p>${esc([t.year,t.genre].filter(Boolean).join(" · "))}</p><p>${esc(t.description)}</p><div class="acts"><button class="btn" id="pl">Play</button><button class="btn ghost" id="ls">${has?"Remove from list":"Add to list"}</button></div></div></div>`;
+ document.body.appendChild(m);const close=()=>m.remove();
+ m.onclick=e=>{if(e.target===m)close()};m.querySelector(".x").onclick=close;m.querySelector(".x").focus();
+ m.querySelector("#pl").onclick=()=>{close();play(id)};
+ m.querySelector("#ls").onclick=async()=>{
+  if(has)await sb.from("my_list").delete().eq("sub_id",S.sub.id).eq("title_id",id);else await sb.from("my_list").insert({sub_id:S.sub.id,title_id:id});
+  S.L=has?S.L.filter(x=>x!=id):[...S.L,id];close();draw()}}
+/* Google Drive / YouTube / Vimeo links play in an embedded player; anything else plays in the normal video player */
+function embedFor(url){
+ const u=(url||"").trim();let m;
+ if((m=u.match(/drive\.google\.com\/(?:file\/d\/|open\?id=|uc\?(?:[^#]*&)?id=)([\w-]+)/)))return{iframe:`https://drive.google.com/file/d/${m[1]}/preview`};
+ if((m=u.match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?(?:[^#]*&)?v=|embed\/|shorts\/))([\w-]{11})/)))return{iframe:`https://www.youtube-nocookie.com/embed/${m[1]}?autoplay=1`};
+ if((m=u.match(/vimeo\.com\/(?:video\/)?(\d+)/)))return{iframe:`https://player.vimeo.com/video/${m[1]}?autoplay=1`};
+ return{video:u}}
+async function mark(t,pos,dur){
+ if(!S.sub)return;
+ const row={sub_id:S.sub.id,title_id:t.id,watched_at:new Date().toISOString()};
+ if(pos!=null&&dur>0){row.position=pos>dur-15?0:Math.floor(pos);row.duration=Math.floor(dur)}
+ const h=S.H.find(x=>x.title_id==t.id);h?Object.assign(h,row):S.H.unshift({position:0,duration:0,...row});
+ await sb.from("watch_history").upsert(row,{onConflict:"sub_id,title_id"})}
+function play(id){
+ const t=S.T.find(x=>x.id==id),p=document.createElement("div");p.className="player";
+ const e=t.video_url?embedFor(t.video_url):null,h=S.H.find(x=>x.title_id==id);
+ p.innerHTML=(e?(e.iframe?`<iframe src="${esc(e.iframe)}" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen title="${esc(t.title)}"></iframe>`:`<video controls autoplay playsinline src="${esc(e.video)}"></video>`):`<div class="nov"><div><h3>${esc(t.title)}</h3><p>No video has been added for this title yet.</p></div></div>`)+`<button class="btn ghost" id="cl" style="color:#fff">Close player</button>`;
+ document.body.appendChild(p);
+ const v=p.querySelector("video");
+ if(t.video_url)mark(t);                       // log that this title was watched (embedded players can't report progress)
+ if(v){let last=0;
+  v.onloadedmetadata=()=>{if(h&&h.position>5&&h.position<v.duration-15)v.currentTime=h.position};   // resume where they stopped
+  v.ontimeupdate=()=>{if(Date.now()-last>15000){last=Date.now();mark(t,v.currentTime,v.duration)}};
+  v.onpause=()=>mark(t,v.currentTime,v.duration)}
+ $("#cl").onclick=()=>{if(v)mark(t,v.currentTime,v.duration);p.remove();body()};$("#cl").focus()}
+const ADMIN=(()=>{const ROOT=window.__ROOT;
+let S={tab:"films",me:null,set:{},R:[],T:[],U:[],AE:[],W:{},edit:null,msg:""};
+async function load(){
+ const [r,t,u,s,ae,sp,wh]=await Promise.all([sb.from("rows").select("*").order("position"),sb.from("titles").select("*").order("id",{ascending:false}),sb.from("profiles").select("*").order("created_at"),sb.from("settings").select("data").eq("id",1).single(),sb.from("admin_emails").select("*").order("email"),sb.from("sub_profiles").select("id,user_id"),sb.from("watch_history").select("sub_id")]);
+ S.R=r.data||[];S.T=t.data||[];S.U=u.data||[];S.set=s.data?.data||{};S.AE=ae.data||[];const own={};(sp.data||[]).forEach(x=>own[x.id]=x.user_id);S.W={};(wh.data||[]).forEach(x=>{const k=own[x.sub_id];if(k)S.W[k]=(S.W[k]||0)+1});shell()}
+function shell(){
+ const tabs=[["films","Films"],["rows","Rows"],["look","Look & feel"],["users","Users"]];
+ app.innerHTML=`<div id="adm"><header><b>${esc(S.set.brand||"Admin")} admin</b><div class="tabs">${tabs.map(t=>`<button data-t="${t[0]}" class="${S.tab==t[0]?"on":""}">${t[1]}</button>`).join("")}</div><button class="btn ghost" id="vs">View site</button><button class="btn ghost" id="out">Sign out</button></header><main id="pane"></main></div>`;
+ document.querySelectorAll("[data-t]").forEach(b=>b.onclick=()=>{S.tab=b.dataset.t;S.edit=null;S.msg="";shell()});
+ $("#out").onclick=out;$("#vs").onclick=()=>{ROOT.preview=true;ROOT.sub=null;go()};
+ $("#pane").innerHTML=S.tab=="films"?films():S.tab=="rows"?rows():S.tab=="look"?look():users();bind()}
+const note=()=>`<div class="ok" role="status">${esc(S.msg)}</div>`;
+function films(){
+ const e=S.edit||{},opts=S.R.map(r=>`<option value="${r.id}" ${e.row_id==r.id?"selected":""}>${esc(r.name)}</option>`).join("");
+ return `<form id="f" class="panel"><h3>${e.id?"Edit film":"Add film"}</h3>
+ <label>Title<input name="title" required value="${esc(e.title)}"></label><label>Year<input name="year" type="number" value="${esc(e.year)}"></label><label>Genre<input name="genre" value="${esc(e.genre)}"></label>
+ <label>Description<textarea name="description" rows="3">${esc(e.description)}</textarea></label>
+ <label>Poster picture: paste an image link<input name="poster_url" value="${esc(e.poster_url)}"></label><label>…or upload a poster picture<input type="file" name="poster_file" accept="image/*"></label>
+ <label class="chk"><input type="radio" name="source" value="link" checked> Video: paste a link</label><label class="chk"><input type="radio" name="source" value="upload"> Video: upload a file</label>
+ <label id="vl">Video link (Google Drive, YouTube, Vimeo or .mp4)<input name="video_url" value="${esc(e.video_url)}"></label><label id="vf" style="display:none">Video file<input type="file" name="video_file" accept="video/*"></label>
+ <div style="font-size:.82rem;color:var(--mute)">Google Drive: open the file, click Share, set General access to "Anyone with the link", then paste the link. Uploads are limited by your Supabase plan's per-file size; use a link for full-length films.</div>
+ <label>Row<select name="row_id"><option value="">None</option>${opts}</select></label>
+ <label class="chk"><input type="checkbox" name="featured" ${e.featured?"checked":""}> Show as the featured title on Home</label>
+ <div class="acts"><button class="btn">${e.id?"Save changes":"Add film"}</button>${e.id?`<button type="button" class="btn ghost" id="cancel">Cancel</button>`:""}</div>${note()}</form>
+ <div class="panel scroll"><h3>All films (${S.T.length})</h3><table><tr><th>Title</th><th>Row</th><th></th></tr>${S.T.map(t=>`<tr><td>${esc(t.title)}${t.featured?" ★":""}</td><td>${esc(S.R.find(r=>r.id==t.row_id)?.name||"—")}</td><td><button class="btn ghost" data-edit="${t.id}">Edit</button> <button class="btn del" data-del="${t.id}">Delete</button></td></tr>`).join("")}</table></div>`}
+function rows(){
+ return `<div class="panel scroll"><h3>Rows on Home</h3><p style="color:var(--mute);margin:0 0 .6rem">Lower numbers appear higher on the page.</p><table><tr><th>Name</th><th>Order</th><th></th></tr>
+ ${S.R.map(r=>`<tr><td><input data-rn="${r.id}" value="${esc(r.name)}" aria-label="Row name"></td><td><input data-rp="${r.id}" type="number" value="${r.position}" aria-label="Order" style="width:80px"></td><td><button class="btn" data-saverow="${r.id}">Save</button> <button class="btn del" data-delrow="${r.id}">Delete</button></td></tr>`).join("")}</table>
+ <div class="acts"><input id="newrow" placeholder="New row name" style="max-width:260px"><button class="btn" id="addrow">Add row</button></div>${note()}</div>`}
+function look(){
+ const d=S.set,c=(k,l)=>`<label>${l}<input type="color" name="${k}" value="${esc(d[k]||"#ffffff")}"></label>`,t=(k,l)=>`<label>${l}<input name="${k}" value="${esc(d[k])}"></label>`;
+ return `<form id="lf" class="panel"><h3>Look & feel</h3>${t("brand","Brand name")}${t("logo","Logo image URL (leave empty to show the name)")}${c("accent","Accent color (buttons, highlights)")}${c("dark","Top bar and profile screen color")}${c("bg","Page background color")}${t("bgImage","Page background image URL (optional, overrides color)")}<div class="acts"><button class="btn">Save look & feel</button></div>${note()}</form>`}
+function users(){
+ return `<div class="panel"><h3>Admin emails</h3><p style="color:var(--mute);margin:0 0 .6rem">Anyone who signs in with one of these emails opens the admin panel.</p>${S.AE.map(a=>`<div style="display:flex;gap:.6rem;align-items:center;padding:.3rem 0">${esc(a.email)}${a.email.toLowerCase()==(S.me.email||"").toLowerCase()?" (you)":` <button class="btn del" data-rmadm="${esc(a.email)}" style="padding:.25rem .6rem;font-size:.8rem">Remove</button>`}</div>`).join("")}<div class="acts"><input id="newadm" type="email" placeholder="email@example.com" aria-label="New admin email" style="max-width:280px"><button class="btn" id="addadm">Add admin</button></div></div><div class="panel scroll"><h3>Accounts (${S.U.length})</h3><table><tr><th>Email</th><th>Role</th><th>Blocked</th><th>Last active</th><th>Titles watched</th></tr>${S.U.map(u=>{const me=u.id==S.me.id;return `<tr><td>${esc(u.email)}${me?" (you)":""}</td><td><select data-role="${u.id}" ${me?"disabled":""} aria-label="Role"><option value="viewer" ${u.role=="viewer"?"selected":""}>Viewer</option><option value="admin" ${u.role=="admin"?"selected":""}>Admin</option></select></td><td><input type="checkbox" data-block="${u.id}" ${u.blocked?"checked":""} ${me?"disabled":""} aria-label="Blocked"></td><td>${u.last_seen?new Date(u.last_seen).toLocaleDateString():"—"}</td><td>${S.W[u.id]||0}</td></tr>`}).join("")}</table>${note()}</div>`}
+async function upload(file,folder){
+ const ext=(file.name.split(".").pop()||"bin").toLowerCase(),path=`${folder}/${Date.now()}-${Math.random().toString(36).slice(2,8)}.${ext}`;
+ const {error}=await sb.storage.from("films").upload(path,file,{cacheControl:"3600",contentType:file.type});
+ if(error)throw error;return sb.storage.from("films").getPublicUrl(path).data.publicUrl}
+async function done(m){S.msg=m;await load()}
+function bind(){
+ const f=$("#f");
+ if(f)f.onsubmit=async e=>{e.preventDefault();
+  const btn=f.querySelector("button:not([type=button])"),ok=$(".ok"),v=Object.fromEntries(new FormData(f));btn.disabled=true;let r;
+  try{
+   let video=(v.video_url||"").trim(),poster=(v.poster_url||"").trim();
+   if(v.source==="upload"){
+    if(!v.video_file||!v.video_file.size)throw new Error("Choose a video file to upload.");
+    ok.textContent="Uploading the video. Keep this page open…";video=await upload(v.video_file,"videos")}
+   else if(/drive\.google\.com\/drive\/folders/.test(video))throw new Error("That is a folder link. Open the film file itself, click Share and copy that link.");
+   if(v.poster_file&&v.poster_file.size){ok.textContent="Uploading the poster…";poster=await upload(v.poster_file,"posters")}
+   const row={title:v.title.trim(),year:v.year?+v.year:null,genre:v.genre||null,description:v.description||null,poster_url:poster||null,video_url:video||null,row_id:v.row_id?+v.row_id:null,featured:!!v.featured};
+   if(row.featured)await sb.from("titles").update({featured:false}).eq("featured",true);
+   r=S.edit?await sb.from("titles").update(row).eq("id",S.edit.id):await sb.from("titles").insert(row);
+  }catch(err){ok.textContent=err.message||"Something went wrong.";btn.disabled=false;return}
+  S.edit=null;done(r.error?r.error.message:"Saved.")};
+ if(f)f.querySelectorAll("[name=source]").forEach(r=>r.onchange=()=>{const up=f.elements.source.value==="upload";$("#vl").style.display=up?"none":"";$("#vf").style.display=up?"":"none"});
+ const c=$("#cancel");if(c)c.onclick=()=>{S.edit=null;shell()};
+ document.querySelectorAll("[data-edit]").forEach(b=>b.onclick=()=>{S.edit=S.T.find(t=>t.id==b.dataset.edit);shell();scrollTo(0,0)});
+ document.querySelectorAll("[data-del]").forEach(b=>b.onclick=async()=>{if(confirm("Delete this film? This cannot be undone.")){
+  const t=S.T.find(x=>x.id==b.dataset.del),paths=[t?.video_url,t?.poster_url].map(u=>(u||"").split("/object/public/films/")[1]).filter(Boolean).map(decodeURIComponent);
+  if(paths.length)await sb.storage.from("films").remove(paths);
+  await sb.from("titles").delete().eq("id",b.dataset.del);done("Film deleted.")}});
+ const a=$("#addrow");if(a)a.onclick=async()=>{const n=$("#newrow").value.trim();if(!n)return;await sb.from("rows").insert({name:n,position:S.R.length+1});done("Row added.")};
+ document.querySelectorAll("[data-saverow]").forEach(b=>b.onclick=async()=>{const id=b.dataset.saverow;await sb.from("rows").update({name:$(`[data-rn="${id}"]`).value.trim(),position:+$(`[data-rp="${id}"]`).value}).eq("id",id);done("Row saved.")});
+ document.querySelectorAll("[data-delrow]").forEach(b=>b.onclick=async()=>{if(confirm("Delete this row? Its films stay and move to More to watch.")){await sb.from("rows").delete().eq("id",b.dataset.delrow);done("Row deleted.")}});
+ const lf=$("#lf");if(lf)lf.onsubmit=async e=>{e.preventDefault();const r=await sb.from("settings").update({data:Object.fromEntries(new FormData(lf))}).eq("id",1);done(r.error?r.error.message:"Saved. Reload the viewer app to see it.")};
+ document.querySelectorAll("[data-role]").forEach(s=>s.onchange=async()=>{await sb.from("profiles").update({role:s.value}).eq("id",s.dataset.role);done("Role updated.")});
+ document.querySelectorAll("[data-block]").forEach(s=>s.onchange=async()=>{await sb.from("profiles").update({blocked:s.checked}).eq("id",s.dataset.block);done(s.checked?"Account blocked.":"Account unblocked.")});
+ const aa=$("#addadm");if(aa)aa.onclick=async()=>{const em=$("#newadm").value.trim().toLowerCase();if(!em)return;const r=await sb.from("admin_emails").insert({email:em});done(r.error?r.error.message:"Admin added.")};
+ document.querySelectorAll("[data-rmadm]").forEach(b=>b.onclick=async()=>{if(confirm("Remove admin access for "+b.dataset.rmadm+"?")){await sb.from("admin_emails").delete().eq("email",b.dataset.rmadm);done("Admin removed.")}})}
 
-async function fetchMovies() {
-  const { data, error } = await sb.from("movies").select("*").order("id");
-  if (error) throw error;
-  return data || [];
-}
-async function authRequest(kind, email, password) {       // kind: "in" | "up"
-  if (!sb) throw new Error("Supabase is not connected yet. Add your project URL and anon key in index.html.");
-  const fn = kind === "in" ? sb.auth.signInWithPassword : sb.auth.signUp;
-  const { data, error } = await fn.call(sb.auth, { email, password });
-  if (error) throw error;
-  return data;
-}
+function start(){S.me=ROOT.user;S.tab="films";S.edit=null;S.msg="";load()}
+return{start}})();
 
-/* ---- Video links: Google Drive / YouTube / Vimeo play in an embedded player, everything else in the normal player ---- */
-function embedFor(url, autoplay) {
-  const u = (url || "").trim(); let m;
-  if ((m = u.match(/drive\.google\.com\/(?:file\/d\/|open\?id=|uc\?(?:[^#]*&)?id=)([\w-]+)/))) return { iframe:`https://drive.google.com/file/d/${m[1]}/preview` };
-  if ((m = u.match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?(?:[^#]*&)?v=|embed\/|shorts\/))([\w-]{11})/))) return { iframe:`https://www.youtube-nocookie.com/embed/${m[1]}${autoplay ? "?autoplay=1" : ""}` };
-  if ((m = u.match(/vimeo\.com\/(?:video\/)?(\d+)/))) return { iframe:`https://player.vimeo.com/video/${m[1]}${autoplay ? "?autoplay=1" : ""}` };
-  return { video:u };
-}
-
-/* ============ 2. HELPERS ============ */
-const $ = (s, el = document) => el.querySelector(s);
-const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;" }[c]));
-const slug = s => s.toLowerCase().replace(/[^a-z0-9]+/g, "-");
-const art = (m, wide) => m.poster || (wide && m.backdrop) ? `url('${esc(wide && m.backdrop || m.poster)}')`
-  : `linear-gradient(145deg,hsl(${m.hue} 55% 32%),hsl(${(m.hue + 40) % 360} 60% 12%))`;
-let movies = [], user = null;
-
-/* ============ 3. VIEW MODE (auto / desktop / mobile) ============ */
-const mq = matchMedia("(max-width:767px), (orientation:portrait) and (max-width:1024px)");
-let override = null;                                            // null = auto-detect
-function applyMode() {
-  const mode = override || (mq.matches ? "mobile" : "desktop");
-  document.documentElement.dataset.mode = mode;
-  $("#modeBtn").textContent = (override ? "" : "Auto · ") + (mode === "mobile" ? "📱 Mobile" : "🖥 Desktop");
-}
-mq.addEventListener("change", applyMode);
-$("#modeBtn").onclick = () => {                                 // auto → opposite → other → auto
-  const cur = document.documentElement.dataset.mode, auto = mq.matches ? "mobile" : "desktop";
-  override = override === null ? (auto === "mobile" ? "desktop" : "mobile") : override !== auto ? auto : null;
-  applyMode();
-};
-
-/* ============ 4. RENDER ============ */
-const cats = () => [...new Set(movies.map(m => m.category))];
-
-function renderHero() {
-  const m = movies.find(x => x.featured) || movies[0];
-  if (!m) return;
-  const hero = $("#hero");
-  hero.style.backgroundImage = art(m, true);
-  hero.innerHTML = `<div>
-      <p class="text-sm text-[color:var(--accent)] font-semibold mb-2">${esc(m.genre)} · ${esc(m.year)} · ${esc(m.duration)}</p>
-      <h1 class="text-4xl md:text-6xl font-extrabold leading-tight">${esc(m.title)}</h1>
-      <p class="mt-3 text-sm md:text-base text-[#d8d4cc] max-w-prose">${esc(m.synopsis)}</p>
-      <div class="mt-5 flex gap-3">
-        <button class="btn btn-primary" data-play="${m.id}">▶ Play</button>
-        <button class="btn btn-ghost" data-info="${m.id}">ⓘ More info</button>
-      </div></div>`;
-}
-
-function renderRows() {
-  $("#rows").innerHTML = cats().map(c => `
-    <section id="row-${slug(c)}" class="relative" aria-label="${esc(c)}">
-      <h2 class="px-[var(--pad)] mb-1 text-lg md:text-xl font-bold">${esc(c)}</h2>
-      <button class="arrow left-0" data-scroll="-1" aria-label="Scroll left">‹</button>
-      <div class="row-scroll hide-scroll">
-        ${movies.filter(m => m.category === c).map(m => `
-          <button class="card" style="background-image:${art(m)}" data-info="${m.id}" aria-label="${esc(m.title)}">
-            <span class="t">${esc(m.title)}</span>
-            <span class="more"><b class="text-white text-sm">${esc(m.title)}</b>
-              <span>${esc(m.rating)} · ${esc(m.duration)} · ${esc(m.genre)}</span>
-              <span class="line-clamp-2">${esc(m.synopsis)}</span>
-              <span class="btn btn-primary !py-1 !px-3 !text-xs w-fit" data-play="${m.id}">▶ Play</span></span>
-          </button>`).join("")}
-      </div>
-      <button class="arrow right-0" data-scroll="1" aria-label="Scroll right">›</button>
-    </section>`).join("");
-
-  const links = cats().map(c => `<a class="hover:text-white" href="#row-${slug(c)}">${esc(c)}</a>`).join("");
-  $("#navlinks").innerHTML = `<a class="text-white" href="#top">Home</a>${links}`;
-  const icons = ["⌂", "🎬", "⏱", "🎞"];
-  $("#bottomNav").innerHTML = [["Home", "#top"], ...cats().map(c => [c.split(" ")[0], `#row-${slug(c)}`])]
-    .map(([l, h], i) => `<a href="${h}"><span class="text-lg">${icons[i] || "•"}</span>${esc(l)}</a>`).join("")
-    + `<a href="#" data-open-auth><span class="text-lg">👤</span>${user ? "Profile" : "Sign in"}</a>`;
-}
-
-/* ============ 5. MODALS ============ */
-const open = id => $(id).classList.add("open");
-function closeAll() {
-  document.querySelectorAll(".overlay.open").forEach(o => o.classList.remove("open"));
-  const p = $("#player"); p.pause(); p.removeAttribute("src"); p.load();
-  $("#frame").removeAttribute("src");
-}
-function openMovie(id, autoplay) {
-  const m = movies.find(x => x.id == id); if (!m) return;
-  const p = $("#player"), fr = $("#frame"), e = embedFor(m.video, autoplay);
-  fr.classList.toggle("hidden", !e.iframe); p.classList.toggle("hidden", !!e.iframe);
-  if (e.iframe) { fr.src = e.iframe; p.removeAttribute("src"); }
-  else { fr.removeAttribute("src"); p.poster = m.backdrop || m.poster || ""; p.src = e.video || ""; }
-  $("#vTitle").textContent = m.title;
-  $("#vMeta").textContent = [m.rating, m.year, m.duration, m.genre].filter(Boolean).join(" · ");
-  $("#vSyn").textContent = m.synopsis || "";
-  open("#videoModal");
-  if (autoplay && !e.iframe) p.play().catch(() => {});
-}
-let authKind = "in";
-function setTab(k) {
-  authKind = k;
-  $("#tabIn").classList.toggle("text-[color:var(--muted)]", k !== "in");
-  $("#tabUp").classList.toggle("text-[color:var(--muted)]", k !== "up");
-  $("#authSubmit").textContent = k === "in" ? "Sign in" : "Create account";
-  $("#authMsg").textContent = "";
-}
-function paintAuth() {
-  $("#authBtn").textContent = user ? "👤 " + user.email.split("@")[0] : "Sign in";
-  $("#outBtn").classList.toggle("hidden", !user);
-  const bn = $("#bottomNav [data-open-auth]");
-  if (bn) bn.lastChild.textContent = user ? "Profile" : "Sign in";
-}
-function showAuthPane() {
-  $("#accountPane").classList.toggle("hidden", !user);
-  $("#authPane").classList.toggle("hidden", !!user);
-  if (user) $("#acctEmail").textContent = user.email;
-}
-async function signOut() { if (sb) await sb.auth.signOut(); user = null; isAdmin = false; $("#adminBtn").classList.add("hidden"); paintAuth(); closeAll(); }
-function showNotice(msg) {
-  const h = $("#hero"); h.style.backgroundImage = "none";
-  h.innerHTML = `<div><h1 class="text-2xl font-bold">ATMAX</h1><p class="mt-2 text-[color:var(--muted)]">${esc(msg)}</p></div>`;
-  renderRows();
-}
-
-/* ============ ADMIN: add and remove films ============ */
-let isAdmin = false;
-async function checkAdmin() {
-  isAdmin = false;
-  if (sb && user) {
-    const { data } = await sb.from("admins").select("user_id").eq("user_id", user.id).maybeSingle();
-    isAdmin = !!data;
-  }
-  $("#adminBtn").classList.toggle("hidden", !isAdmin);
-}
-async function uploadFile(file, folder) {
-  const ext = (file.name.split(".").pop() || "bin").toLowerCase();
-  const path = `${folder}/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
-  const { error } = await sb.storage.from("films").upload(path, file, { cacheControl:"3600", contentType:file.type });
-  if (error) throw error;
-  return sb.storage.from("films").getPublicUrl(path).data.publicUrl;
-}
-function renderAdminList() {
-  $("#catList").innerHTML = cats().map(c => `<option value="${esc(c)}">`).join("");
-  $("#adminList").innerHTML = movies.length ? movies.map(m => `
-    <div class="flex items-center justify-between gap-3 bg-[#2a2a2a] rounded px-3 py-2">
-      <span class="truncate">${esc(m.title)} <span class="text-[color:var(--muted)]">· ${esc(m.category)}${m.featured ? " · banner" : ""}</span></span>
-      <button class="btn btn-ghost !py-1 !px-3 !text-xs" data-del="${m.id}">Delete</button>
-    </div>`).join("") : '<p class="text-[color:var(--muted)]">No films yet.</p>';
-}
-async function deleteFilm(id) {
-  const m = movies.find(x => x.id == id);
-  if (!m || !confirm(`Delete "${m.title}"? This cannot be undone.`)) return;
-  const paths = [m.video, m.poster].map(u => (u || "").split("/object/public/films/")[1]).filter(Boolean).map(decodeURIComponent);
-  if (paths.length) await sb.storage.from("films").remove(paths);
-  const { error } = await sb.from("movies").delete().eq("id", id);
-  if (error) return alert("Couldn't delete: " + error.message);
-  await refresh();
-}
-function toggleSource() {
-  const up = $("#filmForm").elements.source.value === "upload";
-  $("#filmForm").elements.videoLink.classList.toggle("hidden", up);
-  $("#filmForm").elements.videoFile.classList.toggle("hidden", !up);
-  $("#srcHelp").textContent = up
-    ? "Uploads are stored in your Supabase storage. Large files may be refused by your plan's per-file limit; use a link for full-length films."
-    : 'Google Drive: open the file, click Share, and set General access to "Anyone with the link". Then paste the link here.';
-}
-
-/* ============ 6. EVENTS ============ */
-document.addEventListener("click", e => {
-  const t = e.target;
-  const play = t.closest("[data-play]");
-  if (play) { e.stopPropagation(); return openMovie(play.dataset.play, true); }
-  const info = t.closest("[data-info]");
-  if (info) return openMovie(info.dataset.info, false);
-  const sc = t.closest("[data-scroll]");
-  if (sc) { const r = sc.parentElement.querySelector(".row-scroll"); return r.scrollBy({ left: sc.dataset.scroll * r.clientWidth * .85 }); }
-  if (t.closest("#authBtn, [data-open-auth]")) { e.preventDefault(); showAuthPane(); open("#authModal"); return; }
-  if (t.closest("#outBtn, #signOutBtn")) return signOut();
-  if (t.closest("#adminBtn")) { renderAdminList(); return open("#adminModal"); }
-  const del = t.closest("[data-del]"); if (del) return deleteFilm(del.dataset.del);
-  if (t.closest("[data-close]") || t.classList.contains("overlay")) return closeAll();
-  const tab = t.closest("[data-tab]"); if (tab) setTab(tab.dataset.tab);
-});
-document.addEventListener("keydown", e => e.key === "Escape" && closeAll());
-window.addEventListener("scroll", () => $("#nav").classList.toggle("solid", scrollY > 30), { passive: true });
-
-$("#authForm").addEventListener("submit", async e => {
-  e.preventDefault();
-  const f = new FormData(e.target), msg = $("#authMsg");
-  msg.textContent = "Please wait…";
-  try {
-    const res = await authRequest(authKind, f.get("email"), f.get("password"));
-    if (!res.session) { msg.textContent = "Check your email to confirm your account, then sign in."; return; }
-    user = res.user; paintAuth(); closeAll(); e.target.reset();
-  } catch (err) { msg.textContent = err.message || "Something went wrong. Check your details and try again."; }
-});
-
-$("#filmForm").addEventListener("change", e => { if (e.target.name === "source") toggleSource(); });
-$("#filmForm").addEventListener("submit", async e => {
-  e.preventDefault();
-  const form = e.target, f = new FormData(form), msg = $("#filmMsg"), btn = $("#filmSubmit");
-  btn.disabled = true;
-  try {
-    let video = (f.get("videoLink") || "").trim();
-    if (f.get("source") === "upload") {
-      const vf = f.get("videoFile");
-      if (!vf || !vf.size) throw new Error("Choose a video file to upload.");
-      msg.textContent = "Uploading the video. Keep this window open…";
-      video = await uploadFile(vf, "videos");
-    } else {
-      if (!video) throw new Error("Paste a video link.");
-      if (/drive\.google\.com\/drive\/folders/.test(video)) throw new Error("That is a folder link. Open the film file itself, click Share, and copy that link.");
-      if (/drive\.google\.com/.test(video) && !embedFor(video).iframe) throw new Error("Couldn't read that Google Drive link. Copy the Share link of the film file.");
-    }
-    let poster = (f.get("posterUrl") || "").trim();
-    const pf = f.get("posterFile");
-    if (pf && pf.size) { msg.textContent = "Uploading the poster…"; poster = await uploadFile(pf, "posters"); }
-    const featured = !!f.get("featured");
-    if (featured) await sb.from("movies").update({ featured:false }).eq("featured", true);
-    const { error } = await sb.from("movies").insert({
-      title: f.get("title").trim(), category: f.get("category").trim(), genre: f.get("genre") || null,
-      year: f.get("year") ? Number(f.get("year")) : null, duration: f.get("duration") || null,
-      rating: f.get("rating") || null, synopsis: f.get("synopsis") || null,
-      poster, video, featured, hue: Math.floor(Math.random() * 360)
-    });
-    if (error) throw error;
-    msg.textContent = "Film added."; form.reset(); toggleSource(); await refresh();
-  } catch (err) { msg.textContent = err.message || "Couldn't add the film."; }
-  btn.disabled = false;
-});
-
-/* ============ 7. INIT ============ */
-async function refresh() {
-  try { movies = await fetchMovies(); }
-  catch (err) { return showNotice("Couldn't load films from Supabase: " + err.message); }
-  if (!movies.length) { renderAdminList(); return showNotice(isAdmin ? "No films yet. Click Admin to add your first film." : "No films yet. Check back soon."); }
-  renderHero(); renderRows(); paintAuth(); renderAdminList();
-}
-(async function init() {
-  $("#yr").textContent = new Date().getFullYear();
-  applyMode();
-  if (!sb) return showNotice("Connect Supabase to load films: add your project URL and anon key near the top of the script in index.html.");
-  sb.auth.onAuthStateChange((_event, session) => {
-    user = session?.user || null; paintAuth();
-    setTimeout(async () => { await checkAdmin(); if (!movies.length) refresh(); }, 0);   // setTimeout: avoids a Supabase callback deadlock
-  });
-  user = (await sb.auth.getSession()).data.session?.user || null;
-  await checkAdmin();
-  await refresh();
-})();
-</script>
-</body>
-</html>
+init();
+</script></body></html>
