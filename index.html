@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Cinebox – Stream Films</title>
+<title>ATMAX – Stream Films</title>
 <link rel="stylesheet" href="tailwind.css">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -75,7 +75,7 @@
 
   <!-- NAVBAR -->
   <header id="nav">
-    <a href="#top" class="font-extrabold text-xl tracking-tight" style="color:var(--accent)" id="brand">CINEBOX</a>
+    <a href="#top" class="font-extrabold text-xl tracking-tight" style="color:var(--accent)" id="brand">ATMAX</a>
     <nav id="navlinks" class="desk-only flex gap-5 text-sm text-[color:var(--muted)]"></nav>
     <div class="ml-auto flex items-center gap-2">
       <button id="modeBtn" class="btn btn-ghost !py-1.5 !px-3 !text-xs" aria-label="Switch view mode" title="Switch view mode"></button>
@@ -90,7 +90,7 @@
     <div id="rows" class="relative z-10 -mt-6 pb-12 flex flex-col gap-5"></div>
   </main>
 
-  <footer class="px-[var(--pad)] pb-10 text-xs text-[color:var(--muted)]">© <span id="yr"></span> Cinebox. All films belong to their creators.</footer>
+  <footer class="px-[var(--pad)] pb-10 text-xs text-[color:var(--muted)]">© <span id="yr"></span> ATMAX. All films belong to their creators.</footer>
 
   <nav id="bottomNav" class="bottom-nav mob-only"></nav>
 </div>
@@ -174,7 +174,7 @@
 <script>
 /* ============ 1. SUPABASE: all films and accounts come from here ============ */
 const SUPABASE_URL = "https://xzeahvkmvrdpxcfsgwqh.supabase.co";
-const SUPABASE_ANON_KEY = "YOUR-ANON-KEY";          // public anon key only, never the service key
+const SUPABASE_ANON_KEY = "sb_publishable_LCRngOPZzgc6E-QwT6jjZQ_hb0qqLjY";          // public anon key only, never the service key
 const configured = !SUPABASE_URL.includes("YOUR-PROJECT") && !SUPABASE_ANON_KEY.includes("YOUR-ANON");
 const sb = configured && window.supabase ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY) : null;
 
@@ -308,7 +308,7 @@ function showAuthPane() {
 async function signOut() { if (sb) await sb.auth.signOut(); user = null; isAdmin = false; $("#adminBtn").classList.add("hidden"); paintAuth(); closeAll(); }
 function showNotice(msg) {
   const h = $("#hero"); h.style.backgroundImage = "none";
-  h.innerHTML = `<div><h1 class="text-2xl font-bold">Cinebox</h1><p class="mt-2 text-[color:var(--muted)]">${esc(msg)}</p></div>`;
+  h.innerHTML = `<div><h1 class="text-2xl font-bold">ATMAX</h1><p class="mt-2 text-[color:var(--muted)]">${esc(msg)}</p></div>`;
   renderRows();
 }
 
