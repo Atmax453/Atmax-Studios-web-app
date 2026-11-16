@@ -2,6 +2,7 @@
 <html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>ATMAX</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&family=Montserrat:wght@400;600;800&family=Playfair+Display:wght@500;800&family=Bebas+Neue&family=Oswald:wght@400;600&family=Lora:wght@400;600&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
 <style>
 :root{--bg:#fff;--ink:#141012;--wine:#9b2c4b;--bar:#0e0b0c;--mute:#6f6368;--line:#eadde1;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
@@ -62,11 +63,11 @@ main{padding-bottom:3rem;background:color-mix(in srgb,var(--bg) 90%,transparent)
 #adm td input{min-width:90px}
 #adm .ok{color:#1b7a3b;font-size:.9rem;min-height:1.2rem;margin-top:.5rem}
 .tile{position:relative;overflow:hidden}.bar{position:absolute;left:0;bottom:0;height:4px;background:var(--wine)}
-body.dk{background:#0a0809;color:#f4ecef}body.dk main{background:none}
+body.dk{background-color:var(--pg,#0a0809);color:var(--tx,#f4ecef)}body.dk main{background:none}
 @keyframes fi{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
-body.dk nav{background:rgba(10,8,9,.72);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px)}
-main{animation:fi .7s ease both}.hero{animation:fi .9s ease both;box-shadow:inset 0 -90px 90px -40px #0a0809}
-.rowt{color:#f4ecef}.empty{color:#a89aa0}.rc{position:relative}
+body.dk nav{background:var(--navbg,color-mix(in srgb,var(--bar) 72%,transparent));backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px)}
+main{animation:fi .7s ease both}.hero{animation:fi .9s ease both;box-shadow:inset 0 -90px 90px -40px var(--pg,#0a0809)}
+.rowt{color:var(--tx,#f4ecef)}.empty{color:#a89aa0}.rc{position:relative}
 .rail{scroll-behavior:smooth;scrollbar-width:none;padding:1.4rem 4% 1.6rem;gap:.9rem}.rail::-webkit-scrollbar{display:none}
 .tile{padding:0;border-radius:12px;box-shadow:0 6px 18px rgba(0,0,0,.45);transition:transform .35s cubic-bezier(.2,.8,.2,1),box-shadow .35s}
 .tile:hover,.tile:focus-visible{transform:scale(1.09) translateY(-6px);z-index:3;box-shadow:0 18px 40px rgba(0,0,0,.6),0 0 0 1.5px rgba(255,255,255,.35),0 0 28px color-mix(in srgb,var(--wine) 55%,transparent)}
@@ -82,6 +83,15 @@ main{animation:fi .7s ease both}.hero{animation:fi .9s ease both;box-shadow:inse
 #adm .bw{display:grid;grid-template-columns:minmax(80px,1fr) 2fr 2rem;gap:.6rem;align-items:center;margin:.4rem 0}#adm .bw i{height:10px;border-radius:5px;background:var(--wine);display:block}
 @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
 .sb{background:none;border:0;color:#d9a441;font-size:1.3rem;padding:0 .1rem}.cf{display:flex;gap:.5rem;margin:.6rem 0}.cl p{margin:.3rem 0;font-size:.92rem}.hint{font-size:.82rem;color:var(--mute);margin-top:.4rem}
+html.tv{font-size:22px}body.tv nav{padding-left:5%;padding-right:5%}body.tv .tile{width:240px}body.tv .ar{display:none}
+body.tv :focus{outline:4px solid #fff;outline-offset:3px}
+body.tv .tile:focus{transform:scale(1.09) translateY(-6px);z-index:3;box-shadow:0 18px 40px rgba(0,0,0,.6),0 0 28px color-mix(in srgb,var(--wine) 55%,transparent)}
+body.tv .tile:focus .gl em{max-height:1.4rem;opacity:1}
+body,button,input,select,textarea{font-family:var(--fb,system-ui,-apple-system,'Segoe UI',sans-serif)}
+.hero h2,.rowt,.mart h3,.logo,.card h1,.profiles h1{font-family:var(--ft,var(--fb,inherit))}#adm,#adm *{font-family:system-ui,-apple-system,'Segoe UI',sans-serif}
+.tile{border-radius:var(--tr,12px);width:min(var(--tw,200px),42vw);aspect-ratio:var(--ar,2/3)}.hero{min-height:var(--hh,55vh)}
+.rt{position:absolute;top:.6rem;right:.6rem;padding:.2rem .5rem;border-radius:999px;font-size:.78rem;font-weight:700;color:#fff;background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.3);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}.hm{margin:0 0 .5rem;font-weight:600}
+body.noanim *{animation:none!important;transition:none!important}body.noarr .ar{display:none}
 </style></head>
 <body><div id="app"></div>
 <script>
@@ -92,9 +102,15 @@ const $=s=>document.querySelector(s),app=$("#app");
 const esc=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 let S={set:{},user:null,sub:null,view:"home",q:"",mode:"in",T:[],R:[],L:[],H:[],isAdmin:false,preview:false};window.__ROOT=S;
 const brand=()=>`<div class="logo">${S.set.logo?`<img src="${esc(S.set.logo)}" alt="${esc(S.set.brand)}" height="30">`:esc(S.set.brand||"ATMAX")}</div>`;
-function theme(){const d=S.set,r=document.documentElement.style;
- r.setProperty("--wine",d.accent||"#9b2c4b");r.setProperty("--bar",d.dark||"#0e0b0c");r.setProperty("--bg",d.bg||"#ffffff");
- document.body.style.backgroundImage=d.bgImage?`url("${d.bgImage}")`:"";document.title=d.brand||"Watch"}
+const FONTS={clean:"system-ui,-apple-system,'Segoe UI',sans-serif",serif:"Georgia,'Times New Roman',serif",rounded:"ui-rounded,'Segoe UI',system-ui,sans-serif",cond:"'Arial Narrow','Roboto Condensed',sans-serif",poppins:"'Poppins',system-ui,sans-serif",montserrat:"'Montserrat',system-ui,sans-serif",playfair:"'Playfair Display',Georgia,serif",bebas:"'Bebas Neue',Impact,sans-serif",oswald:"'Oswald','Arial Narrow',sans-serif",lora:"'Lora',Georgia,serif"};
+function theme(){const d=S.set,r=document.documentElement.style,b=document.body;
+ r.setProperty("--wine",d.accent||"#9b2c4b");r.setProperty("--bar",d.dark||"#0e0b0c");r.setProperty("--pg",d.pg||"#0a0809");r.setProperty("--tx",d.tx||"#f4ecef");
+ r.setProperty("--fb",FONTS[d.fb]||FONTS.clean);r.setProperty("--ft",FONTS[d.ft]||FONTS[d.fb]||FONTS.clean);if(d.fs&&!TV)r.fontSize={s:"90%",m:"100%",l:"112%"}[d.fs]||"100%";
+ r.setProperty("--tr",(d.tr||12)+"px");r.setProperty("--tw",{s:"150px",m:"200px",l:"250px"}[d.ts]||"200px");r.setProperty("--ar",{wide:"16/9",sq:"1/1"}[d.tsh]||"2/3");r.setProperty("--hh",{s:"38vh",m:"55vh",l:"85vh"}[d.hh]||"55vh");
+ r.setProperty("--navbg",d.nb=="clear"?"transparent":d.nb=="solid"?"var(--bar)":"color-mix(in srgb,var(--bar) 72%,transparent)");
+ b.classList.toggle("noanim",!!d.noanim);b.classList.toggle("noarr",!!d.noarr);
+ ["icon","apple-touch-icon"].forEach(k=>{let l=document.querySelector(`link[rel="${k}"]`);if(!l){l=document.createElement("link");l.rel=k;document.head.appendChild(l)}if(d.icon)l.href=d.icon});
+ b.style.backgroundImage=d.bgImage?`url("${d.bgImage}")`:"";document.title=d.brand||"Watch"}
 async function init(){
  const {data}=await sb.from("settings").select("data").eq("id",1).single();
  S.set=data?.data||{};theme();
@@ -138,7 +154,7 @@ async function browse(){
 const art=t=>t.poster_url?`linear-gradient(transparent 45%,rgba(0,0,0,.85)),url("${esc(t.poster_url)}")`:`linear-gradient(160deg,hsl(${(t.id*37)%40+330} 55% 30%),hsl(${(t.id*37)%40+330} 60% 14%))`;
 const bar=t=>{const h=S.H.find(x=>x.title_id==t.id);return h&&h.duration>0&&h.position>5?`<i class="bar" style="width:${Math.min(100,Math.round(h.position/h.duration*100))}%"></i>`:""};
 const hist=()=>[...S.H].sort((a,b)=>new Date(b.watched_at)-new Date(a.watched_at)).map(x=>S.T.find(t=>t.id==x.title_id)).filter(Boolean);
-const tile=t=>`<button class="tile" data-id="${t.id}" style="background-image:${art(t)}"><div class="gl"><b>${esc(t.title)}</b><small>${esc([t.year,t.genre].filter(Boolean).join(" · "))}</small><em>${t.status==="soon"?"Coming soon":"▶ View details"}</em></div>${bar(t)}</button>`;
+const tile=t=>`<button class="tile" data-id="${t.id}" style="background-image:${art(t)}"><div class="gl"><b>${esc(t.title)}</b><small>${esc([t.year,t.genre].filter(Boolean).join(" · "))}</small><em>${t.status==="soon"?"Coming soon":"▶ View details"}</em></div>${chip(t)}${bar(t)}</button>`;
 const ph=n=>`<div class="tile ph" aria-hidden="true"><div class="gl"><b>Coming soon</b><small>${esc(n)}</small></div></div>`;
 const rail=(n,a,min)=>{const k=S.set.ph===false?0:Math.max(0,(min||0)-a.length);if(!a.length&&!k)return"";return `<section class="rw"><h3 class="rowt">${esc(n)}</h3><div class="rc"><button class="ar l" aria-label="Scroll left">‹</button><div class="rail">${a.map(tile).join("")}${Array.from({length:k},()=>ph(n)).join("")}</div><button class="ar r" aria-label="Scroll right">›</button></div></section>`};
 function draw(){document.body.classList.add("dk");
@@ -153,8 +169,8 @@ function body(){
  else if(S.view=="history"){const r=hist();h=r.length?rail("Watched",r):`<p class="empty">Titles you play will appear here.</p>`}
  else if(S.view=="list"){const r=S.T.filter(t=>S.L.includes(t.id));h=r.length?rail("My list",r):`<p class="empty">Your list is empty. Open a title and select Add to list.</p>`}
  else{const f=S.T.find(t=>t.featured)||S.T[0];
-  if(f)h+=`<section class="hero" style="background-image:linear-gradient(100deg,var(--bar) 5%,transparent 90%),${f.poster_url?`url('${esc(f.poster_url)}'),`:""}linear-gradient(100deg,var(--bar),var(--wine))"><h2>${esc(f.title)}</h2><p>${esc(f.description)}</p><div class="b"><button class="btn" data-play="${f.id}">Play</button><button class="btn ghost" data-id="${f.id}">More info</button></div></section>`;
-  if(!f)h+=`<section class="hero" style="background-image:linear-gradient(100deg,var(--bar),var(--wine))"><h2>Coming soon</h2><p>New films are on the way. Check back shortly.</p></section>`;
+  if(f)h+=`<section class="hero" style="background-image:linear-gradient(100deg,var(--bar) 5%,transparent 90%),${f.poster_url?`url('${esc(f.poster_url)}'),`:""}linear-gradient(100deg,var(--bar),var(--wine))"><h2>${esc(f.title)}</h2><p class="hm">${heroMeta(f)}</p><p>${esc(f.description)}</p><div class="b"><button class="btn" data-play="${f.id}">Play</button><button class="btn ghost" data-id="${f.id}">More info</button></div></section>`;
+  if(!f)h+=`<section class="hero" style="background-image:linear-gradient(100deg,var(--bar) 5%,transparent 90%),${S.set.heroImg?`url('${esc(S.set.heroImg)}'),`:""}linear-gradient(100deg,var(--bar),var(--wine))"><h2>${esc(S.set.heroT||"Coming soon")}</h2><p>${esc(S.set.heroD||"New films are on the way. Check back shortly.")}</p></section>`;
   h+=rail("Continue watching",hist().filter(t=>{const x=S.H.find(y=>y.title_id==t.id);return x.position>5}));
   const dn=["Trending Now","Action","Drama","Comedy","Documentary"],have=S.R.map(r=>r.name.toLowerCase());
   h+=S.R.map(r=>rail(r.name,S.T.filter(t=>t.row_id==r.id),7)).join("");
@@ -164,7 +180,10 @@ function body(){
  $("#body").innerHTML="<main>"+h+"</main>";
  document.querySelectorAll(".rc").forEach(c=>{const r=c.querySelector(".rail");c.querySelector(".l").onclick=()=>r.scrollBy({left:-r.clientWidth*.9,behavior:"smooth"});c.querySelector(".r").onclick=()=>r.scrollBy({left:r.clientWidth*.9,behavior:"smooth"})});
  document.querySelectorAll("[data-id]").forEach(b=>b.onclick=()=>detail(+b.dataset.id));
- document.querySelectorAll("[data-play]").forEach(b=>b.onclick=()=>play(+b.dataset.play))}
+ document.querySelectorAll("[data-play]").forEach(b=>b.onclick=()=>play(+b.dataset.play));
+ if(TV&&!document.querySelector(".mod,.player")&&document.activeElement===document.body){const f=document.querySelector("[data-play],.tile[data-id]");if(f)f.focus({preventScroll:true})}}
+function chip(t){if(S.set.noRate||t.allow_rate===false||t.status==="soon")return"";const a=(S.RT||[]).filter(x=>x.title_id==t.id);return a.length?`<span class="rt">★ ${(a.reduce((s,x)=>s+x.stars,0)/a.length).toFixed(1)}</span>`:""}
+function heroMeta(f){const m=[f.year,f.genre].filter(Boolean).join(" · "),s=avg(f.id);return esc(m)+(S.set.noRate||f.allow_rate===false||f.status==="soon"?"":(m?" · ":"")+(s=="No ratings yet"?"Be the first to rate":s))}
 function guest(){S.sub={id:0,name:"Guest"};browse()}
 function gate(m,soon){const d=document.createElement("div");d.className="mod";d.innerHTML=`<div class="mbox"><div class="mbody"><h3>${soon?"Coming soon":"Sign in to continue"}</h3><p>${soon?esc(m):"Create a free account or sign in to "+esc(m)+"."}</p><div class="acts">${soon?"":`<button class="btn" id="g1">Sign up</button><button class="btn ghost" id="g2">Sign in</button>`}<button class="btn ghost" id="g3">Close</button></div></div></div>`;document.body.appendChild(d);d.querySelector("#g3").onclick=()=>d.remove();if(!soon){d.querySelector("#g1").onclick=()=>{d.remove();S.mode="up";login()};d.querySelector("#g2").onclick=()=>{d.remove();S.mode="in";login()}}}
 async function rfr(){const [a,b]=await Promise.all([sb.from("ratings").select("title_id,user_id,stars"),sb.from("comments").select("*").order("created_at",{ascending:false})]);S.RT=a.data||[];S.CM=b.data||[]}
@@ -250,9 +269,21 @@ function rows(){
  return `<div class="panel scroll"><h3>Rows on Home</h3><p style="color:var(--mute);margin:0 0 .6rem">Lower numbers appear higher on the page.</p><table><tr><th>Name</th><th>Order</th><th></th></tr>
  ${S.R.map(r=>`<tr><td><input data-rn="${r.id}" value="${esc(r.name)}" aria-label="Row name"></td><td><input data-rp="${r.id}" type="number" value="${r.position}" aria-label="Order" style="width:80px"></td><td><button class="btn" data-saverow="${r.id}">Save</button> <button class="btn del" data-delrow="${r.id}">Delete</button></td></tr>`).join("")}</table>
  <div class="acts"><input id="newrow" placeholder="New row name" style="max-width:260px"><button class="btn" id="addrow">Add row</button></div>${note()}</div>`}
+const TH={mid:["Midnight",{accent:"#9b2c4b",dark:"#0e0b0c",pg:"#0a0809",tx:"#f4ecef"}],crim:["Crimson",{accent:"#c0182f",dark:"#14070a",pg:"#0d0507",tx:"#f7ecee"}],ocean:["Ocean",{accent:"#1f8fd1",dark:"#07131d",pg:"#050d14",tx:"#e9f3fa"}],gold:["Gold",{accent:"#c8932b",dark:"#14100a",pg:"#0b0905",tx:"#f6efe2"}],light:["Light",{accent:"#9b2c4b",dark:"#0e0b0c",pg:"#f6f1f2",tx:"#141012"}]};
+const FN={clean:"Clean (built-in)",serif:"Classic serif (built-in)",rounded:"Rounded (built-in)",cond:"Condensed (built-in)",poppins:"Poppins",montserrat:"Montserrat",playfair:"Playfair Display",bebas:"Bebas Neue",oswald:"Oswald",lora:"Lora"};
 function look(){
- const d=S.set,c=(k,l)=>`<label>${l}<input type="color" name="${k}" value="${esc(d[k]||"#ffffff")}"></label>`,t=(k,l)=>`<label>${l}<input name="${k}" value="${esc(d[k])}"></label>`;
- return `<form id="lf" class="panel"><h3>Look & feel</h3>${t("brand","Brand name")}${t("logo","Logo image URL (leave empty to show the name)")}${c("accent","Accent color (buttons, highlights)")}${c("dark","Top bar and profile screen color")}${c("bg","Page background color")}${t("bgImage","Page background image URL (optional, overrides color)")}<div class="acts"><button class="btn">Save look & feel</button></div>${note()}</form>`}
+ const d=S.set,c=(k,l,df)=>`<label>${l}<input type="color" name="${k}" value="${esc(d[k]||df)}"></label>`,t=(k,l)=>`<label>${l}<input name="${k}" value="${esc(d[k])}"></label>`,
+ up=(k,l)=>`<label>${l}: paste an open image link<input name="${k}" value="${esc(d[k])}"></label><label>…or upload a picture<input type="file" name="${k}_file" accept="image/*"></label>${d[k]?`<label class="chk"><input type="checkbox" name="rm_${k}"> Remove it</label>`:""}`,
+ sel=(k,l,o)=>`<label>${l}<select name="${k}">${o.map(x=>`<option value="${x[0]}" ${(d[k]||o[0][0])==x[0]?"selected":""}>${x[1]}</option>`).join("")}</select></label>`,
+ fo=Object.keys(FN).map(k=>[k,FN[k]]),ck=(k,l)=>`<label class="chk"><input type="checkbox" name="${k}" ${d[k]?"checked":""}> ${l}</label>`;
+ return `<form id="lf" class="panel"><h3>Look & feel</h3><label>Quick themes (fills the colors below; press Save to apply)</label><div class="acts" style="margin-top:0">${Object.keys(TH).map(k=>`<button type="button" class="btn ghost" data-th="${k}">${TH[k][0]}</button>`).join("")}</div>
+ <h3 style="margin-top:1rem">Brand</h3>${t("brand","Brand name")}${up("logo","Logo")}${up("icon","Site icon (browser tab and home screen; square, 512×512 is best)")}
+ <h3 style="margin-top:1rem">Colors</h3>${c("accent","Accent (buttons, highlights, glow)","#9b2c4b")}${c("dark","Top bar and profile screen","#0e0b0c")}${c("pg","Page background","#0a0809")}${c("tx","Text","#f4ecef")}${up("bgImage","Page background image (optional, overrides the page color)")}
+ <h3 style="margin-top:1rem">Fonts</h3>${sel("ft","Titles and banner font",fo)}${sel("fb","Body font",fo)}${sel("fs","Text size",[["m","Medium"],["s","Small"],["l","Large"]])}
+ <h3 style="margin-top:1rem">Tiles</h3>${sel("tsh","Shape",[["port","Portrait poster (2:3)"],["wide","Wide card (16:9)"],["sq","Square"]])}${sel("ts","Size",[["m","Medium"],["s","Small"],["l","Large"]])}${sel("tr","Corners",[["12","Rounded"],["0","Square"],["6","Slightly rounded"],["24","Very round"]])}
+ <h3 style="margin-top:1rem">Banner</h3>${sel("hh","Height",[["m","Medium"],["s","Short"],["l","Almost full screen"]])}${t("heroT","Coming soon banner: title")}${t("heroD","Coming soon banner: description")}${up("heroImg","Coming soon banner picture (16:9, 1920×1080, keep faces and text near the middle)")}
+ <h3 style="margin-top:1rem">Top bar and motion</h3>${sel("nb","Top bar style",[["glass","Frosted glass"],["solid","Solid"],["clear","See-through"]])}${ck("noarr","Hide the row arrow buttons")}${ck("noanim","Turn off animations")}
+ <div class="acts"><button class="btn">Save look & feel</button></div>${note()}</form>`}
 function users(){
  return `<div class="panel"><h3>Admin emails</h3><p style="color:var(--mute);margin:0 0 .6rem">Anyone who signs in with one of these emails opens the admin panel.</p>${S.AE.map(a=>`<div style="display:flex;gap:.6rem;align-items:center;padding:.3rem 0">${esc(a.email)}${a.email.toLowerCase()==(S.me.email||"").toLowerCase()?" (you)":` <button class="btn del" data-rmadm="${esc(a.email)}" style="padding:.25rem .6rem;font-size:.8rem">Remove</button>`}</div>`).join("")}<div class="acts"><input id="newadm" type="email" placeholder="email@example.com" aria-label="New admin email" style="max-width:280px"><button class="btn" id="addadm">Add admin</button></div></div><div class="panel scroll"><h3>Accounts (${S.U.length})</h3><table><tr><th>Email</th><th>Role</th><th>Blocked</th><th>Last active</th><th>Titles watched</th></tr>${S.U.map(u=>{const me=u.id==S.me.id;return `<tr><td>${esc(u.email)}${me?" (you)":""}</td><td><select data-role="${u.id}" ${me?"disabled":""} aria-label="Role"><option value="viewer" ${u.role=="viewer"?"selected":""}>Viewer</option><option value="admin" ${u.role=="admin"?"selected":""}>Admin</option></select></td><td><input type="checkbox" data-block="${u.id}" ${u.blocked?"checked":""} ${me?"disabled":""} aria-label="Blocked"></td><td>${u.last_seen?new Date(u.last_seen).toLocaleDateString():"—"}</td><td>${S.W[u.id]||0}</td></tr>`}).join("")}</table>${note()}</div>`}
 const dur=u=>new Promise(r=>{const v=document.createElement("video");v.preload="metadata";v.onloadedmetadata=()=>r(Math.round(v.duration)||null);v.onerror=()=>r(null);v.src=u;setTimeout(()=>r(null),8000)});
@@ -290,7 +321,11 @@ function bind(){
  const a=$("#addrow");if(a)a.onclick=async()=>{const n=$("#newrow").value.trim();if(!n)return;await sb.from("rows").insert({name:n,position:S.R.length+1});done("Row added.")};
  document.querySelectorAll("[data-saverow]").forEach(b=>b.onclick=async()=>{const id=b.dataset.saverow;await sb.from("rows").update({name:$(`[data-rn="${id}"]`).value.trim(),position:+$(`[data-rp="${id}"]`).value}).eq("id",id);done("Row saved.")});
  document.querySelectorAll("[data-delrow]").forEach(b=>b.onclick=async()=>{if(confirm("Delete this row? Its films stay and move to More to watch.")){await sb.from("rows").delete().eq("id",b.dataset.delrow);done("Row deleted.")}});
- const lf=$("#lf");if(lf)lf.onsubmit=async e=>{e.preventDefault();const r=await sb.from("settings").update({data:{...S.set,...Object.fromEntries(new FormData(lf))}}).eq("id",1);done(r.error?r.error.message:"Saved. Reload the viewer app to see it.")};
+ const lf=$("#lf");if(lf){lf.querySelectorAll("[data-th]").forEach(b=>b.onclick=()=>{const t=TH[b.dataset.th][1];for(const k in t)lf.elements[k].value=t[k]});
+ lf.onsubmit=async e=>{e.preventDefault();const v=Object.fromEntries(new FormData(lf)),ok=$(".ok");
+  try{for(const k of["logo","bgImage","icon","heroImg"]){const f=v[k+"_file"];delete v[k+"_file"];if(f&&f.size){ok.textContent="Uploading…";v[k]=await upload(f,"brand")}if(v["rm_"+k])v[k]="";delete v["rm_"+k]}}catch(err){ok.textContent=err.message||"Upload failed.";return}
+  v.noarr=!!v.noarr;v.noanim=!!v.noanim;
+  const r=await sb.from("settings").update({data:{...S.set,...v}}).eq("id",1);done(r.error?r.error.message:"Saved. Reload the viewer app to see it.")}}
  document.querySelectorAll("[data-role]").forEach(s=>s.onchange=async()=>{await sb.from("profiles").update({role:s.value}).eq("id",s.dataset.role);done("Role updated.")});
  document.querySelectorAll("[data-block]").forEach(s=>s.onchange=async()=>{await sb.from("profiles").update({blocked:s.checked}).eq("id",s.dataset.block);done(s.checked?"Account blocked.":"Account unblocked.")});
  const aa=$("#addadm");if(aa)aa.onclick=async()=>{const em=$("#newadm").value.trim().toLowerCase();if(!em)return;const r=await sb.from("admin_emails").insert({email:em});done(r.error?r.error.message:"Admin added.")};
@@ -303,5 +338,20 @@ function bind(){
 function start(){document.body.classList.remove("dk");S.me=ROOT.user;S.tab="home";S.edit=null;S.msg="";load()}
 return{start}})();
 
+/* TV mode: bigger layout and remote-control (arrow keys, OK, Back) navigation. Auto-on for smart TVs; add ?tv=1 or ?tv=0 to the address to force it on or off. */
+let TV=/Tizen|Web0S|webOS|SMART-TV|SmartTV|AFT|BRAVIA|Android TV|GoogleTV|HbbTV|VIDAA|CrKey/i.test(navigator.userAgent);
+try{const m=location.search.match(/[?&]tv=([01])/);if(m)localStorage.setItem("tv",m[1]);const s=localStorage.getItem("tv");if(s==="1")TV=true;if(s==="0")TV=false}catch(e){}
+if(TV){document.documentElement.classList.add("tv");document.body.classList.add("tv");
+ const FQ="button:not([disabled]),input,select,textarea,a[href]",vis=e=>{const r=e.getBoundingClientRect();return r.width>0&&r.height>0&&getComputedStyle(e).visibility!=="hidden"};
+ document.addEventListener("keydown",e=>{
+  const k=e.key,a=document.activeElement,typing=a&&/INPUT|TEXTAREA|SELECT/.test(a.tagName),top=[...document.querySelectorAll(".player,.mod")].pop();
+  if(k==="Escape"||(k==="Backspace"&&!typing)||e.keyCode===10009||e.keyCode===461||k==="GoBack"||k==="BrowserBack"){if(top){e.preventDefault();const c=top.querySelector("#cl,.x,#g3");c?c.click():top.remove()}return}
+  const d={ArrowLeft:[-1,0],ArrowRight:[1,0],ArrowUp:[0,-1],ArrowDown:[0,1]}[k];if(!d||(typing&&d[1]===0))return;
+  const v=document.querySelector(".player video");if(v){e.preventDefault();if(d[0])v.currentTime+=d[0]*10;else $("#cl").focus();return}
+  const els=[...(top||document).querySelectorAll(FQ)].filter(vis),from=els.includes(a)?a:null;
+  if(!from){if(els[0]){e.preventDefault();els[0].focus()}return}
+  const r=from.getBoundingClientRect(),cx=r.left+r.width/2,cy=r.top+r.height/2;let best=null,bs=1e9;
+  els.forEach(n=>{if(n===from)return;const q=n.getBoundingClientRect(),x=q.left+q.width/2-cx,y=q.top+q.height/2-cy,main=d[0]?x*d[0]:y*d[1],cross=d[0]?Math.abs(y):Math.abs(x);if(main<=1)return;const s=main+cross*2.2;if(s<bs){bs=s;best=n}});
+  if(best){e.preventDefault();best.focus({preventScroll:true});best.scrollIntoView({block:"center",inline:"center",behavior:"smooth"})}})}
 init();
 </script></body></html>
