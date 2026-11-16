@@ -62,6 +62,25 @@ main{padding-bottom:3rem;background:color-mix(in srgb,var(--bg) 90%,transparent)
 #adm td input{min-width:90px}
 #adm .ok{color:#1b7a3b;font-size:.9rem;min-height:1.2rem;margin-top:.5rem}
 .tile{position:relative;overflow:hidden}.bar{position:absolute;left:0;bottom:0;height:4px;background:var(--wine)}
+body.dk{background:#0a0809;color:#f4ecef}body.dk main{background:none}
+@keyframes fi{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+body.dk nav{background:rgba(10,8,9,.72);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px)}
+main{animation:fi .7s ease both}.hero{animation:fi .9s ease both;box-shadow:inset 0 -90px 90px -40px #0a0809}
+.rowt{color:#f4ecef}.empty{color:#a89aa0}.rc{position:relative}
+.rail{scroll-behavior:smooth;scrollbar-width:none;padding:1.4rem 4% 1.6rem;gap:.9rem}.rail::-webkit-scrollbar{display:none}
+.tile{padding:0;border-radius:12px;box-shadow:0 6px 18px rgba(0,0,0,.45);transition:transform .35s cubic-bezier(.2,.8,.2,1),box-shadow .35s}
+.tile:hover,.tile:focus-visible{transform:scale(1.09) translateY(-6px);z-index:3;box-shadow:0 18px 40px rgba(0,0,0,.6),0 0 0 1.5px rgba(255,255,255,.35),0 0 28px color-mix(in srgb,var(--wine) 55%,transparent)}
+.gl{margin:.6rem;padding:.6rem .7rem;border-radius:9px;background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.28);backdrop-filter:blur(10px) saturate(140%);-webkit-backdrop-filter:blur(10px) saturate(140%);display:flex;flex-direction:column;gap:.1rem}
+.gl em{font-style:normal;font-size:.78rem;max-height:0;opacity:0;overflow:hidden;transition:max-height .3s,opacity .3s}.tile:hover .gl em,.tile:focus-visible .gl em{max-height:1.4rem;opacity:1}
+.tile.ph{cursor:default;border:1px solid rgba(255,255,255,.12);background:radial-gradient(circle at 30% 20%,color-mix(in srgb,var(--wine) 45%,#0a0809),#0a0809)}
+.ar{position:absolute;top:1.4rem;bottom:1.6rem;width:3.2rem;z-index:4;border:0;color:#fff;font-size:2.2rem;opacity:0;transition:opacity .25s;background:linear-gradient(90deg,rgba(10,8,9,.85),transparent)}
+.ar.l{left:0}.ar.r{right:0;background:linear-gradient(270deg,rgba(10,8,9,.85),transparent)}.rc:hover .ar,.ar:focus-visible{opacity:1}@media(hover:none){.ar{display:none}}
+.ann{background:var(--wine);color:#fff;text-align:center;padding:.55rem 4%;font-size:.92rem}
+#adm .sts{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:.8rem;margin-bottom:1.2rem}#adm .st{background:#fff;border:1px solid var(--line);border-radius:12px;padding:.9rem 1rem;color:var(--mute);font-size:.85rem}#adm .st b{display:block;font-size:1.9rem;color:var(--wine)}
+#adm .hub{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:1rem}#adm .ht{text-align:left;background:#fff;border:1px solid var(--line);border-radius:16px;padding:1.3rem;min-height:120px;transition:transform .25s,box-shadow .25s,border-color .25s}
+#adm .ht:hover{transform:translateY(-4px);box-shadow:0 12px 26px rgba(155,44,75,.18);border-color:var(--wine)}#adm .ht h3{margin:0 0 .4rem;font-size:1.15rem;color:var(--wine)}#adm .ht span{color:var(--mute);font-size:.88rem}
+#adm .bw{display:grid;grid-template-columns:minmax(80px,1fr) 2fr 2rem;gap:.6rem;align-items:center;margin:.4rem 0}#adm .bw i{height:10px;border-radius:5px;background:var(--wine);display:block}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
 </style></head>
 <body><div id="app"></div>
 <script>
@@ -84,6 +103,7 @@ async function go(msg){
  const {data:p}=await sb.from("profiles").select("blocked,role").eq("id",S.user.id).single();
  if(!p||p.blocked){await sb.auth.signOut();S.user=null;return login("This account is blocked. Contact support.")}
  S.isAdmin=p.role==="admin";sb.rpc("touch_me").then(()=>{});
+ if(S.set.maint&&!S.isAdmin){app.innerHTML=`<div class="login"><div class="card"><h1>Back soon</h1><p>${esc(S.set.brand||"ATMAX")} is down for maintenance.</p><button class="btn" id="mo">Sign out</button></div></div>`;$("#mo").onclick=out;return}
  if(S.isAdmin&&!S.preview)return ADMIN.start();
  S.sub?browse():picker()}
 function login(msg){
@@ -105,21 +125,22 @@ function login(msg){
 async function out(){await sb.auth.signOut();S.user=null;S.sub=null;S.isAdmin=false;S.preview=false;S.H=[];login()}
 async function picker(){
  const {data}=await sb.from("sub_profiles").select("*").order("id"),l=data||[];
- app.innerHTML=`<div class="profiles"><h1>Who's watching?</h1><div class="plist">${l.map(p=>`<button class="prof" data-i="${p.id}"><div class="av">${esc(p.name[0].toUpperCase())}</div>${esc(p.name)}</button>`).join("")}${l.length<5?`<button class="prof" id="add"><div class="av add">+</div>Add profile</button>`:""}</div><button class="btn ghost" id="out">Sign out</button></div>`;
+ app.innerHTML=`<div class="profiles"><h1>Who's watching?</h1><div class="plist">${l.map(p=>`<button class="prof" data-i="${p.id}"><div class="av">${esc(p.name[0].toUpperCase())}</div>${esc(p.name)}</button>`).join("")}${l.length<(S.set.maxp||5)?`<button class="prof" id="add"><div class="av add">+</div>Add profile</button>`:""}</div><button class="btn ghost" id="out">Sign out</button></div>`;
  document.querySelectorAll("[data-i]").forEach(b=>b.onclick=()=>{S.sub=l.find(p=>p.id==b.dataset.i);S.view="home";S.q="";browse()});
  const a=$("#add");if(a)a.onclick=async()=>{const name=(prompt("Profile name")||"").trim().slice(0,14);if(name){await sb.from("sub_profiles").insert({name});picker()}};
  $("#out").onclick=out}
 async function browse(){
  const [r,t,m,h]=await Promise.all([sb.from("rows").select("*").order("position"),sb.from("titles").select("*").order("id"),sb.from("my_list").select("title_id").eq("sub_id",S.sub.id),sb.from("watch_history").select("*").eq("sub_id",S.sub.id)]);
- S.R=r.data||[];S.T=t.data||[];S.L=(m.data||[]).map(x=>x.title_id);S.H=h.data||[];draw()}
+ S.R=r.data||[];S.T=(t.data||[]).filter(x=>x.status!=="draft");S.L=(m.data||[]).map(x=>x.title_id);S.H=h.data||[];draw()}
 const art=t=>t.poster_url?`linear-gradient(transparent 45%,rgba(0,0,0,.85)),url("${esc(t.poster_url)}")`:`linear-gradient(160deg,hsl(${(t.id*37)%40+330} 55% 30%),hsl(${(t.id*37)%40+330} 60% 14%))`;
 const bar=t=>{const h=S.H.find(x=>x.title_id==t.id);return h&&h.duration>0&&h.position>5?`<i class="bar" style="width:${Math.min(100,Math.round(h.position/h.duration*100))}%"></i>`:""};
 const hist=()=>[...S.H].sort((a,b)=>new Date(b.watched_at)-new Date(a.watched_at)).map(x=>S.T.find(t=>t.id==x.title_id)).filter(Boolean);
-const tile=t=>`<button class="tile" data-id="${t.id}" style="background-image:${art(t)}"><b>${esc(t.title)}</b><small>${esc([t.year,t.genre].filter(Boolean).join(" · "))}</small>${bar(t)}</button>`;
-const rail=(n,a)=>a.length?`<h3 class="rowt">${esc(n)}</h3><div class="rail">${a.map(tile).join("")}</div>`:"";
-function draw(){
+const tile=t=>`<button class="tile" data-id="${t.id}" style="background-image:${art(t)}"><div class="gl"><b>${esc(t.title)}</b><small>${esc([t.year,t.genre].filter(Boolean).join(" · "))}</small><em>▶ View details</em></div>${bar(t)}</button>`;
+const ph=n=>`<div class="tile ph" aria-hidden="true"><div class="gl"><b>Coming soon</b><small>${esc(n)}</small></div></div>`;
+const rail=(n,a,min)=>{const k=S.set.ph===false?0:Math.max(0,(min||0)-a.length);if(!a.length&&!k)return"";return `<section class="rw"><h3 class="rowt">${esc(n)}</h3><div class="rc"><button class="ar l" aria-label="Scroll left">‹</button><div class="rail">${a.map(tile).join("")}${Array.from({length:k},()=>ph(n)).join("")}</div><button class="ar r" aria-label="Scroll right">›</button></div></section>`};
+function draw(){document.body.classList.add("dk");
  app.innerHTML=`<nav>${brand()}<div class="tabs"><button data-v="home" class="${S.view=="home"?"on":""}">Home</button><button data-v="list" class="${S.view=="list"?"on":""}">My list (${S.L.length})</button><button data-v="history" class="${S.view=="history"?"on":""}">Watched</button></div>
- <input id="q" type="search" placeholder="Search titles" aria-label="Search titles" value="${esc(S.q)}"><button class="btn ghost" id="sw" style="padding:.4rem .8rem">${esc(S.sub.name)}</button>${S.isAdmin?`<button class="btn ghost" id="toadm" style="padding:.4rem .8rem">Admin panel</button>`:""}<button class="btn ghost" id="out" style="padding:.4rem .8rem">Sign out</button></nav><div id="body"></div>`;
+ <input id="q" type="search" placeholder="Search titles" aria-label="Search titles" value="${esc(S.q)}"><button class="btn ghost" id="sw" style="padding:.4rem .8rem">${esc(S.sub.name)}</button>${S.isAdmin?`<button class="btn ghost" id="toadm" style="padding:.4rem .8rem">Admin panel</button>`:""}<button class="btn ghost" id="out" style="padding:.4rem .8rem">Sign out</button></nav>${S.set.announceOn&&S.set.announce?`<div class="ann" role="status">${esc(S.set.announce)}</div>`:""}<div id="body"></div>`;
  document.querySelectorAll("[data-v]").forEach(b=>b.onclick=()=>{S.view=b.dataset.v;S.q="";draw()});
  $("#sw").onclick=()=>{S.sub=null;picker()};$("#out").onclick=out;const ta=$("#toadm");if(ta)ta.onclick=()=>{S.preview=false;S.sub=null;go()};$("#q").oninput=e=>{S.q=e.target.value;body()};body()}
 function body(){
@@ -129,11 +150,15 @@ function body(){
  else if(S.view=="list"){const r=S.T.filter(t=>S.L.includes(t.id));h=r.length?rail("My list",r):`<p class="empty">Your list is empty. Open a title and select Add to list.</p>`}
  else{const f=S.T.find(t=>t.featured)||S.T[0];
   if(f)h+=`<section class="hero" style="background-image:linear-gradient(100deg,var(--bar) 5%,transparent 90%),${f.poster_url?`url('${esc(f.poster_url)}'),`:""}linear-gradient(100deg,var(--bar),var(--wine))"><h2>${esc(f.title)}</h2><p>${esc(f.description)}</p><div class="b"><button class="btn" data-play="${f.id}">Play</button><button class="btn ghost" data-id="${f.id}">More info</button></div></section>`;
+  if(!f)h+=`<section class="hero" style="background-image:linear-gradient(100deg,var(--bar),var(--wine))"><h2>Coming soon</h2><p>New films are on the way. Check back shortly.</p></section>`;
   h+=rail("Continue watching",hist().filter(t=>{const x=S.H.find(y=>y.title_id==t.id);return x.position>5}));
-  h+=S.R.map(r=>rail(r.name,S.T.filter(t=>t.row_id==r.id))).join("");
+  const dn=["Trending Now","Action","Drama","Comedy","Documentary"],have=S.R.map(r=>r.name.toLowerCase());
+  h+=S.R.map(r=>rail(r.name,S.T.filter(t=>t.row_id==r.id),7)).join("");
+  h+=dn.filter(n=>!have.includes(n.toLowerCase())).map(n=>rail(n,n=="Trending Now"?[...S.T].reverse().slice(0,10):S.T.filter(t=>(t.genre||"").toLowerCase().includes(n.toLowerCase())),7)).join("");
   const loose=S.T.filter(t=>!t.row_id);h+=rail("More to watch",loose);
-  if(!S.T.length)h+=`<p class="empty">No films yet. Add some in the admin panel.</p>`}
+  }
  $("#body").innerHTML="<main>"+h+"</main>";
+ document.querySelectorAll(".rc").forEach(c=>{const r=c.querySelector(".rail");c.querySelector(".l").onclick=()=>r.scrollBy({left:-r.clientWidth*.9,behavior:"smooth"});c.querySelector(".r").onclick=()=>r.scrollBy({left:r.clientWidth*.9,behavior:"smooth"})});
  document.querySelectorAll("[data-id]").forEach(b=>b.onclick=()=>detail(+b.dataset.id));
  document.querySelectorAll("[data-play]").forEach(b=>b.onclick=()=>play(+b.dataset.play))}
 function detail(id){
@@ -174,14 +199,24 @@ function play(id){
 const ADMIN=(()=>{const ROOT=window.__ROOT;
 let S={tab:"films",me:null,set:{},R:[],T:[],U:[],AE:[],W:{},edit:null,msg:""};
 async function load(){
- const [r,t,u,s,ae,sp,wh]=await Promise.all([sb.from("rows").select("*").order("position"),sb.from("titles").select("*").order("id",{ascending:false}),sb.from("profiles").select("*").order("created_at"),sb.from("settings").select("data").eq("id",1).single(),sb.from("admin_emails").select("*").order("email"),sb.from("sub_profiles").select("id,user_id"),sb.from("watch_history").select("sub_id")]);
- S.R=r.data||[];S.T=t.data||[];S.U=u.data||[];S.set=s.data?.data||{};S.AE=ae.data||[];const own={};(sp.data||[]).forEach(x=>own[x.id]=x.user_id);S.W={};(wh.data||[]).forEach(x=>{const k=own[x.sub_id];if(k)S.W[k]=(S.W[k]||0)+1});shell()}
+ const [r,t,u,s,ae,sp,wh]=await Promise.all([sb.from("rows").select("*").order("position"),sb.from("titles").select("*").order("id",{ascending:false}),sb.from("profiles").select("*").order("created_at"),sb.from("settings").select("data").eq("id",1).single(),sb.from("admin_emails").select("*").order("email"),sb.from("sub_profiles").select("id,user_id"),sb.from("watch_history").select("sub_id,title_id")]);
+ S.R=r.data||[];S.T=t.data||[];S.U=u.data||[];S.set=s.data?.data||{};S.AE=ae.data||[];const own={};(sp.data||[]).forEach(x=>own[x.id]=x.user_id);S.W={};S.V={};(wh.data||[]).forEach(x=>{S.V[x.title_id]=(S.V[x.title_id]||0)+1;const k=own[x.sub_id];if(k)S.W[k]=(S.W[k]||0)+1});shell()}
+const T9=[["films","Films","Add, edit and hide films"],["rows","Home layout","Rows and their order"],["look","Look & feel","Name, logo and colors"],["users","Users","Roles and blocking"],["site","Site rules","Maintenance, profiles, previews"],["ann","Announcements","Banner message for viewers"],["stats","Analytics","Most watched titles"],["team","Admin team","Who can open this panel"],["backup","Backup","Download films and users"]];
+function home(){const day=864e5,now=Date.now(),n=(a,f)=>a.filter(f).length;
+ const st=[["Films",S.T.length],["Accounts",S.U.length],["New this week",n(S.U,u=>now-new Date(u.created_at)<7*day)],["Active today",n(S.U,u=>u.last_seen&&now-new Date(u.last_seen)<day)]];
+ return `<div class="sts">${st.map(s=>`<div class="st"><b>${s[1]}</b>${s[0]}</div>`).join("")}</div><div class="hub">${T9.map(t=>`<button class="ht" data-t="${t[0]}"><h3>${t[1]}</h3><span>${t[2]}</span></button>`).join("")}</div>`}
+function site(){const d=S.set;return `<form id="sf" class="panel"><h3>Site rules</h3><label class="chk"><input type="checkbox" name="ph" ${d.ph!==false?"checked":""}> Show "Coming soon" tiles in rows with few films</label><label class="chk"><input type="checkbox" name="maint" ${d.maint?"checked":""}> Maintenance mode (viewers see a "back soon" page, admins still get in)</label><label>Profiles allowed per account<input type="number" name="maxp" min="1" max="10" value="${d.maxp||5}"></label><div class="acts"><button class="btn">Save site rules</button></div>${note()}</form>`}
+function ann(){const d=S.set;return `<form id="af" class="panel"><h3>Announcement banner</h3><label>Message shown at the top of the viewer site<input name="announce" maxlength="160" value="${esc(d.announce)}"></label><label class="chk"><input type="checkbox" name="on" ${d.announceOn?"checked":""}> Show the banner</label><div class="acts"><button class="btn">Save announcement</button></div>${note()}</form>`}
+function stats(){const top=[...S.T].sort((a,b)=>(S.V[b.id]||0)-(S.V[a.id]||0)).slice(0,10),mx=Math.max(1,...top.map(t=>S.V[t.id]||0));
+ return `<div class="panel"><h3>Most watched titles</h3>${top.length?top.map(t=>`<div class="bw"><span>${esc(t.title)}</span><i style="width:${(S.V[t.id]||0)/mx*100}%"></i><b>${S.V[t.id]||0}</b></div>`).join(""):"<p>No films yet.</p>"}<p style="color:var(--mute)">Counts are plays logged by viewers.</p></div>`}
+function backup(){return `<div class="panel"><h3>Backup</h3><p style="color:var(--mute)">Download your data as spreadsheet files.</p><div class="acts"><button class="btn" data-exp="films">Download films</button><button class="btn ghost" data-exp="users">Download users</button></div></div>`}
 function shell(){
- const tabs=[["films","Films"],["rows","Rows"],["look","Look & feel"],["users","Users"]];
- app.innerHTML=`<div id="adm"><header><b>${esc(S.set.brand||"Admin")} admin</b><div class="tabs">${tabs.map(t=>`<button data-t="${t[0]}" class="${S.tab==t[0]?"on":""}">${t[1]}</button>`).join("")}</div><button class="btn ghost" id="vs">View site</button><button class="btn ghost" id="out">Sign out</button></header><main id="pane"></main></div>`;
+ const cur=T9.find(t=>t[0]==S.tab);
+ app.innerHTML=`<div id="adm"><header><b>${esc(S.set.brand||"Admin")} admin${cur?": "+cur[1]:""}</b>${cur?`<button class="btn ghost" data-t="home">Dashboard</button>`:""}<button class="btn ghost" id="vs">View site</button><button class="btn ghost" id="out">Sign out</button></header><main id="pane"></main></div>`;
+ const U=users().split('<div class="panel scroll">'),P={home,films,rows,look,users:()=>'<div class="panel scroll">'+U[1],team:()=>U[0],site,ann,stats,backup};
+ $("#pane").innerHTML=(P[S.tab]||home)();
  document.querySelectorAll("[data-t]").forEach(b=>b.onclick=()=>{S.tab=b.dataset.t;S.edit=null;S.msg="";shell()});
- $("#out").onclick=out;$("#vs").onclick=()=>{ROOT.preview=true;ROOT.sub=null;go()};
- $("#pane").innerHTML=S.tab=="films"?films():S.tab=="rows"?rows():S.tab=="look"?look():users();bind()}
+ $("#out").onclick=out;$("#vs").onclick=()=>{ROOT.preview=true;ROOT.sub=null;go()};bind()}
 const note=()=>`<div class="ok" role="status">${esc(S.msg)}</div>`;
 function films(){
  const e=S.edit||{},opts=S.R.map(r=>`<option value="${r.id}" ${e.row_id==r.id?"selected":""}>${esc(r.name)}</option>`).join("");
@@ -192,10 +227,10 @@ function films(){
  <label class="chk"><input type="radio" name="source" value="link" checked> Video: paste a link</label><label class="chk"><input type="radio" name="source" value="upload"> Video: upload a file</label>
  <label id="vl">Video link (Google Drive, YouTube, Vimeo or .mp4)<input name="video_url" value="${esc(e.video_url)}"></label><label id="vf" style="display:none">Video file<input type="file" name="video_file" accept="video/*"></label>
  <div style="font-size:.82rem;color:var(--mute)">Google Drive: open the file, click Share, set General access to "Anyone with the link", then paste the link. Uploads are limited by your Supabase plan's per-file size; use a link for full-length films.</div>
- <label>Row<select name="row_id"><option value="">None</option>${opts}</select></label>
+ <label>Status<select name="status"><option value="published" ${e.status!=="draft"?"selected":""}>Published</option><option value="draft" ${e.status==="draft"?"selected":""}>Draft (hidden from viewers)</option></select></label><label>Row<select name="row_id"><option value="">None</option>${opts}</select></label>
  <label class="chk"><input type="checkbox" name="featured" ${e.featured?"checked":""}> Show as the featured title on Home</label>
  <div class="acts"><button class="btn">${e.id?"Save changes":"Add film"}</button>${e.id?`<button type="button" class="btn ghost" id="cancel">Cancel</button>`:""}</div>${note()}</form>
- <div class="panel scroll"><h3>All films (${S.T.length})</h3><table><tr><th>Title</th><th>Row</th><th></th></tr>${S.T.map(t=>`<tr><td>${esc(t.title)}${t.featured?" ★":""}</td><td>${esc(S.R.find(r=>r.id==t.row_id)?.name||"—")}</td><td><button class="btn ghost" data-edit="${t.id}">Edit</button> <button class="btn del" data-del="${t.id}">Delete</button></td></tr>`).join("")}</table></div>`}
+ <div class="panel scroll"><h3>All films (${S.T.length})</h3><table><tr><th>Title</th><th>Row</th><th></th></tr>${S.T.map(t=>`<tr><td>${esc(t.title)}${t.featured?" ★":""}${t.status==="draft"?" (draft)":""}</td><td>${esc(S.R.find(r=>r.id==t.row_id)?.name||"—")}</td><td><button class="btn ghost" data-edit="${t.id}">Edit</button> <button class="btn del" data-del="${t.id}">Delete</button></td></tr>`).join("")}</table></div>`}
 function rows(){
  return `<div class="panel scroll"><h3>Rows on Home</h3><p style="color:var(--mute);margin:0 0 .6rem">Lower numbers appear higher on the page.</p><table><tr><th>Name</th><th>Order</th><th></th></tr>
  ${S.R.map(r=>`<tr><td><input data-rn="${r.id}" value="${esc(r.name)}" aria-label="Row name"></td><td><input data-rp="${r.id}" type="number" value="${r.position}" aria-label="Order" style="width:80px"></td><td><button class="btn" data-saverow="${r.id}">Save</button> <button class="btn del" data-delrow="${r.id}">Delete</button></td></tr>`).join("")}</table>
@@ -221,7 +256,7 @@ function bind(){
     ok.textContent="Uploading the video. Keep this page open…";video=await upload(v.video_file,"videos")}
    else if(/drive\.google\.com\/drive\/folders/.test(video))throw new Error("That is a folder link. Open the film file itself, click Share and copy that link.");
    if(v.poster_file&&v.poster_file.size){ok.textContent="Uploading the poster…";poster=await upload(v.poster_file,"posters")}
-   const row={title:v.title.trim(),year:v.year?+v.year:null,genre:v.genre||null,description:v.description||null,poster_url:poster||null,video_url:video||null,row_id:v.row_id?+v.row_id:null,featured:!!v.featured};
+   const row={title:v.title.trim(),year:v.year?+v.year:null,genre:v.genre||null,description:v.description||null,poster_url:poster||null,video_url:video||null,row_id:v.row_id?+v.row_id:null,featured:!!v.featured,status:v.status||"published"};
    if(row.featured)await sb.from("titles").update({featured:false}).eq("featured",true);
    r=S.edit?await sb.from("titles").update(row).eq("id",S.edit.id):await sb.from("titles").insert(row);
   }catch(err){ok.textContent=err.message||"Something went wrong.";btn.disabled=false;return}
@@ -236,13 +271,17 @@ function bind(){
  const a=$("#addrow");if(a)a.onclick=async()=>{const n=$("#newrow").value.trim();if(!n)return;await sb.from("rows").insert({name:n,position:S.R.length+1});done("Row added.")};
  document.querySelectorAll("[data-saverow]").forEach(b=>b.onclick=async()=>{const id=b.dataset.saverow;await sb.from("rows").update({name:$(`[data-rn="${id}"]`).value.trim(),position:+$(`[data-rp="${id}"]`).value}).eq("id",id);done("Row saved.")});
  document.querySelectorAll("[data-delrow]").forEach(b=>b.onclick=async()=>{if(confirm("Delete this row? Its films stay and move to More to watch.")){await sb.from("rows").delete().eq("id",b.dataset.delrow);done("Row deleted.")}});
- const lf=$("#lf");if(lf)lf.onsubmit=async e=>{e.preventDefault();const r=await sb.from("settings").update({data:Object.fromEntries(new FormData(lf))}).eq("id",1);done(r.error?r.error.message:"Saved. Reload the viewer app to see it.")};
+ const lf=$("#lf");if(lf)lf.onsubmit=async e=>{e.preventDefault();const r=await sb.from("settings").update({data:{...S.set,...Object.fromEntries(new FormData(lf))}}).eq("id",1);done(r.error?r.error.message:"Saved. Reload the viewer app to see it.")};
  document.querySelectorAll("[data-role]").forEach(s=>s.onchange=async()=>{await sb.from("profiles").update({role:s.value}).eq("id",s.dataset.role);done("Role updated.")});
  document.querySelectorAll("[data-block]").forEach(s=>s.onchange=async()=>{await sb.from("profiles").update({blocked:s.checked}).eq("id",s.dataset.block);done(s.checked?"Account blocked.":"Account unblocked.")});
  const aa=$("#addadm");if(aa)aa.onclick=async()=>{const em=$("#newadm").value.trim().toLowerCase();if(!em)return;const r=await sb.from("admin_emails").insert({email:em});done(r.error?r.error.message:"Admin added.")};
- document.querySelectorAll("[data-rmadm]").forEach(b=>b.onclick=async()=>{if(confirm("Remove admin access for "+b.dataset.rmadm+"?")){await sb.from("admin_emails").delete().eq("email",b.dataset.rmadm);done("Admin removed.")}})}
+ document.querySelectorAll("[data-rmadm]").forEach(b=>b.onclick=async()=>{if(confirm("Remove admin access for "+b.dataset.rmadm+"?")){await sb.from("admin_emails").delete().eq("email",b.dataset.rmadm);done("Admin removed.")}});
+ const sv=(f,fn,m)=>{const x=$(f);if(x)x.onsubmit=async e=>{e.preventDefault();const v=new FormData(x),r=await sb.from("settings").update({data:{...S.set,...fn(v)}}).eq("id",1);done(r.error?r.error.message:m)}};
+ sv("#sf",v=>({ph:!!v.get("ph"),maint:!!v.get("maint"),maxp:Math.min(10,Math.max(1,+v.get("maxp")||5))}),"Saved.");
+ sv("#af",v=>({announce:v.get("announce")||"",announceOn:!!v.get("on")}),"Saved.");
+ document.querySelectorAll("[data-exp]").forEach(b=>b.onclick=()=>{const k=b.dataset.exp,rows=k=="films"?S.T.map(t=>[t.title,t.year,t.genre,t.status,t.video_url]):S.U.map(u=>[u.email,u.role,u.blocked,u.created_at]),head=k=="films"?["title","year","genre","status","video"]:["email","role","blocked","joined"],q=c=>`"${String(c??"").replace(/"/g,'""')}"`,a=document.createElement("a");a.href=URL.createObjectURL(new Blob([[head,...rows].map(r=>r.map(q).join(",")).join("\n")],{type:"text/csv"}));a.download=k+".csv";a.click()})}
 
-function start(){S.me=ROOT.user;S.tab="films";S.edit=null;S.msg="";load()}
+function start(){document.body.classList.remove("dk");S.me=ROOT.user;S.tab="home";S.edit=null;S.msg="";load()}
 return{start}})();
 
 init();
