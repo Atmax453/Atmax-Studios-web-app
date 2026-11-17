@@ -104,7 +104,7 @@ body.noanim *{animation:none!important;transition:none!important}body.noarr .ar{
 .empty,.alt{color:var(--mu,#a89aa0)}
 nav{color:var(--nt,#fff)}nav .tabs button{color:color-mix(in srgb,var(--nt,#fff) 70%,transparent)}nav .tabs .on{color:var(--nt,#fff)}
 .rt{color:var(--star,#fff)}
-.logo img{height:var(--lh,30px)}
+.logo img{height:var(--lh,30px);width:auto;max-width:min(60vw,280px);object-fit:contain}
 .rail{gap:var(--rg,.9rem)}
 body.th-glow .tile:hover,body.th-glow .tile:focus-visible{transform:none}
 body.th-none .tile:hover,body.th-none .tile:focus-visible{transform:none;box-shadow:0 6px 18px rgba(0,0,0,.45)}
@@ -131,7 +131,7 @@ const sb=supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
 const $=s=>document.querySelector(s),app=$("#app");
 const esc=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 let S={set:{},user:null,sub:null,view:"home",q:"",mode:"in",T:[],R:[],L:[],H:[],isAdmin:false,preview:false};window.__ROOT=S;
-const brand=()=>`<div class="logo">${S.set.logo?`<img src="${esc(S.set.logo)}" alt="${esc(S.set.brand)}" height="30">`:esc(S.set.brand||"ATMAX")}</div>`;
+const brand=()=>`<div class="logo">${S.set.logo?`<img src="${esc(dimg(S.set.logo))}" alt="${esc(S.set.brand||"ATMAX")}" height="30" onerror="this.replaceWith(document.createTextNode(this.alt))">`:esc(S.set.brand||"ATMAX")}</div>`;
 const FONTS={clean:"system-ui,-apple-system,'Segoe UI',sans-serif",serif:"Georgia,'Times New Roman',serif",rounded:"ui-rounded,'Segoe UI',system-ui,sans-serif",cond:"'Arial Narrow','Roboto Condensed',sans-serif",poppins:"'Poppins',system-ui,sans-serif",montserrat:"'Montserrat',system-ui,sans-serif",playfair:"'Playfair Display',Georgia,serif",bebas:"'Bebas Neue',Impact,sans-serif",oswald:"'Oswald','Arial Narrow',sans-serif",lora:"'Lora',Georgia,serif"};
 
 /* ---- theme engine ---- */
@@ -151,9 +151,9 @@ function theme(){const d=eff(S.set),r=document.documentElement.style,b=document.
  r.setProperty("--tr",(d.tr||12)+"px");r.setProperty("--tw",{s:"150px",m:"200px",l:"250px"}[d.ts]||"200px");r.setProperty("--ar",{wide:"16/9",sq:"1/1"}[d.tsh]||"2/3");r.setProperty("--hh",{s:"38vh",m:"55vh",l:"85vh"}[d.hh]||"55vh");
  r.setProperty("--navbg",d.nb=="clear"?"transparent":d.nb=="solid"?"var(--bar)":"color-mix(in srgb,var(--bar) 72%,transparent)");
  b.classList.toggle("noanim",!!d.noanim);b.classList.toggle("noarr",!!d.noarr);
- ["icon","apple-touch-icon"].forEach(k=>{let l=document.querySelector(`link[rel="${k}"]`);if(!l){l=document.createElement("link");l.rel=k;document.head.appendChild(l)}if(d.icon)l.href=d.icon});
+ ["icon","apple-touch-icon"].forEach(k=>{let l=document.querySelector(`link[rel="${k}"]`);if(!l){l=document.createElement("link");l.rel=k;document.head.appendChild(l)}if(d.icon)l.href=dimg(d.icon)});
  const G=d.pg2&&d.pgd&&d.pgd!=="none"?(d.pgd==="radial"?`radial-gradient(circle at 50% 0%,${d.pg2},${d.pg||"#0a0809"})`:`linear-gradient(${d.pgd==="diag"?"135deg":"180deg"},${d.pg||"#0a0809"},${d.pg2})`):"";
- b.style.backgroundImage=d.bgImage?`url('${String(d.bgImage).replace(/'/g,"%27")}')`:G;
+ b.style.backgroundImage=d.bgImage?`url('${dimg(String(d.bgImage)).replace(/'/g,"%27")}')`:G;
  r.setProperty("--ac2",d.ac2||d.accent||"#9b2c4b");r.setProperty("--btx",d.btx||"#fff");r.setProperty("--nt",d.nt||"#fff");r.setProperty("--mu",d.mu||"#a89aa0");r.setProperty("--sf",d.sf||"#fff");r.setProperty("--sx",d.sx||"#141012");r.setProperty("--star",d.star||"#fff");
  r.setProperty("--ho",(d.ho??100)+"%");r.setProperty("--glw",(d.glw??55)+"%");r.setProperty("--lh",(d.lh||30)+"px");
  r.setProperty("--br",{sq:"2px",pill:"999px"}[d.br]||"6px");r.setProperty("--rg",{c:".5rem",r:"1.3rem"}[d.dn]||".9rem");
@@ -229,7 +229,7 @@ function body(){
  else if(S.view=="list"){const r=S.T.filter(t=>S.L.includes(t.id));h=r.length?rail("My list",r):`<p class="empty">Your list is empty. Open a title and select Add to list.</p>`}
  else{const fl=S.T.filter(t=>t.featured),f=fl.length?fl[(S.hi||0)%fl.length]:S.T[0];
   if(f)h+=heroHTML(f);
-  if(!f)h+=`<section class="hero" style="background-image:linear-gradient(100deg,color-mix(in srgb,var(--bar) var(--ho,100%),transparent) 5%,transparent 90%),${S.set.heroImg?`url('${esc(S.set.heroImg)}'),`:""}linear-gradient(100deg,var(--bar),var(--wine))"><h2>${esc(S.set.heroT||"Coming soon")}</h2><p>${esc(S.set.heroD||"New films are on the way. Check back shortly.")}</p></section>`;
+  if(!f)h+=`<section class="hero" style="background-image:linear-gradient(100deg,color-mix(in srgb,var(--bar) var(--ho,100%),transparent) 5%,transparent 90%),${S.set.heroImg?`url('${esc(dimg(S.set.heroImg).replace(/'/g,"%27"))}'),`:""}linear-gradient(100deg,var(--bar),var(--wine))"><h2>${esc(S.set.heroT||"Coming soon")}</h2><p>${esc(S.set.heroD||"New films are on the way. Check back shortly.")}</p></section>`;
   h+=rail("Continue watching",hist().filter(t=>{const x=S.H.find(y=>y.title_id==t.id);return x.position>5}));
   const dn=["Trending Now","Action","Drama","Comedy","Documentary"],have=S.RALL.map(r=>r.name.toLowerCase());
   h+=S.R.map(r=>rail(r.name,S.T.filter(t=>t.row_id==r.id),7)).join("");
@@ -326,6 +326,7 @@ function whyFail(u){
 async function runPicCheck(){
  const out=$("#pcres"),jobs=[];
  S.T.forEach(t=>PSL.forEach(([c,l])=>{if(t[c])jobs.push([t,l,t[c]])}));
+ [["logo","Brand logo"],["icon","Site icon"],["bgImage","Page background"],["heroImg","Coming soon banner"]].forEach(([k,l])=>{if(S.set[k])jobs.push([{title:"Site settings"},l,S.set[k]])});
  if(!jobs.length){out.textContent="No pictures are saved on any film yet.";return}
  out.textContent="Checking "+jobs.length+" pictures…";
  const res=await Promise.all(jobs.map(([t,l,u])=>new Promise(r=>{let d=false;const fin=ok=>{if(!d){d=true;r([t,l,u,ok])}},im=new Image();im.onload=()=>fin(true);im.onerror=()=>fin(false);setTimeout(()=>fin(false),12000);im.src=dimg(u)})));
