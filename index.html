@@ -70,7 +70,7 @@ main{animation:fi .7s ease both}.hero{animation:fi .9s ease both;box-shadow:inse
 .rowt{color:var(--tx,#f4ecef)}.empty{color:#a89aa0}.rc{position:relative}
 .rail{scroll-behavior:smooth;scrollbar-width:none;padding:1.4rem 4% 1.6rem;gap:.9rem}.rail::-webkit-scrollbar{display:none}
 .tile{padding:0;border-radius:12px;box-shadow:0 6px 18px rgba(0,0,0,.45);transition:transform .35s cubic-bezier(.2,.8,.2,1),box-shadow .35s}
-.tile:hover,.tile:focus-visible{transform:scale(1.09) translateY(-6px);z-index:3;box-shadow:0 18px 40px rgba(0,0,0,.6),0 0 0 1.5px rgba(255,255,255,.35),0 0 28px color-mix(in srgb,var(--wine) 55%,transparent)}
+.tile:hover,.tile:focus-visible{transform:scale(1.09) translateY(-6px);z-index:3;box-shadow:0 18px 40px rgba(0,0,0,.6),0 0 0 1.5px rgba(255,255,255,.35),0 0 28px color-mix(in srgb,var(--wine) var(--glw,55%),transparent)}
 .gl{margin:.6rem;padding:.6rem .7rem;border-radius:9px;background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.28);backdrop-filter:blur(10px) saturate(140%);-webkit-backdrop-filter:blur(10px) saturate(140%);display:flex;flex-direction:column;gap:.1rem}
 .gl em{font-style:normal;font-size:.78rem;max-height:0;opacity:0;overflow:hidden;transition:max-height .3s,opacity .3s}.tile:hover .gl em,.tile:focus-visible .gl em{max-height:1.4rem;opacity:1}
 .tile.ph{cursor:default;border:1px solid rgba(255,255,255,.12);background:radial-gradient(circle at 30% 20%,color-mix(in srgb,var(--wine) 45%,#0a0809),#0a0809)}
@@ -85,7 +85,7 @@ main{animation:fi .7s ease both}.hero{animation:fi .9s ease both;box-shadow:inse
 .sb{background:none;border:0;color:#d9a441;font-size:1.3rem;padding:0 .1rem}.cf{display:flex;gap:.5rem;margin:.6rem 0}.cl p{margin:.3rem 0;font-size:.92rem}.hint{font-size:.82rem;color:var(--mute);margin-top:.4rem}
 html.tv{font-size:22px}body.tv nav{padding-left:5%;padding-right:5%}body.tv .tile{width:240px}body.tv .ar{display:none}
 body.tv :focus{outline:4px solid #fff;outline-offset:3px}
-body.tv .tile:focus{transform:scale(1.09) translateY(-6px);z-index:3;box-shadow:0 18px 40px rgba(0,0,0,.6),0 0 28px color-mix(in srgb,var(--wine) 55%,transparent)}
+body.tv .tile:focus{transform:scale(1.09) translateY(-6px);z-index:3;box-shadow:0 18px 40px rgba(0,0,0,.6),0 0 28px color-mix(in srgb,var(--wine) var(--glw,55%),transparent)}
 body.tv .tile:focus .gl em{max-height:1.4rem;opacity:1}
 body,button,input,select,textarea{font-family:var(--fb,system-ui,-apple-system,'Segoe UI',sans-serif)}
 .hero h2,.rowt,.mart h3,.logo,.card h1,.profiles h1{font-family:var(--ft,var(--fb,inherit))}#adm,#adm *{font-family:system-ui,-apple-system,'Segoe UI',sans-serif}
@@ -94,6 +94,34 @@ body,button,input,select,textarea{font-family:var(--fb,system-ui,-apple-system,'
 body.noanim *{animation:none!important;transition:none!important}body.noarr .ar{display:none}
 .slot{border:1px solid var(--line);border-radius:8px;margin:.8rem 0;padding:.4rem .8rem .8rem}.slot legend{font-weight:600;font-size:.9rem;padding:0 .4rem}.fp{position:relative;border-radius:6px;cursor:crosshair;margin:.5rem 0;width:100%}.fp i{position:absolute;width:16px;height:16px;border:3px solid #fff;border-radius:50%;box-shadow:0 0 0 2px #000;transform:translate(-50%,-50%);pointer-events:none}
 .stored{color:#1b7a3b;font-size:.85rem;margin:.3rem 0}
+
+/* ---- look & feel extras ---- */
+.btn{border-radius:var(--br,6px)}
+.btn:not(.ghost){background:linear-gradient(135deg,var(--wine),var(--ac2,var(--wine)));color:var(--btx,#fff)}
+.hero .btn:not(.ghost){background:#fff;color:#141012}
+#adm .btn:not(.ghost):not(.del){background:var(--wine);color:#fff;border-radius:6px}
+.login .card,.mbox{background:var(--sf,#fff);color:var(--sx,#141012)}
+.empty,.alt{color:var(--mu,#a89aa0)}
+nav{color:var(--nt,#fff)}nav .tabs button{color:color-mix(in srgb,var(--nt,#fff) 70%,transparent)}nav .tabs .on{color:var(--nt,#fff)}
+.rt{color:var(--star,#fff)}
+.logo img{height:var(--lh,30px)}
+.rail{gap:var(--rg,.9rem)}
+body.th-glow .tile:hover,body.th-glow .tile:focus-visible{transform:none}
+body.th-none .tile:hover,body.th-none .tile:focus-visible{transform:none;box-shadow:0 6px 18px rgba(0,0,0,.45)}
+#adm .cgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:0 1rem}
+#adm .lpv{border-radius:12px;overflow:hidden;border:1px solid var(--line);padding-bottom:.8rem}
+#adm .lpn{background:var(--bar);color:var(--nt);padding:.6rem .8rem;display:flex;gap:1rem;font-size:.85rem}#adm .lpn b{color:var(--a);margin-right:auto}
+#adm .lph{padding:1.6rem 1rem 1rem;background:linear-gradient(100deg,color-mix(in srgb,var(--bar) var(--ho),transparent),transparent 90%),linear-gradient(135deg,#4a4a4a,#222);color:#fff}
+#adm .lph h4{margin:0 0 .2rem;font-size:1.3rem}#adm .lph p{margin:0 0 .6rem;font-size:.8rem}
+#adm .lpb{display:inline-block;padding:.35rem .8rem;border-radius:6px;font-weight:600;font-size:.8rem;background:linear-gradient(135deg,var(--a),var(--a2));color:var(--bt)}
+#adm .lpg{display:inline-block;padding:.3rem .8rem;border:1.5px solid #fff;border-radius:6px;font-size:.8rem}
+#adm .lpr{padding:.7rem 1rem .3rem;font-weight:700;color:var(--tx)}#adm .lpr small{font-weight:400;color:var(--mu);margin-left:.5rem}
+#adm .lpt{display:flex;gap:.5rem;padding:0 1rem}#adm .lpt i{width:64px;aspect-ratio:2/3;border-radius:8px;background:linear-gradient(160deg,color-mix(in srgb,var(--a) 50%,#222),#111)}
+#adm .lpc{margin:.8rem 1rem 0;padding:.7rem;border-radius:8px;background:var(--sf);color:var(--sx);font-size:.85rem}#adm .lpc p{margin:.2rem 0 .5rem}
+#adm .lps{margin-left:.5rem;color:var(--st);background:#333;padding:.2rem .5rem;border-radius:99px;font-size:.78rem}
+#adm .lpw{font-size:.85rem;margin:.5rem 0;color:var(--mute)}
+#adm .lpwrap{position:sticky;top:0;z-index:3;background:#fff;padding:.4rem 0;max-height:60vh;overflow:auto}
+#adm .chip{display:inline-flex;gap:.2rem}
 </style></head>
 <body><div id="app"></div>
 <script>
@@ -105,14 +133,33 @@ const esc=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&g
 let S={set:{},user:null,sub:null,view:"home",q:"",mode:"in",T:[],R:[],L:[],H:[],isAdmin:false,preview:false};window.__ROOT=S;
 const brand=()=>`<div class="logo">${S.set.logo?`<img src="${esc(S.set.logo)}" alt="${esc(S.set.brand)}" height="30">`:esc(S.set.brand||"ATMAX")}</div>`;
 const FONTS={clean:"system-ui,-apple-system,'Segoe UI',sans-serif",serif:"Georgia,'Times New Roman',serif",rounded:"ui-rounded,'Segoe UI',system-ui,sans-serif",cond:"'Arial Narrow','Roboto Condensed',sans-serif",poppins:"'Poppins',system-ui,sans-serif",montserrat:"'Montserrat',system-ui,sans-serif",playfair:"'Playfair Display',Georgia,serif",bebas:"'Bebas Neue',Impact,sans-serif",oswald:"'Oswald','Arial Narrow',sans-serif",lora:"'Lora',Georgia,serif"};
-function theme(){const d=S.set,r=document.documentElement.style,b=document.body;
+
+/* ---- theme engine ---- */
+const CK=["accent","ac2","btx","dark","nt","pg","pg2","pgd","tx","mu","sf","sx","star"];
+const DEF={accent:"#9b2c4b",btx:"#ffffff",dark:"#0e0b0c",nt:"#ffffff",pg:"#0a0809",pgd:"none",tx:"#f4ecef",mu:"#a89aa0",sf:"#ffffff",sx:"#141012",star:"#ffffff"};
+const fillTheme=t=>{const o={...DEF,...t};o.ac2=t.ac2||o.accent;o.pg2=t.pg2||o.pg;return o};
+const THX={ghana:["Ghana gold & green",{accent:"#fcd116",ac2:"#f0a800",btx:"#141012",dark:"#0b1a0f",pg:"#07100a",tx:"#fff8e1"}],emerald:["Emerald",{accent:"#10b981",ac2:"#059669",btx:"#04130d",dark:"#06130f",pg:"#050d0a",tx:"#e8f7f1"}],sunset:["Sunset",{accent:"#f97316",ac2:"#e11d48",btx:"#ffffff",dark:"#190b08",pg:"#100705",tx:"#fdeee6"}]};
+const lightOn=()=>{try{return localStorage.getItem("atmax_lt")==="1"}catch(e){return false}};
+function eff(s){let d={...s};
+ if(s.evt&&s.evf&&s.evu){const n=new Date().toISOString().slice(0,10);
+  if(n>=s.evf&&n<=s.evu){const t=s.evt.startsWith("c:")?((s.cthemes||[]).find(x=>x.n===s.evt.slice(2))||{}).v:(window.TH&&TH[s.evt]?TH[s.evt][1]:null);if(t)d={...d,...fillTheme(t)}}}
+ if(s.ltg&&lightOn())d={...d,pg:"#f6f1f2",pg2:"#f6f1f2",pgd:"none",tx:"#141012",mu:"#6f6368",sf:"#ffffff",sx:"#141012"};
+ return d}
+function theme(){const d=eff(S.set),r=document.documentElement.style,b=document.body;
  r.setProperty("--wine",d.accent||"#9b2c4b");r.setProperty("--bar",d.dark||"#0e0b0c");r.setProperty("--pg",d.pg||"#0a0809");r.setProperty("--tx",d.tx||"#f4ecef");
  r.setProperty("--fb",FONTS[d.fb]||FONTS.clean);r.setProperty("--ft",FONTS[d.ft]||FONTS[d.fb]||FONTS.clean);if(d.fs&&!TV)r.fontSize={s:"90%",m:"100%",l:"112%"}[d.fs]||"100%";
  r.setProperty("--tr",(d.tr||12)+"px");r.setProperty("--tw",{s:"150px",m:"200px",l:"250px"}[d.ts]||"200px");r.setProperty("--ar",{wide:"16/9",sq:"1/1"}[d.tsh]||"2/3");r.setProperty("--hh",{s:"38vh",m:"55vh",l:"85vh"}[d.hh]||"55vh");
  r.setProperty("--navbg",d.nb=="clear"?"transparent":d.nb=="solid"?"var(--bar)":"color-mix(in srgb,var(--bar) 72%,transparent)");
  b.classList.toggle("noanim",!!d.noanim);b.classList.toggle("noarr",!!d.noarr);
  ["icon","apple-touch-icon"].forEach(k=>{let l=document.querySelector(`link[rel="${k}"]`);if(!l){l=document.createElement("link");l.rel=k;document.head.appendChild(l)}if(d.icon)l.href=d.icon});
- b.style.backgroundImage=d.bgImage?`url("${d.bgImage}")`:"";document.title=d.brand||"Watch"}
+ const G=d.pg2&&d.pgd&&d.pgd!=="none"?(d.pgd==="radial"?`radial-gradient(circle at 50% 0%,${d.pg2},${d.pg||"#0a0809"})`:`linear-gradient(${d.pgd==="diag"?"135deg":"180deg"},${d.pg||"#0a0809"},${d.pg2})`):"";
+ b.style.backgroundImage=d.bgImage?`url('${String(d.bgImage).replace(/'/g,"%27")}')`:G;
+ r.setProperty("--ac2",d.ac2||d.accent||"#9b2c4b");r.setProperty("--btx",d.btx||"#fff");r.setProperty("--nt",d.nt||"#fff");r.setProperty("--mu",d.mu||"#a89aa0");r.setProperty("--sf",d.sf||"#fff");r.setProperty("--sx",d.sx||"#141012");r.setProperty("--star",d.star||"#fff");
+ r.setProperty("--ho",(d.ho??100)+"%");r.setProperty("--glw",(d.glw??55)+"%");r.setProperty("--lh",(d.lh||30)+"px");
+ r.setProperty("--br",{sq:"2px",pill:"999px"}[d.br]||"6px");r.setProperty("--rg",{c:".5rem",r:"1.3rem"}[d.dn]||".9rem");
+ b.classList.toggle("th-glow",d.th==="glow");b.classList.toggle("th-none",d.th==="none");
+ let st=document.getElementById("ccss");if(!st){st=document.createElement("style");st.id="ccss";document.head.appendChild(st)}st.textContent=String(d.ccss||"").replace(/<\/?style/gi,"");
+ document.title=d.brand||"Watch"}
 async function init(){
  const {data}=await sb.from("settings").select("data").eq("id",1).single();
  S.set=data?.data||{};theme();
@@ -174,7 +221,7 @@ function draw(){document.body.classList.add("dk");
  if(!S.user){$("#sw").remove();document.querySelector('[data-v="list"]').remove();document.querySelector('[data-v="history"]').remove();const o=$("#out");o.textContent="Sign in";o.onclick=()=>{S.mode="in";login()};const su=document.createElement("button");su.className="btn";su.style.padding=".4rem .8rem";su.textContent="Sign up";su.onclick=()=>{S.mode="up";login()};o.after(su);$("#q").oninput=e=>{S.q=e.target.value;body()};body();return}
  $("#sw").onclick=()=>{S.sub=null;picker()};$("#out").onclick=out;const ta=$("#toadm");if(ta)ta.onclick=()=>{S.preview=false;S.sub=null;go()};$("#q").oninput=e=>{S.q=e.target.value;body()};body()}
 const bn=f=>pick(f,isPhone()?"phone":"pc");
-const heroHTML=f=>`<section class="hero" style="background-image:linear-gradient(100deg,var(--bar) 5%,transparent 90%),${bn(f).src?`url('${esc(bn(f).src.replace(/'/g,"%27"))}'),`:""}linear-gradient(100deg,var(--bar),var(--wine))" data-bp="${bn(f).pos}"><h2>${esc(f.title)}</h2><p class="hm">${heroMeta(f)}</p><p>${esc(f.description)}</p><div class="b"><button class="btn" data-play="${f.id}">Play</button><button class="btn ghost" data-id="${f.id}">More info</button></div></section>`;
+const heroHTML=f=>`<section class="hero" style="background-image:linear-gradient(100deg,color-mix(in srgb,var(--bar) var(--ho,100%),transparent) 5%,transparent 90%),${bn(f).src?`url('${esc(bn(f).src.replace(/'/g,"%27"))}'),`:""}linear-gradient(100deg,var(--bar),var(--wine))" data-bp="${bn(f).pos}"><h2>${esc(f.title)}</h2><p class="hm">${heroMeta(f)}</p><p>${esc(f.description)}</p><div class="b"><button class="btn" data-play="${f.id}">Play</button><button class="btn ghost" data-id="${f.id}">More info</button></div></section>`;
 function body(){
  const q=S.q.trim().toLowerCase();let h="";
  if(q){const r=S.T.filter(t=>(t.title+" "+(t.genre||"")).toLowerCase().includes(q));h=r.length?rail("Results",r):`<p class="empty">No titles match “${esc(S.q)}”. Try a genre.</p>`}
@@ -182,7 +229,7 @@ function body(){
  else if(S.view=="list"){const r=S.T.filter(t=>S.L.includes(t.id));h=r.length?rail("My list",r):`<p class="empty">Your list is empty. Open a title and select Add to list.</p>`}
  else{const fl=S.T.filter(t=>t.featured),f=fl.length?fl[(S.hi||0)%fl.length]:S.T[0];
   if(f)h+=heroHTML(f);
-  if(!f)h+=`<section class="hero" style="background-image:linear-gradient(100deg,var(--bar) 5%,transparent 90%),${S.set.heroImg?`url('${esc(S.set.heroImg)}'),`:""}linear-gradient(100deg,var(--bar),var(--wine))"><h2>${esc(S.set.heroT||"Coming soon")}</h2><p>${esc(S.set.heroD||"New films are on the way. Check back shortly.")}</p></section>`;
+  if(!f)h+=`<section class="hero" style="background-image:linear-gradient(100deg,color-mix(in srgb,var(--bar) var(--ho,100%),transparent) 5%,transparent 90%),${S.set.heroImg?`url('${esc(S.set.heroImg)}'),`:""}linear-gradient(100deg,var(--bar),var(--wine))"><h2>${esc(S.set.heroT||"Coming soon")}</h2><p>${esc(S.set.heroD||"New films are on the way. Check back shortly.")}</p></section>`;
   h+=rail("Continue watching",hist().filter(t=>{const x=S.H.find(y=>y.title_id==t.id);return x.position>5}));
   const dn=["Trending Now","Action","Drama","Comedy","Documentary"],have=S.RALL.map(r=>r.name.toLowerCase());
   h+=S.R.map(r=>rail(r.name,S.T.filter(t=>t.row_id==r.id),7)).join("");
@@ -306,20 +353,52 @@ function rows(){
  return `<div class="panel scroll"><h3>Rows on Home</h3><p style="color:var(--mute);margin:0 0 .6rem">Lower numbers appear higher on the page. Untick Active to hide a row and its films from viewers (nothing is deleted).</p><table><tr><th>Name</th><th>Order</th><th>Active</th><th></th></tr>
  ${S.R.map(r=>`<tr><td><input data-rn="${r.id}" value="${esc(r.name)}" aria-label="Row name"></td><td><input data-rp="${r.id}" type="number" value="${r.position}" aria-label="Order" style="width:80px"></td><td><input type="checkbox" data-ra="${r.id}" ${r.active!==false?"checked":""} aria-label="Row active"></td><td><button class="btn" data-saverow="${r.id}">Save</button> <button class="btn del" data-delrow="${r.id}">Delete</button></td></tr>`).join("")}</table>
  <div class="acts"><input id="newrow" placeholder="New row name" style="max-width:260px"><button class="btn" id="addrow">Add row</button></div>${note()}</div>`}
-const TH={mid:["Midnight",{accent:"#9b2c4b",dark:"#0e0b0c",pg:"#0a0809",tx:"#f4ecef"}],crim:["Crimson",{accent:"#c0182f",dark:"#14070a",pg:"#0d0507",tx:"#f7ecee"}],ocean:["Ocean",{accent:"#1f8fd1",dark:"#07131d",pg:"#050d14",tx:"#e9f3fa"}],gold:["Gold",{accent:"#c8932b",dark:"#14100a",pg:"#0b0905",tx:"#f6efe2"}],light:["Light",{accent:"#9b2c4b",dark:"#0e0b0c",pg:"#f6f1f2",tx:"#141012"}]};
+const TH=window.TH={mid:["Midnight",{accent:"#9b2c4b",dark:"#0e0b0c",pg:"#0a0809",tx:"#f4ecef"}],crim:["Crimson",{accent:"#c0182f",dark:"#14070a",pg:"#0d0507",tx:"#f7ecee"}],ocean:["Ocean",{accent:"#1f8fd1",dark:"#07131d",pg:"#050d14",tx:"#e9f3fa"}],gold:["Gold",{accent:"#c8932b",dark:"#14100a",pg:"#0b0905",tx:"#f6efe2"}],light:["Light",{accent:"#9b2c4b",dark:"#0e0b0c",pg:"#f6f1f2",tx:"#141012",mu:"#6f6368"}]};Object.assign(TH,THX);
 const FN={clean:"Clean (built-in)",serif:"Classic serif (built-in)",rounded:"Rounded (built-in)",cond:"Condensed (built-in)",poppins:"Poppins",montserrat:"Montserrat",playfair:"Playfair Display",bebas:"Bebas Neue",oswald:"Oswald",lora:"Lora"};
+const CKEYS=CK;
+function initLook(lf){
+ const g=k=>lf.elements[k]?lf.elements[k].value:"",cur=()=>{const o={};CKEYS.forEach(k=>o[k]=g(k));return o};
+ const L=h=>{h=String(h).replace("#","");if(h.length==3)h=h.split("").map(c=>c+c).join("");const n=[0,2,4].map(i=>{const v=parseInt(h.substr(i,2),16)/255;return v<=.03928?v/12.92:Math.pow((v+.055)/1.055,2.4)});return .2126*n[0]+.7152*n[1]+.0722*n[2]},
+  cr=(a,b)=>{const x=L(a),y=L(b);return(Math.max(x,y)+.05)/(Math.min(x,y)+.05)};
+ const pv=()=>{const o=cur(),P=$("#lpv");if(!P)return;
+  const bg=o.pgd=="none"?o.pg:o.pgd=="radial"?`radial-gradient(circle at 50% 0%,${o.pg2},${o.pg})`:`linear-gradient(${o.pgd=="diag"?"135deg":"180deg"},${o.pg},${o.pg2})`;
+  P.style.cssText=`--a:${o.accent};--a2:${o.ac2};--bt:${o.btx};--bar:${o.dark};--nt:${o.nt};--tx:${o.tx};--mu:${o.mu};--sf:${o.sf};--sx:${o.sx};--st:${o.star};--ho:${g("ho")||100}%;background:${bg};color:${o.tx}`;
+  const w=[];[["Text on the page",o.tx,o.pg,4.5],["Secondary text on the page",o.mu,o.pg,3],["Button text on the accent color",o.btx,o.accent,4.5],["Top bar text on the top bar",o.nt,o.dark,4.5],["Pop-up text on the pop-up background",o.sx,o.sf,4.5]].forEach(([n,f,b,m])=>{const r=cr(f,b);if(r<m)w.push(`${n} is hard to read (contrast ${r.toFixed(1)}; aim for ${m} or more).`)});
+  $("#lpw").innerHTML=w.length?w.map(x=>"⚠ "+esc(x)).join("<br>"):"✓ The main text colors are easy to read.";
+  lf.querySelectorAll("[data-o]").forEach(s=>s.textContent=g(s.dataset.o))};
+ const setAll=t=>{const f=fillTheme(t);CKEYS.forEach(k=>{if(lf.elements[k])lf.elements[k].value=f[k]});pv()};
+ const store=async(l,msg,extra)=>{const r=await sb.from("settings").update({data:{...S.set,...(extra||{}),cthemes:l}}).eq("id",1);done(r.error?r.error.message:msg)};
+ lf.addEventListener("input",pv);
+ lf.querySelectorAll("[data-th]").forEach(b=>b.onclick=()=>setAll(TH[b.dataset.th][1]));
+ lf.querySelectorAll("[data-ct]").forEach(b=>b.onclick=()=>{const t=(S.set.cthemes||[]).find(x=>x.n===b.dataset.ct);if(t)setAll(t.v)});
+ lf.querySelectorAll("[data-ctd]").forEach(b=>b.onclick=()=>{if(confirm('Delete the theme "'+b.dataset.ctd+'"?'))store((S.set.cthemes||[]).filter(x=>x.n!==b.dataset.ctd),"Theme deleted.")});
+ $("#ctsave").onclick=()=>{const n=(($("#ctname").value||"").replace(/[^\w &.-]/g,"")).trim().slice(0,24);if(!n)return alert("Give the theme a name first (letters and numbers).");
+  store([...(S.set.cthemes||[]).filter(x=>x.n!==n),{n,v:cur()}].slice(-12),"Theme saved and applied.",cur())};
+ $("#ctexp").onclick=async()=>{const t=JSON.stringify(cur());try{await navigator.clipboard.writeText(t);alert("Theme code copied.")}catch(e){prompt("Copy this theme code",t)}};
+ $("#ctimp").onclick=()=>{const t=prompt("Paste a theme code");if(!t)return;try{const o=JSON.parse(t);if(!o||typeof o!=="object")throw 0;const c={};CKEYS.forEach(k=>{if(typeof o[k]==="string"&&(/^#[0-9a-f]{6}$/i.test(o[k])||k==="pgd"))c[k]=o[k]});setAll(c)}catch(e){alert("That theme code is not valid.")}};
+ $("#ctreset").onclick=()=>setAll(TH.mid[1]);
+ pv()}
 function look(){
  const d=S.set,c=(k,l,df)=>`<label>${l}<input type="color" name="${k}" value="${esc(d[k]||df)}"></label>`,t=(k,l)=>`<label>${l}<input name="${k}" value="${esc(d[k])}"></label>`,
  up=(k,l)=>`<label>${l}: paste an open image link<input name="${k}" value="${esc(d[k])}"></label><label>…or upload a picture<input type="file" name="${k}_file" accept="image/*"></label>${d[k]?`<label class="chk"><input type="checkbox" name="rm_${k}"> Remove it</label>`:""}`,
  sel=(k,l,o)=>`<label>${l}<select name="${k}">${o.map(x=>`<option value="${x[0]}" ${(d[k]||o[0][0])==x[0]?"selected":""}>${x[1]}</option>`).join("")}</select></label>`,
  fo=Object.keys(FN).map(k=>[k,FN[k]]),ck=(k,l)=>`<label class="chk"><input type="checkbox" name="${k}" ${d[k]?"checked":""}> ${l}</label>`;
  return `<form id="lf" class="panel"><h3>Look & feel</h3><label>Quick themes (fills the colors below; press Save to apply)</label><div class="acts" style="margin-top:0">${Object.keys(TH).map(k=>`<button type="button" class="btn ghost" data-th="${k}">${TH[k][0]}</button>`).join("")}</div>
- <h3 style="margin-top:1rem">Brand</h3>${t("brand","Brand name")}${up("logo","Logo")}${up("icon","Site icon (browser tab and home screen; square, 512×512 is best)")}
- <h3 style="margin-top:1rem">Colors</h3>${c("accent","Accent (buttons, highlights, glow)","#9b2c4b")}${c("dark","Top bar and profile screen","#0e0b0c")}${c("pg","Page background","#0a0809")}${c("tx","Text","#f4ecef")}${up("bgImage","Page background image (optional, overrides the page color)")}
+ <h3 style="margin-top:1rem">My themes</h3><div class="acts" style="margin-top:0">${(d.cthemes||[]).map(x=>`<span class="chip"><button type="button" class="btn ghost" data-ct="${esc(x.n)}">${esc(x.n)}</button><button type="button" class="btn del" data-ctd="${esc(x.n)}" aria-label="Delete theme ${esc(x.n)}" style="padding:.35rem .6rem">✕</button></span>`).join("")||'<span style="color:var(--mute)">No saved themes yet.</span>'}</div>
+ <div class="acts"><input id="ctname" placeholder="Name for this color set" style="max-width:220px" maxlength="24"><button type="button" class="btn" id="ctsave">Save colors as theme</button><button type="button" class="btn ghost" id="ctexp">Copy theme code</button><button type="button" class="btn ghost" id="ctimp">Paste theme code</button><button type="button" class="btn ghost" id="ctreset">Reset colors</button></div>
+ <p style="color:var(--mute);font-size:.85rem;margin:.4rem 0 0">Saving a theme also applies the colors on screen now. Use a theme code to move a design to another site.</p>
+ <h3 style="margin-top:1rem">Event theme (switches on and off by itself)</h3>${sel("evt","Theme to use",[["","Off"],...Object.keys(TH).map(k=>[k,TH[k][0]]),...(d.cthemes||[]).map(x=>["c:"+x.n,"My theme: "+x.n])])}<div class="cgrid"><label>From<input type="date" name="evf" value="${esc(d.evf)}"></label><label>Until (included)<input type="date" name="evu" value="${esc(d.evu)}"></label></div>
+ <h3 style="margin-top:1rem">Brand</h3>${t("brand","Brand name")}${up("logo","Logo")}<label>Logo height: <span data-o="lh"></span>px<input type="range" name="lh" min="20" max="80" value="${d.lh||30}"></label>${up("icon","Site icon (browser tab and home screen; square, 512×512 is best)")}
+ <div class="lpwrap"><h3 style="margin:0 0 .4rem">Live preview</h3><div id="lpv" class="lpv"><div class="lpn"><b>${esc(d.brand||"ATMAX")}</b><span>Home</span><span>My list</span></div><div class="lph"><h4>Film title</h4><p>A short description of the film.</p><span class="lpb">Play</span> <span class="lpg">More info</span></div><div class="lpr">Row title<small>secondary text</small></div><div class="lpt"><i></i><i></i><i></i></div><div class="lpc"><b>Pop-up card</b><p>Details and comments look like this.</p><span class="lpb">Button</span><span class="lps">★ 4.5</span></div></div><div id="lpw" class="lpw"></div></div>
+ <h3 style="margin-top:1rem">Colors</h3><div class="cgrid">${c("accent","Accent (buttons, highlights, glow)","#9b2c4b")}${c("ac2","Second accent (button gradient; same as accent = solid)",d.accent||"#9b2c4b")}${c("btx","Button text","#ffffff")}${c("dark","Top bar and profile screen","#0e0b0c")}${c("nt","Top bar text","#ffffff")}${c("pg","Page background","#0a0809")}${c("pg2","Page background, second color (for a gradient)",d.pg||"#0a0809")}${c("tx","Text","#f4ecef")}${c("mu","Secondary text (hints, empty messages)","#a89aa0")}${c("sf","Pop-up and sign-in card background","#ffffff")}${c("sx","Pop-up and sign-in card text","#141012")}${c("star","Rating badge text","#ffffff")}</div>
+ ${sel("pgd","Page background style",[["none","Solid color"],["down","Gradient, top to bottom"],["diag","Gradient, diagonal"],["radial","Soft glow from the top"]])}
+ <label>Banner darkness on the left: <span data-o="ho"></span>%<input type="range" name="ho" min="0" max="100" value="${d.ho??100}"></label><label>Glow around tiles on hover: <span data-o="glw"></span>%<input type="range" name="glw" min="0" max="100" value="${d.glw??55}"></label>
+ ${up("bgImage","Page background image (optional, overrides the page color and gradient)")}
  <h3 style="margin-top:1rem">Fonts</h3>${sel("ft","Titles and banner font",fo)}${sel("fb","Body font",fo)}${sel("fs","Text size",[["m","Medium"],["s","Small"],["l","Large"]])}
- <h3 style="margin-top:1rem">Tiles</h3>${sel("tsh","Shape",[["port","Portrait poster (2:3)"],["wide","Wide card (16:9)"],["sq","Square"]])}${sel("ts","Size",[["m","Medium"],["s","Small"],["l","Large"]])}${sel("tr","Corners",[["12","Rounded"],["0","Square"],["6","Slightly rounded"],["24","Very round"]])}
+ <h3 style="margin-top:1rem">Tiles</h3>${sel("tsh","Shape",[["port","Portrait poster (2:3)"],["wide","Wide card (16:9)"],["sq","Square"]])}${sel("ts","Size",[["m","Medium"],["s","Small"],["l","Large"]])}${sel("tr","Corners",[["12","Rounded"],["0","Square"],["6","Slightly rounded"],["24","Very round"]])}${sel("th","Hover effect",[["zoom","Zoom up"],["glow","Glow only"],["none","None"]])}${sel("dn","Spacing between tiles",[["m","Normal"],["c","Compact"],["r","Roomy"]])}${sel("br","Button shape",[["m","Rounded"],["sq","Square"],["pill","Pill"]])}
  <h3 style="margin-top:1rem">Banner</h3>${sel("hh","Height",[["m","Medium"],["s","Short"],["l","Almost full screen"]])}${t("heroT","Coming soon banner: title")}${t("heroD","Coming soon banner: description")}${up("heroImg","Coming soon banner picture (16:9, 1920×1080, keep faces and text near the middle)")}
- <h3 style="margin-top:1rem">Top bar and motion</h3>${sel("nb","Top bar style",[["glass","Frosted glass"],["solid","Solid"],["clear","See-through"]])}${ck("noarr","Hide the row arrow buttons")}${ck("noanim","Turn off animations")}
+ <h3 style="margin-top:1rem">Top bar and motion</h3>${sel("nb","Top bar style",[["glass","Frosted glass"],["solid","Solid"],["clear","See-through"]])}${ck("noarr","Hide the row arrow buttons")}${ck("noanim","Turn off animations")}${ck("ltg","Let viewers switch between dark and light")}
+ <h3 style="margin-top:1rem">Advanced</h3><label>Custom CSS (applies to the viewer site; leave empty if unsure)<textarea name="ccss" rows="5" spellcheck="false" style="font-family:monospace">${esc(d.ccss)}</textarea></label>
  <div class="acts"><button class="btn">Save look & feel</button></div>${note()}</form>`}
 function users(){
  return `<div class="panel"><h3>Admin emails</h3><p style="color:var(--mute);margin:0 0 .6rem">Anyone who signs in with one of these emails opens the admin panel.</p>${S.AE.map(a=>`<div style="display:flex;gap:.6rem;align-items:center;padding:.3rem 0">${esc(a.email)}${a.email.toLowerCase()==(S.me.email||"").toLowerCase()?" (you)":` <button class="btn del" data-rmadm="${esc(a.email)}" style="padding:.25rem .6rem;font-size:.8rem">Remove</button>`}</div>`).join("")}<div class="acts"><input id="newadm" type="email" placeholder="email@example.com" aria-label="New admin email" style="max-width:280px"><button class="btn" id="addadm">Add admin</button></div></div><div class="panel scroll"><h3>Accounts (${S.U.length})</h3><table><tr><th>Email</th><th>Role</th><th>Blocked</th><th>Last active</th><th>Titles watched</th><th>Device</th></tr>${S.U.map(u=>{const me=u.id==S.me.id;return `<tr><td>${esc(u.email)}${me?" (you)":""}</td><td><select data-role="${u.id}" ${me?"disabled":""} aria-label="Role"><option value="viewer" ${u.role=="viewer"?"selected":""}>Viewer</option><option value="admin" ${u.role=="admin"?"selected":""}>Admin</option></select></td><td><input type="checkbox" data-block="${u.id}" ${u.blocked?"checked":""} ${me?"disabled":""} aria-label="Blocked"></td><td>${u.last_seen?new Date(u.last_seen).toLocaleDateString():"—"}</td><td>${S.W[u.id]||0}</td><td><button class="btn ghost" data-rd="${u.id}">Reset</button></td></tr>`}).join("")}</table>${note()}</div>`}
@@ -359,10 +438,10 @@ function bind(){const pcb=$("#pcheck");if(pcb)pcb.onclick=runPicCheck;
  const a=$("#addrow");if(a)a.onclick=async()=>{const n=$("#newrow").value.trim();if(!n)return;await sb.from("rows").insert({name:n,position:S.R.length+1});done("Row added.")};
  document.querySelectorAll("[data-saverow]").forEach(b=>b.onclick=async()=>{const id=b.dataset.saverow;await sb.from("rows").update({name:$(`[data-rn="${id}"]`).value.trim(),position:+$(`[data-rp="${id}"]`).value}).eq("id",id);done("Row saved.")});
  document.querySelectorAll("[data-delrow]").forEach(b=>b.onclick=async()=>{if(confirm("Delete this row? Its films stay and move to More to watch.")){await sb.from("rows").delete().eq("id",b.dataset.delrow);done("Row deleted.")}});
- const lf=$("#lf");if(lf){lf.querySelectorAll("[data-th]").forEach(b=>b.onclick=()=>{const t=TH[b.dataset.th][1];for(const k in t)lf.elements[k].value=t[k]});
+ const lf=$("#lf");if(lf){initLook(lf);
  lf.onsubmit=async e=>{e.preventDefault();const v=Object.fromEntries(new FormData(lf)),ok=$(".ok");
   try{for(const k of["logo","bgImage","icon","heroImg"]){const f=v[k+"_file"];delete v[k+"_file"];if(f&&f.size){ok.textContent="Uploading…";v[k]=await upload(f,"brand")}if(v["rm_"+k])v[k]="";delete v["rm_"+k]}}catch(err){ok.textContent=err.message||"Upload failed.";return}
-  v.noarr=!!v.noarr;v.noanim=!!v.noanim;
+  v.noarr=!!v.noarr;v.noanim=!!v.noanim;v.ltg=!!v.ltg;
   const r=await sb.from("settings").update({data:{...S.set,...v}}).eq("id",1);done(r.error?r.error.message:"Saved. Reload the viewer app to see it.")}}
  document.querySelectorAll("[data-role]").forEach(s=>s.onchange=async()=>{await sb.from("profiles").update({role:s.value}).eq("id",s.dataset.role);done("Role updated.")});
  document.querySelectorAll("[data-block]").forEach(s=>s.onchange=async()=>{await sb.from("profiles").update({blocked:s.checked}).eq("id",s.dataset.block);done(s.checked?"Account blocked.":"Account unblocked.")});
@@ -404,6 +483,10 @@ addEventListener("resize",()=>{const h=document.querySelector(".hero[data-bp]");
 const _browse=browse;browse=async function(){await _browse();openHash()};
 addEventListener("hashchange",openHash);
 document.addEventListener("click",async e=>{const b=e.target.closest("[data-rd]");if(!b||!confirm("Let this account sign in on a new device?"))return;const {error}=await sb.rpc("reset_device",{uid:b.dataset.rd});b.textContent=error?"Failed":"Device reset"});
+
+const _draw=draw;draw=function(){_draw();
+ if(S.set.ltg){const q=document.querySelector("nav #q");if(q&&!document.querySelector("#ltb")){const b=document.createElement("button");b.id="ltb";b.className="btn ghost";b.style.padding=".4rem .8rem";b.setAttribute("aria-label","Switch between dark and light");b.textContent=lightOn()?"🌙":"☀";
+  b.onclick=()=>{try{localStorage.setItem("atmax_lt",lightOn()?"0":"1")}catch(e){}theme();b.textContent=lightOn()?"🌙":"☀"};q.before(b)}}};
 
 init();
 </script></body></html>
