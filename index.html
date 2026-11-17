@@ -2998,5 +2998,49 @@ draw = function() {
   }
 };
 init();
+(function() {
+  let busy = 0;
+  const fix = () => {
+    busy = 0;
+    try {
+      const sh = S.set && S.set.tsh || "", r = sh === "wide" ? 9 / 16 : sh === "sq" ? 1 : 1.5;
+      document.querySelectorAll(".tile:not(.ph)").forEach((t) => {
+        const w = t.offsetWidth;
+        if (w < 20) {
+          t.style.width = (TV ? 240 : 180) + "px";
+          t.style.minWidth = t.style.width;
+        }
+        const ww = t.offsetWidth || 180;
+        if (t.offsetHeight < ww * r * 0.8) {
+          t.style.height = Math.round(ww * r) + "px";
+          t.style.minHeight = t.style.height;
+        }
+      });
+      document.querySelectorAll(".tile.ph").forEach((t) => {
+        const ww = t.offsetWidth || 180;
+        if (t.offsetHeight < ww * 0.8) t.style.height = Math.round(ww * 1.5) + "px";
+      });
+      document.querySelectorAll(".rail").forEach((x) => {
+        x.style.display = "flex";
+        x.style.flexWrap = "nowrap";
+        x.style.overflowX = "auto";
+      });
+    } catch (e) {
+    }
+  };
+  const go2 = () => {
+    if (!busy) {
+      busy = 1;
+      setTimeout(fix, 60);
+    }
+  };
+  try {
+    new MutationObserver(go2).observe(document.getElementById("app") || document.body, { childList: true, subtree: true });
+  } catch (e) {
+  }
+  window.addEventListener("resize", go2);
+  setTimeout(fix, 500);
+  setTimeout(fix, 2e3);
+})();
 window.__ok=2;
 </script></body></html>
