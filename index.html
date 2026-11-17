@@ -2070,7 +2070,13 @@ async function picker() {
 }
 async function browse() {
   const g = !S.user, E = { data: [] }, C = "id,title,year,genre,description,poster_url,trailer_url,row_id,featured,status,runtime,allow_rate,allow_comment,publish_at,banner_pc,banner_phone,header_img,focus";
-  const [r, t, m, h, ra, co] = await Promise.all([sb.from("rows").select("*").order("position"), sb.from("titles").select(g ? C : "*").order("id"), g ? E : sb.from("my_list").select("title_id").eq("sub_id", S.sub.id), g ? E : sb.from("watch_history").select("*").eq("sub_id", S.sub.id), sb.from("ratings").select("title_id,user_id,stars"), sb.from("comments").select("*").order("created_at", { ascending: false })]);
+  let [r, t, m, h, ra, co] = await Promise.all([sb.from("rows").select("*").order("position"), sb.from("titles").select(g ? C : "*").order("id"), g ? E : sb.from("my_list").select("title_id").eq("sub_id", S.sub.id), g ? E : sb.from("watch_history").select("*").eq("sub_id", S.sub.id), sb.from("ratings").select("title_id,user_id,stars"), sb.from("comments").select("*").order("created_at", { ascending: false })]);
+  let tt = t;
+  if (t.error) {
+    tt = await sb.from("titles").select("*").order("id");
+  }
+  S.DX = { re: r.error && r.error.message, te: tt.error && tt.error.message, rn: (r.data || []).length, tn: (tt.data || []).length };
+  t = tt;
   S.RALL = r.data || [];
   const off = new Set(S.RALL.filter((x) => x.active === false).map((x) => x.id)), now = Date.now();
   S.R = S.RALL.filter((x) => x.active !== false);
@@ -2115,7 +2121,7 @@ const rail = (n, a, min) => {
 };
 function draw() {
   document.body.classList.add("dk");
-  app.innerHTML = "<nav>".concat(brand(), '<div class="tabs"><button data-v="home" class="').concat(S.view == "home" ? "on" : "", '">Home</button><button data-v="list" class="').concat(S.view == "list" ? "on" : "", '">My list (').concat(S.L.length, ')</button><button data-v="history" class="').concat(S.view == "history" ? "on" : "", '">Watched</button></div>\n <input id="q" type="search" placeholder="Search titles" aria-label="Search titles" value="').concat(esc(S.q), '"><button class="btn ghost" id="sw" style="padding:.4rem .8rem">').concat(esc(S.sub.name), "</button>").concat(S.isAdmin ? '<button class="btn ghost" id="toadm" style="padding:.4rem .8rem">Admin panel</button>' : "", '<button class="btn ghost" id="out" style="padding:.4rem .8rem">Sign out</button></nav>').concat(S.view === "home" ? homeMark() : "").concat(S.set.announceOn && S.set.announce ? '<div class="ann" role="status">'.concat(esc(S.set.announce), "</div>") : "", '<div id="body"></div>');
+  app.innerHTML = "<nav>".concat(brand(), '<div class="tabs"><button data-v="home" class="').concat(S.view == "home" ? "on" : "", '">Home</button><button data-v="list" class="').concat(S.view == "list" ? "on" : "", '">My list (').concat(S.L.length, ')</button><button data-v="history" class="').concat(S.view == "history" ? "on" : "", '">Watched</button></div>\n <input id="q" type="search" placeholder="Search titles" aria-label="Search titles" value="').concat(esc(S.q), '"><button class="btn ghost" id="sw" style="padding:.4rem .8rem">').concat(esc(S.sub.name), "</button>").concat(S.isAdmin ? '<button class="btn ghost" id="toadm" style="padding:.4rem .8rem">Admin panel</button>' : "", '<button class="btn ghost" id="out" style="padding:.4rem .8rem">Sign out</button></nav>').concat(S.view === "home" ? homeMark() : "").concat(S.DX && (S.DX.re || S.DX.te || !S.T.length) ? '<div class="ann" style="background:#5a1a1a;color:#fff" role="alert">No films loaded. Rows found: '.concat(S.DX.rn, ", films found: ").concat(S.DX.tn, ", shown: ").concat(S.T.length, ". ").concat(esc(S.DX.te || S.DX.re || (S.DX.tn ? "All films are hidden (draft, future publish date, or row switched off)." : "Database returned no films for this visitor (check Row Level Security policy on titles).")), "</div>") : "").concat(S.set.announceOn && S.set.announce ? '<div class="ann" role="status">'.concat(esc(S.set.announce), "</div>") : "", '<div id="body"></div>');
   document.querySelectorAll("[data-v]").forEach((b) => b.onclick = () => {
     S.view = b.dataset.v;
     S.q = "";
@@ -3041,6 +3047,23 @@ init();
   window.addEventListener("resize", go2);
   setTimeout(fix, 500);
   setTimeout(fix, 2e3);
+})();
+(function() {
+  try {
+    const b = document.createElement("button");
+    b.id = "tvsw";
+    b.textContent = (TV ? "Leave TV mode" : "\u{1F4FA} TV mode") + " \xB7 v5";
+    b.style.cssText = "position:fixed;right:10px;bottom:10px;z-index:9000;padding:.35rem .7rem;border-radius:20px;border:1px solid rgba(255,255,255,.4);background:rgba(0,0,0,.65);color:#fff;font-size:12px;cursor:pointer;opacity:.75";
+    b.onclick = () => {
+      try {
+        localStorage.setItem("tv", TV ? "0" : "1");
+      } catch (e) {
+      }
+      location.href = location.pathname + "?tv=" + (TV ? "0" : "1");
+    };
+    document.body.appendChild(b);
+  } catch (e) {
+  }
 })();
 window.__ok=2;
 </script></body></html>
