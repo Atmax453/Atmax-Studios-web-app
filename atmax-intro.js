@@ -2,9 +2,10 @@
  * ATMAX STUDIOS — intro animation add-on
  * ------------------------------------------------------------
  * Plays the logo animation:
- *   1. when someone opens the website  - red, 2 seconds, silent, once per visit
- *   2. before every film                - black, 3 seconds, with sound
- *   3. before every trailer             - black, 2 seconds, with sound
+ *   1. when someone opens the website  - red, silent, once per visit
+ *   2. before every film                - black, with sound
+ *   3. before every trailer             - black, with sound
+ *   (all at normal speed; viewers can tap Skip)
  *
  * HOW TO USE: put this file next to index.html and add ONE line
  * inside <head>, as high up as possible:
@@ -41,6 +42,8 @@
     '.atx-ov{position:fixed;top:0;right:0;bottom:0;left:0;z-index:2147483000;overflow:hidden;' +
     '-webkit-user-select:none;user-select:none;-webkit-tap-highlight-color:transparent;cursor:default}' +
     '.atx-red{--atx-bg:' + CFG.red + ';--atx-fg:#fff;--atx-icon:#fff;--atx-iconText:' + CFG.red + '}' +
+    '.atx-clear{--atx-bg:transparent;--atx-fg:#fff;--atx-icon:#fff;--atx-iconText:' + CFG.red + '}' +
+    '.atx-clear .atx-vig,.atx-clear .atx-sheen{display:none}' +
     '.atx-black{--atx-bg:#000;--atx-fg:#fff;--atx-icon:' + CFG.red + ';--atx-iconText:#fff}' +
     '.atx-bg{position:absolute;top:0;right:0;bottom:0;left:0;background:var(--atx-bg)}' +
     '.atx-svg{position:absolute;top:0;left:0;width:100%;height:100%;display:block;overflow:visible}' +
@@ -51,6 +54,8 @@
     '.atx-black .atx-vig{background:radial-gradient(ellipse 60% 55% at 50% 45%,rgba(242,0,0,.13) 0%,rgba(0,0,0,0) 62%)}' +
     '.atx-sheen{position:absolute;top:-50%;left:-50%;width:200%;height:200%;pointer-events:none;opacity:0;' +
     'background:linear-gradient(105deg,rgba(255,255,255,0) 44%,rgba(255,255,255,.7) 50%,rgba(255,255,255,0) 56%);mix-blend-mode:soft-light}' +
+    '.atx-ov.atx-embed{position:absolute;z-index:0;border-radius:inherit;cursor:inherit}' +
+    '.atx-embed .atx-skip{display:none}' +
     '.atx-skip{position:absolute;right:max(20px,env(safe-area-inset-right));bottom:max(20px,env(safe-area-inset-bottom));' +
     'font:500 14px/1 "Albert Sans",system-ui,sans-serif;letter-spacing:.04em;color:#fff;background:rgba(0,0,0,.28);' +
     'border:1px solid rgba(255,255,255,.35);border-radius:999px;padding:11px 18px;cursor:pointer;opacity:0;' +
@@ -253,7 +258,7 @@
     // keep the logo a good size on phones (portrait) and TVs (landscape)
     function fit() {
       var a = (o.clientWidth || innerWidth) / (o.clientHeight || innerHeight || 1);
-      var needW = totalW * (a < 1 ? 1.12 : 1.48), needH = totalH * 1.8, vbW, vbH;
+      var room = o.__atxRoom, needW = totalW * (room ? (a < 1 ? room[0] : room[1]) : (a < 1 ? 1.12 : 1.48)), needH = totalH * (room ? 2.1 : 1.8), vbW, vbH;
       if (needW / needH > a) { vbW = needW; vbH = needW / a; } else { vbH = needH; vbW = needH * a; }
       svg.setAttribute('viewBox', (W / 2 - vbW / 2) + ' ' + (H / 2 - vbH / 2) + ' ' + vbW + ' ' + vbH);
     }
@@ -435,9 +440,9 @@
 
   // the three versions (lengths include the curtain / fade at the end)
   var CUTS = {
-    site:    { theme: 'red',   cut: 'quick', speed: 1,   hold: 0.05, exitTime: 0.6,  sound: false, exit: 'curtain' }, // ≈ 2.0s
-    film:    { theme: 'black', cut: 'film',  speed: 2.6, hold: 0.1,  exitTime: 0.45, sound: true,  exit: 'fade' },    // ≈ 3.0s
-    trailer: { theme: 'black', cut: 'quick', speed: 1,   hold: 0.15, exitTime: 0.4,  sound: true,  exit: 'fade' }     // ≈ 2.0s
+    site:    { theme: 'red',   cut: 'full', speed: 1, hold: 0.3, exitTime: 0.95, sound: false, exit: 'curtain' }, // full animation, normal speed
+    film:    { theme: 'black', cut: 'full', speed: 1, hold: 0.3, exitTime: 0.6,  sound: true,  exit: 'fade' },
+    trailer: { theme: 'black', cut: 'full', speed: 1, hold: 0.3, exitTime: 0.6,  sound: true,  exit: 'fade' }
   };
   function preset(name, extra) { return Object.assign({}, CUTS[name], extra || {}); }
 
@@ -521,6 +526,69 @@
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', watchPlayers);
   else watchPlayers();
 
+
+  // 4 ── embedded, e.g. on the sign-in screen ──────────────────────────
+  // loop:true  → plays at normal speed, holds, fades and plays again
+  // loop:false → plays once, holds the finished logo with a soft light sweep now and then; tap to replay
+  function mount(el, opts) {
+    opts = opts || {};
+    if (!el || el.__atxMounted) return;
+    el.__atxMounted = true;
+    var o = makeOverlay(opts.theme || 'red', el);
+    o.classList.add('atx-embed');
+    o.__atxRoom = [1.42, 1.62];
+    o.removeAttribute('role');
+    var L = null, tl = null, timer = null, dead = false;
+    function alive() {
+      if (!o.isConnected) { stop(); return false; }
+      return true;
+    }
+    function stop() {
+      if (dead) return; dead = true;
+      if (tl) tl.kill();
+      if (timer) timer.kill();
+      if (L) L.destroy();
+      el.__atxMounted = false;
+    }
+    function play() {
+      var gsap = window.gsap;
+      if (!alive()) return;
+      if (tl) tl.kill();
+      if (timer) timer.kill();
+      gsap.set(L.root, { opacity: 1, scale: 1 });
+      tl = buildTimeline(gsap, L, false, true);
+      tl.eventCallback('onUpdate', alive);
+      tl.eventCallback('onComplete', function () {
+        if (!alive()) return;
+        if (opts.loop !== false) {
+          timer = gsap.delayedCall(opts.hold || 2.2, function () {
+            if (!alive()) return;
+            gsap.to(L.root, { opacity: 0, scale: 0.97, transformOrigin: '50% 50%', duration: 0.6, ease: 'power2.in', onComplete: function () { gsap.delayedCall(0.35, play); } });
+          });
+        } else {
+          (function sweep() {
+            timer = gsap.delayedCall(6, function () {
+              if (!alive()) return;
+              gsap.fromTo(L.sheen, { xPercent: -60, opacity: 0 }, { xPercent: 60, opacity: 1, duration: 1.6, ease: 'power2.inOut' });
+              gsap.to(L.sheen, { opacity: 0, duration: 0.4, delay: 1.2 });
+              sweep();
+            });
+          })();
+        }
+      });
+      tl.play();
+    }
+    ready.then(function () {
+      if (!alive()) return;
+      try { L = buildLockup(o); } catch (e) { o.remove(); return; }
+      el.classList.add('atx-on');
+      if (reduceMotion) { buildTimeline(window.gsap, L, false, false).progress(1); return; }
+      if (opts.loop === false) o.addEventListener('click', play);
+      play();
+    }).catch(function () { o.remove(); });
+    return { stop: stop };
+  }
+
   // ---------------------------------------------------------------- public controls
   window.ATMAXIntro = {
     config: CFG,
@@ -531,6 +599,8 @@
     /** play the before-film or before-trailer version inside any element (defaults to full screen) */
     playFilmIntro: function (parent) { if (CFG.sound) audio(); return run(preset('film', { parent: parent || document.body })); },
     playTrailerIntro: function (parent) { if (CFG.sound) audio(); return run(preset('trailer', { parent: parent || document.body })); },
-    skip: function () { if (active) active.skip(); }
+    skip: function () { if (active) active.skip(); },
+    /** play the logo animation inside an element: { loop:true|false, theme:'red'|'black' } */
+    mount: mount
   };
 })();
