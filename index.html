@@ -2036,6 +2036,78 @@ body.dv-tv .login.login-intro .card{width:min(560px,40vw);padding:2.6rem 2.4rem}
 .tvscan p{position:relative;margin:0;font-weight:600;max-width:30ch;text-shadow:0 2px 10px rgba(0,0,0,.6)}
 .tvscan .btn{position:relative;width:auto;margin:0;color:#fff;border:1px solid rgba(255,255,255,.5);background:rgba(0,0,0,.35)}
 .mod.tvq .qrbox .acts .btn{width:auto;margin:0}
+/* ---------- TV sign-in by phone ---------- */
+.mod.tvq{background:rgba(4,1,2,.82);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);padding:1.2rem}
+.tvq-card{position:relative;color:#fff;width:min(460px,100%);border-radius:24px;padding:2rem;overflow:hidden;
+  background:radial-gradient(ellipse 80% 60% at 85% 0%,rgba(242,0,0,.35),rgba(242,0,0,0) 60%),linear-gradient(160deg,#1c0a0d,#0b0506);
+  border:1px solid rgba(255,255,255,.12);box-shadow:0 40px 120px rgba(0,0,0,.6);animation:tvqin .5s cubic-bezier(.2,.8,.2,1)}
+@keyframes tvqin{from{opacity:0;transform:translateY(16px) scale(.97)}to{opacity:1;transform:none}}
+.tvq-card.tvq-wide{width:min(920px,100%);display:grid;grid-template-columns:minmax(220px,340px) 1fr;gap:2.4rem;align-items:center;padding:2.4rem}
+.tvq-qr{position:relative;background:#fff;border-radius:20px;padding:1.1rem;box-shadow:0 0 0 6px rgba(255,255,255,.06),0 20px 60px rgba(242,0,0,.25)}
+.tvq-qr svg{display:block;width:100%;height:auto}
+.tvq-qr i{position:absolute;width:28px;height:28px;border:4px solid #F20000}
+.tvq-qr .c1{top:-8px;left:-8px;border-right:0;border-bottom:0;border-radius:12px 0 0 0}
+.tvq-qr .c2{top:-8px;right:-8px;border-left:0;border-bottom:0;border-radius:0 12px 0 0}
+.tvq-qr .c3{bottom:-8px;left:-8px;border-right:0;border-top:0;border-radius:0 0 0 12px}
+.tvq-qr .c4{bottom:-8px;right:-8px;border-left:0;border-top:0;border-radius:0 0 12px 0}
+.tvq-qr:after{content:"";position:absolute;left:1.1rem;right:1.1rem;height:3px;top:1.1rem;border-radius:3px;background:linear-gradient(90deg,transparent,#F20000,transparent);
+  box-shadow:0 0 18px #F20000;animation:tvqscan 2.6s ease-in-out infinite;opacity:.8}
+@keyframes tvqscan{0%,100%{transform:translateY(0)}50%{transform:translateY(calc(var(--qh,260px) - 2.2rem))}}
+.tvq-eye{display:inline-flex;align-items:center;gap:.5rem;font-size:.72rem;letter-spacing:.24em;text-transform:uppercase;opacity:.75;margin-bottom:.8rem}
+.tvq-eye svg{width:18px;height:18px}
+.tvq-info h3{margin:0 0 1.1rem;font-size:clamp(1.6rem,3vw,2.4rem);line-height:1.1;letter-spacing:-.01em;font-family:var(--ft,inherit)}
+.tvq-info p{margin:0 0 1.2rem;opacity:.8;line-height:1.55}
+.tvq-info ol{list-style:none;margin:0 0 1rem;padding:0;display:grid;gap:.75rem}
+.tvq-info li{display:flex;align-items:center;gap:.8rem;font-size:1rem}
+.tvq-info li b{flex:0 0 30px;height:30px;border-radius:50%;display:grid;place-items:center;background:rgba(242,0,0,.18);border:1px solid rgba(242,0,0,.6);font-size:.85rem}
+.tvq-info li em{font-style:normal;display:inline-flex;align-items:center;gap:.3rem;font-weight:700;background:rgba(255,255,255,.1);padding:.15rem .55rem;border-radius:999px}
+.tvq-info li em svg{width:15px;height:15px}
+.tvq-alt{font-size:.85rem}
+.tvst{display:flex;align-items:center;gap:.6rem;margin:0 0 1.2rem;padding:.75rem 1rem;border-radius:14px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);font-weight:600;font-size:.92rem}
+.tvst .dot{width:9px;height:9px;border-radius:50%;background:#F20000;box-shadow:0 0 0 0 rgba(242,0,0,.7);animation:tvqpulse 1.6s infinite}
+.tvst.ok .dot{background:#2ecc71;animation:none}
+.tvst time{margin-left:auto;font-variant-numeric:tabular-nums;opacity:.6;font-weight:500}
+@keyframes tvqpulse{0%{box-shadow:0 0 0 0 rgba(242,0,0,.7)}70%{box-shadow:0 0 0 12px rgba(242,0,0,0)}100%{box-shadow:0 0 0 0 rgba(242,0,0,0)}}
+.tvq-mid{text-align:center}
+.tvq-acts{display:flex;gap:.7rem;justify-content:center;flex-wrap:wrap}
+.tvq-go,.tvq-x{all:unset;box-sizing:border-box;cursor:pointer;padding:.9rem 1.5rem;border-radius:999px;font-weight:700;font-size:.98rem;text-align:center;transition:transform .2s,box-shadow .2s,background .2s}
+.tvq-go{background:#F20000;color:#fff;box-shadow:0 10px 30px rgba(242,0,0,.35)}
+.tvq-x{background:rgba(255,255,255,.08);color:#fff;border:1px solid rgba(255,255,255,.2)}
+.tvq-go:hover,.tvq-go:focus-visible{transform:translateY(-2px);box-shadow:0 0 0 5px rgba(242,0,0,.25),0 10px 30px rgba(242,0,0,.35)}
+.tvq-x:hover,.tvq-x:focus-visible{background:rgba(255,255,255,.16)}
+.tvq-go:disabled{opacity:.6}
+.tvq-wide .tvq-x{padding:.7rem 1.3rem}
+.tvq-pair{display:flex;align-items:center;justify-content:center;gap:.6rem;margin:.4rem 0 1.3rem}
+.tvq-av,.tvq-tv{width:58px;height:58px;border-radius:18px;display:grid;place-items:center;font-weight:800;font-size:1.2rem}
+.tvq-av{background:linear-gradient(145deg,#F20000,#7a0710)}
+.tvq-tv{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2)}.tvq-tv svg{width:30px;height:30px}
+.tvq-pair i{width:60px;height:2px;background:repeating-linear-gradient(90deg,#fff 0 6px,transparent 6px 12px);opacity:.6;animation:tvqflow 1s linear infinite}
+@keyframes tvqflow{to{background-position:12px 0}}
+.tvst2{margin:1rem 0 0;font-size:.9rem;color:#ffb3b3;min-height:1.2em}
+.tvq-done{width:74px;height:74px;margin:.3rem auto 1rem;border-radius:50%;display:grid;place-items:center;font-size:2.2rem;font-weight:800;background:#2ecc71;color:#06210f;box-shadow:0 0 0 10px rgba(46,204,113,.18);animation:tvqin .5s cubic-bezier(.2,1.6,.4,1)}
+@media (max-width:760px){.tvq-card.tvq-wide{grid-template-columns:1fr;gap:1.4rem;padding:1.6rem}.tvq-qr{max-width:280px;margin:0 auto}}
+body.dv-tv .tvq-card.tvq-wide{width:min(1180px,94vw);grid-template-columns:420px 1fr;padding:3rem}
+body.dv-tv .tvq-info li{font-size:1.25rem}
+body.dv-tv .tvq-go:focus,body.dv-tv .tvq-x:focus{outline:3px solid #fff;outline-offset:4px}
+
+/* sign-in card: "Sign in with your phone" */
+.qrsign{margin-top:1.1rem}
+.qrsign .qror{display:flex;align-items:center;gap:.8rem;font-size:.75rem;letter-spacing:.2em;text-transform:uppercase;opacity:.55;margin-bottom:.9rem}
+.qrsign .qror:before,.qrsign .qror:after{content:"";flex:1;height:1px;background:currentColor;opacity:.35}
+.qrbtn{all:unset;box-sizing:border-box;width:100%;cursor:pointer;display:flex;align-items:center;gap:.9rem;padding:.8rem 1rem;border-radius:14px;
+  border:1px solid rgba(242,0,0,.55);background:linear-gradient(135deg,rgba(242,0,0,.16),rgba(242,0,0,.04));color:inherit;transition:transform .2s,box-shadow .2s,background .2s}
+.qrbtn i{flex:0 0 44px;height:44px;border-radius:12px;display:grid;place-items:center;background:#F20000;color:#fff;box-shadow:0 6px 18px rgba(242,0,0,.4)}
+.qrbtn i svg{width:24px;height:24px}
+.qrbtn b{display:block;font-size:.98rem}
+.qrbtn small{display:block;opacity:.65;font-size:.8rem;margin-top:.1rem}
+.qrbtn:hover,.qrbtn:focus-visible{transform:translateY(-1px);box-shadow:0 0 0 4px rgba(242,0,0,.2);background:linear-gradient(135deg,rgba(242,0,0,.26),rgba(242,0,0,.08))}
+body.dv-tv .qrbtn:focus{outline:3px solid #fff;outline-offset:3px}
+
+/* phone top bar: "Scan TV code" */
+.pqr-btn{all:unset;box-sizing:border-box;cursor:pointer;display:inline-flex;align-items:center;gap:.45rem;padding:.42rem .85rem .42rem .5rem;border-radius:999px;font-weight:700;font-size:.8rem;color:#fff;
+  background:linear-gradient(135deg,#F20000,#8a0610);box-shadow:0 6px 18px rgba(242,0,0,.35),inset 0 0 0 1px rgba(255,255,255,.18);transition:transform .2s}
+.pqr-btn svg{width:22px;height:22px;padding:3px;border-radius:50%;background:rgba(255,255,255,.18)}
+.pqr-btn:active{transform:scale(.96)}
 /* ===== ATMAX premium player ===== */
 .player.ppl{background:#000;overflow:hidden;--ppa:#F20000;font-family:system-ui,-apple-system,"Segoe UI",sans-serif}
 .ppl .pp-sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
@@ -3185,19 +3257,27 @@ const ADMIN = (() => {
 let TV = /Tizen|Web0S|webOS|SMART-TV|SmartTV|AFT|BRAVIA|Android TV|GoogleTV|HbbTV|VIDAA|CrKey/i.test(navigator.userAgent);
 try {
   localStorage.removeItem("tv");
+  const m = location.search.match(/[?&]tv=([01])/);
+  if (m) m[1] === "1" ? localStorage.setItem("atmax_tvmode", "1") : localStorage.removeItem("atmax_tvmode");
 } catch (e) {
 }
 (function() {
-  const m = location.search.match(/[?&]tv=([01])/);
-  if (m) {
-    TV = m[1] === "1";
+  if (TV) return;
+  try {
+    if (localStorage.getItem("atmax_tvmode") === "1") {
+      TV = true;
+      return;
+    }
+  } catch (e) {
+  }
+  if (/Roku|AFT[A-Z]|NetCast|LG Browser|PhilipsTV|SonyDTV|SMART TV|Opera TV|OPR\/[\d.]+ TV|Vewd|Hisense|MiTV|Xiaomi.*TV|Viera|Freebox|Chromecast|Large Screen|\bTV\b/i.test(navigator.userAgent)) {
+    TV = true;
     return;
   }
-  if (TV) return;
   try {
     const touch = navigator.maxTouchPoints > 0 || "ontouchstart" in window;
     const big = Math.min(screen.width, screen.height) >= 700 && Math.max(screen.width, screen.height) >= 1260;
-    if (!touch && big && matchMedia("(hover: none)").matches) TV = true;
+    if (!touch && big && (matchMedia("(hover: none)").matches || matchMedia("(pointer: coarse)").matches)) TV = true;
   } catch (e) {
   }
 })();
@@ -3625,6 +3705,8 @@ function mountLoginIntro() {
 
 /* ===== ATMAX: sign in on a TV by scanning its QR code with a signed-in phone ===== */
 const TVQ = { poll: null, code: "" };
+const QRI = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><rect x="3.5" y="3.5" width="6.5" height="6.5" rx="1.5"/><rect x="14" y="3.5" width="6.5" height="6.5" rx="1.5"/><rect x="3.5" y="14" width="6.5" height="6.5" rx="1.5"/><path d="M14 14h2.5v2.5H14zM18 18h2.5v2.5H18zM14 18.5h1.5M18.5 14h2"/></svg>';
+const TVI = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="4.5" width="19" height="12.5" rx="2"/><path d="M8 20.5h8M12 17v3.5"/></svg>';
 function tvPaired() {
   try {
     return localStorage.getItem("atmax_tvpaired") === "1";
@@ -3649,7 +3731,7 @@ function tvBox(html) {
       if (e.target === m) tvClose();
     };
   }
-  m.innerHTML = '<div class="qrbox">' + html + "</div>";
+  m.innerHTML = '<div class="tvq-card">' + html + "</div>";
   const c = m.querySelector("#g3");
   if (c) {
     c.onclick = tvClose;
@@ -3675,13 +3757,25 @@ async function tvQR() {
   q.addData(url);
   q.make();
   const until = Date.now() + 9.5 * 60 * 1e3;
-  const m = tvBox(q.createSvgTag({ cellSize: 8, margin: 2, scalable: true }) + '<h3 style="margin:.2rem 0">Sign in with your phone</h3><p style="margin:.3rem 0 .6rem">On your phone, open ' + esc(S.set.brand || "ATMAX") + ', sign in, tap <b>Scan TV code</b> and point it here. (Your phone camera works too.)</p><p class="tvst" style="margin:0 0 1rem;font-weight:600">Waiting for your phone…</p><button class="btn" id="g3">Cancel</button>');
-  const stEl = m.querySelector(".tvst");
+  const brand = esc(S.set.brand || "ATMAX");
+  const m = tvBox('<div class="tvq-qr">' + q.createSvgTag({ cellSize: 8, margin: 1, scalable: true }) + '<i class="c1"></i><i class="c2"></i><i class="c3"></i><i class="c4"></i></div>' +
+    '<div class="tvq-info"><small class="tvq-eye">' + TVI + " Sign in on this screen</small><h3>Use your phone,<br>skip the typing</h3>" +
+    '<ol><li><b>1</b>Open ' + brand + " on your phone and sign in</li><li><b>2</b>Tap <em>" + QRI + ' Scan TV code</em></li><li><b>3</b>Point it at this code and approve</li></ol>' +
+    '<p class="tvq-alt">No button on your phone? Its normal camera works too.</p>' +
+    '<div class="tvst"><i class="dot"></i><span>Waiting for your phone\u2026</span><time></time></div><button class="tvq-x" id="g3">Cancel</button></div>');
+  m.querySelector(".tvq-card").classList.add("tvq-wide");
+  requestAnimationFrame(() => {
+    const qb = m.querySelector(".tvq-qr");
+    if (qb) qb.style.setProperty("--qh", qb.offsetHeight + "px");
+  });
+  const stEl = m.querySelector(".tvst span"), clock = m.querySelector(".tvst time");
   TVQ.poll = setInterval(async () => {
     if (!document.querySelector(".mod.tvq") || TVQ.code !== code) return clearInterval(TVQ.poll);
+    const left = Math.max(0, until - Date.now());
+    if (clock) clock.textContent = Math.floor(left / 6e4) + ":" + String(Math.floor(left % 6e4 / 1e3)).padStart(2, "0");
     if (Date.now() > until) {
       clearInterval(TVQ.poll);
-      tvBox('<h3>This code has expired</h3><p>Codes last 10 minutes so nobody else can use them.</p><div class="acts" style="justify-content:center"><button class="btn" id="tvnew">New code</button><button class="btn ghost" id="g3">Close</button></div>');
+      tvBox('<div class="tvq-info tvq-mid"><small class="tvq-eye">' + TVI + ' Code expired</small><h3>Let\u2019s get a fresh one</h3><p>Codes last 10 minutes so nobody else can use them.</p><div class="tvq-acts"><button class="tvq-go" id="tvnew">New code</button><button class="tvq-x" id="g3">Close</button></div></div>');
       document.querySelector("#tvnew").onclick = tvQR;
       document.querySelector("#tvnew").focus();
       return;
@@ -3689,7 +3783,8 @@ async function tvQR() {
     const r = await sb.rpc("tv_pair_poll", { c: code });
     if (!r.data) return;
     clearInterval(TVQ.poll);
-    stEl.textContent = "Approved on your phone. Signing in…";
+    stEl.textContent = "Approved on your phone. Signing in\u2026";
+    stEl.parentNode.classList.add("ok");
     let v = await sb.auth.verifyOtp({ token_hash: r.data, type: "magiclink" });
     if (v.error) v = await sb.auth.verifyOtp({ token_hash: r.data, type: "email" });
     if (v.error || !v.data || !v.data.user) {
@@ -3720,8 +3815,8 @@ async function tvApprove(code) {
     return login("Sign in on your phone first. Your TV will sign in straight after.");
   }
   const who = esc(S.user.email || "your account");
-  tvBox('<h3 style="margin:.2rem 0 .4rem">Sign in on your TV?</h3><p style="margin:0 0 1.1rem">The TV will be signed in as <b>' + who + "</b>. Only approve a code that is on your own TV screen right now.</p>" + '<div class="acts" style="justify-content:center"><button class="btn" id="tvok">Yes, sign in the TV</button><button class="btn ghost" id="g3">Cancel</button></div><p class="tvst" style="margin:.8rem 0 0"></p>');
-  const ok = document.querySelector("#tvok"), stEl = document.querySelector(".mod.tvq .tvst");
+  tvBox('<div class="tvq-info tvq-mid"><div class="tvq-pair"><span class="tvq-av">' + esc(personInitials((S.sub && S.sub.name) || S.user.email || "")) + '</span><i></i><span class="tvq-tv">' + TVI + '</span></div><h3>Sign in on your TV?</h3><p>Your TV will be signed in as <b>' + who + '</b>. Only approve a code that\u2019s on your own TV right now.</p><div class="tvq-acts"><button class="tvq-go" id="tvok">Yes, sign in the TV</button><button class="tvq-x" id="g3">Cancel</button></div><p class="tvst2"></p></div>');
+  const ok = document.querySelector("#tvok"), stEl = document.querySelector(".mod.tvq .tvst2");
   ok.onclick = async () => {
     ok.disabled = true;
     stEl.textContent = "Connecting…";
@@ -3743,7 +3838,7 @@ async function tvApprove(code) {
       ok.disabled = false;
       return;
     }
-    tvBox('<h3 style="margin:.2rem 0 .4rem">Done ✔</h3><p style="margin:0 0 1rem">Your TV is signing in now. Enjoy the film!</p><button class="btn" id="g3">Close</button>');
+    tvBox('<div class="tvq-info tvq-mid"><div class="tvq-done">\u2713</div><h3>You\u2019re in!</h3><p>Your TV is signing in now. Grab the popcorn.</p><div class="tvq-acts"><button class="tvq-go" id="g3">Done</button></div></div>');
   };
 }
 function tvHashCheck() {
@@ -3853,9 +3948,9 @@ function tvScan() {
       if (o && !document.querySelector("#pqr")) {
         const b = document.createElement("button");
         b.id = "pqr";
-        b.className = "btn ghost";
-        b.style.padding = ".4rem .8rem";
-        b.textContent = "▦ Scan TV code";
+        b.className = "pqr-btn";
+        b.setAttribute("aria-label", "Scan TV code");
+        b.innerHTML = QRI + "<span>Scan TV code</span>";
         b.onclick = tvScan;
         o.before(b);
       }
@@ -3870,6 +3965,29 @@ function tvScan() {
   };
 })();
 tvHashCheck();
+
+(function() {
+  const _login0 = login;
+  login = function() {
+    const r = _login0.apply(this, arguments);
+    try {
+      const phoneOnly = !TV && (document.body.classList.contains("dv-phone") || window.innerWidth < 700);
+      const card = document.querySelector(".login .card");
+      const old = document.querySelector(".login #qrb");
+      if (old) old.remove();
+      if (card && !phoneOnly && !card.querySelector(".qrsign")) {
+        const w = document.createElement("div");
+        w.className = "qrsign";
+        w.innerHTML = '<span class="qror">or</span><button type="button" class="qrbtn" id="qrb"><i>' + QRI + "</i><span><b>Sign in with your phone</b><small>Scan a code \u00b7 no typing</small></span></button>";
+        const alt = card.querySelector(".alt");
+        alt ? card.insertBefore(w, alt) : card.appendChild(w);
+        w.querySelector("#qrb").onclick = showQR;
+      }
+    } catch (e) {
+    }
+    return r;
+  };
+})();
 
 /* ===== ATMAX: premium player ===== */
 const PPI = {

@@ -5,7 +5,7 @@
  *                          beam with floating dust sweeps onto it, the tile
  *                          lifts and tilts, and its trailer plays silently inside
  *  2. Ambient glow         the page takes on the colours of the film in focus
- *  3. Tile-to-film morph   the tile grows into the film's details and shrinks back
+ *  3. Genie open/close    film details pour out of the tile like a Mac window, and back in
  *  4. Spin the Reel        "Can't decide?" — a film strip spins and picks a film
  *
  * HOW TO USE: put this file next to index.html and add ONE line inside <head>,
@@ -91,6 +91,10 @@
     /* morph ghosts */
     '.atw-ghost{position:fixed!important;margin:0!important;pointer-events:none!important;z-index:21;overflow:hidden!important;transform-origin:0 0}' +
     '.atw-ghost-bd{position:fixed;top:0;right:0;bottom:0;left:0;background:rgba(14,11,12,.75);z-index:20;pointer-events:none}' +
+    '.atw-genie{position:fixed;top:0;left:0;width:0;height:0;z-index:21;pointer-events:none}' +
+    '.atw-gs{position:fixed;overflow:hidden;transform-origin:0 0;will-change:transform,opacity;pointer-events:none;backface-visibility:hidden}' +
+    '.atw-gc{position:absolute!important;left:0!important;margin:0!important;max-height:none!important;max-width:none!important;overflow:hidden!important;' +
+    'transform:none!important;visibility:visible!important;animation:none!important;transition:none!important;box-shadow:none!important}' +
     '.atw-face{position:absolute;top:0;right:0;bottom:0;left:0;z-index:50;background-size:cover;background-position:center;pointer-events:none}' +
     /* spin the reel */
     '.atw-spinbtn{display:inline-flex;align-items:center;gap:.45rem}' +
@@ -471,87 +475,132 @@
     window.addEventListener('resize', function () { endSpot(true); });
   }
 
-  // ------------------------------------------------------------- 3. tile → details morph
-  var lastTileClick = null;
+  // ------------------------------------------------------------- 3. genie open / close (like a Mac minimising a window)
+  var lastTileClick = null;   // { tile: element the film was opened from, at: time }
   document.addEventListener('click', function (e) {
-    var t = tileOf(e.target);
-    if (t) lastTileClick = { tile: t, at: Date.now() };
+    var el = e.target && e.target.closest ? e.target.closest('.tile[data-id], button[data-id]') : null;
+    if (el && !el.classList.contains('atw-card')) lastTileClick = { tile: el, at: Date.now() };
   }, true);
 
-  function tileFace(tile) {
-    var f = document.createElement('div');
-    f.className = 'atw-face';
-    var cs = getComputedStyle(tile);
-    f.style.backgroundImage = cs.backgroundImage;
-    f.style.backgroundPosition = cs.backgroundPosition;
-    return f;
+  function originFor(id, prefer) {
+    if (prefer && prefer.isConnected && inView(prefer) && prefer.getAttribute('data-id') == id) return prefer;
+    var c = $$('.tile[data-id="' + id + '"]:not(.atw-card)').filter(inView)[0];
+    if (c) return c;
+    return $$('button[data-id="' + id + '"]').filter(function (b) { return !b.closest('.mod') && inView(b); })[0] || null;
   }
-  // transform that makes `box` (at rect B) look like it sits at rect T, without squashing it
-  function fitTo(B, T) {
-    var s = T.width / B.width;
-    var visH = T.height / s;                       // box-space height that matches the tile
-    var inset = Math.max(0, (B.height - visH) / 2);
-    var tx = T.left - B.left, ty = T.top - B.top - inset * s;
-    return { transform: 'translate(' + tx + 'px,' + ty + 'px) scale(' + s + ')', inset: inset, s: s };
+  function ease3(x) { return x < 0.5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2; }
+  function smooth(x) { x = clamp(x, 0, 1); return x * x * (3 - 2 * x); }
+
+  // Builds the sliced copy of `box` and returns { start(opening, done), cancel() }.
+  function makeGenie(box, T) {
+    var B = box.getBoundingClientRect();
+    var top = Math.max(B.top, 0), bot = Math.min(B.bottom, innerHeight), H = bot - top;
+    if (H < 40 || !B.width) return null;
+    var N = innerWidth < 700 ? 30 : (isTV() ? 34 : 48), sh = H / N;
+    var wrap = document.createElement('div');
+    var host = box.closest('.mod');   // keep the page's own look (e.g. the dark film page) while animating
+    wrap.className = 'atw-genie' + (host ? ' ' + Array.prototype.filter.call(host.classList, function (c) { return c !== 'mod'; }).join(' ') : '');
+    var below = (T.top + T.height / 2) >= (top + H / 2);
+    var Bcx = B.left + B.width / 2, Tcx = T.left + T.width / 2;
+    var span = below ? Math.max(80, T.top - top) : Math.max(80, bot - T.bottom);
+    var FR = 40, strips = [];
+    for (var i = 0; i < N; i++) {
+      var y0 = top + i * sh;
+      var s = document.createElement('div');
+      s.className = 'atw-gs';
+      s.style.cssText = 'left:' + B.left + 'px;top:' + y0 + 'px;width:' + B.width + 'px;height:' + (sh + 0.75) + 'px';
+      var c = box.cloneNode(true);
+      c.classList.add('atw-gc');
+      c.removeAttribute('id');
+      c.style.cssText += ';top:' + (B.top - y0) + 'px;width:' + B.width + 'px;height:' + B.height + 'px';
+      s.appendChild(c);
+      wrap.appendChild(s);
+      var kf = [];
+      for (var f = 0; f <= FR; f++) {
+        var t = f / FR;
+        // the edge nearest the target leaves first, the far edge follows: content pours into the funnel
+        var lead = ease3(clamp(t / 0.72, 0, 1)), trail = ease3(clamp((t - 0.28) / 0.72, 0, 1));
+        var eTop = below ? top + (T.top - top) * trail : top + (T.top - top) * lead;
+        var eBot = below ? bot + (T.bottom - bot) * lead : bot + (T.bottom - bot) * trail;
+        var yA = eTop + (eBot - eTop) * (i / N), yB = eTop + (eBot - eTop) * ((i + 1) / N), yc = (yA + yB) / 2;
+        var k = smooth(below ? (yc - top) / span : (bot - yc) / span);
+        var q = smooth(t / 0.45);                                   // how hard the funnel pinches
+        var w = B.width + (T.width - B.width) * k * q;
+        var cx = Bcx + (Tcx - Bcx) * k * q;
+        kf.push({
+          transform: 'translate(' + (cx - w / 2 - B.left).toFixed(2) + 'px,' + (yA - y0).toFixed(2) + 'px) scale(' +
+            (w / B.width).toFixed(4) + ',' + ((yB - yA + 0.75) / (sh + 0.75)).toFixed(4) + ')',
+          opacity: t > 0.9 ? 1 - (t - 0.9) / 0.1 : 1
+        });
+      }
+      strips.push({ el: s, kf: kf });
+    }
+    var anims = [], gone = false;
+    return {
+      wrap: wrap,
+      start: function (opening, done) {
+        if (!wrap.isConnected) document.body.appendChild(wrap);
+        var dur = opening ? 640 : 560, left = strips.length;
+        strips.forEach(function (st) {
+          var a = st.el.animate(st.kf, { duration: dur, easing: opening ? 'cubic-bezier(.25,.1,.25,1)' : 'cubic-bezier(.45,0,.55,1)',
+            fill: 'forwards', direction: opening ? 'reverse' : 'normal' });
+          anims.push(a);
+          a.onfinish = function () { if (--left === 0 && !gone) { gone = true; done && done(); wrap.remove(); } };
+        });
+      },
+      cancel: function () { gone = true; anims.forEach(function (a) { a.cancel(); }); wrap.remove(); }
+    };
   }
 
-  function morphOpen(m, tile) {
+  function morphOpen(m, origin) {
     var box = m.querySelector('.mbox');
-    if (!box || !inView(tile)) return;
-    var T = tile.getBoundingClientRect(), B = box.getBoundingClientRect();
-    if (!B.width) return;
-    var f = fitTo(B, T), rad = parseFloat(getComputedStyle(tile).borderRadius) || 12;
-    var face = tileFace(tile);
-    box.appendChild(face);
-    box.style.transformOrigin = '0 0';
-    var ease = 'cubic-bezier(.2,.85,.2,1)', dur = 560;
-    box.animate([
-      { transform: f.transform, clipPath: 'inset(' + f.inset + 'px 0px ' + f.inset + 'px 0px round ' + (rad / f.s) + 'px)' },
-      { transform: 'translate(0,0) scale(1)', clipPath: 'inset(0px 0px 0px 0px round 10px)' }
-    ], { duration: dur, easing: ease });
-    face.animate([{ opacity: 1 }, { opacity: 1, offset: 0.25 }, { opacity: 0 }], { duration: dur * 0.8, easing: 'ease-out', fill: 'forwards' })
-      .onfinish = function () { face.remove(); };
-    m.animate([{ backgroundColor: 'rgba(14,11,12,0)' }, { backgroundColor: getComputedStyle(m).backgroundColor }], { duration: 380, easing: 'ease-out' });
-    setTimeout(function () { box.style.transformOrigin = ''; }, dur + 20);
+    if (!box || !origin) return;
+    var T = origin.getBoundingClientRect();
+    var g = makeGenie(box, T);
+    if (!g) return;
+    var bf = m.style.backdropFilter;
+    box.style.visibility = 'hidden';
+    m.style.backdropFilter = 'none'; m.style.webkitBackdropFilter = 'none';   // blur is heavy while animating
+    m.animate([{ backgroundColor: 'rgba(4,2,3,0)' }, { backgroundColor: getComputedStyle(m).backgroundColor }], { duration: 520, easing: 'ease-out' });
+    g.start(true, function () {
+      box.style.visibility = '';
+      m.style.backdropFilter = bf; m.style.webkitBackdropFilter = bf;
+    });
   }
 
   function patchClose(m, id) {
     var nativeRemove = Element.prototype.remove;
     m.remove = function () {
-      var box = m.querySelector('.mbox');
-      var B = box ? box.getBoundingClientRect() : null;
-      var ghost = null, bd = null;
-      if (box && B && B.width && !animOff()) {
-        ghost = box.cloneNode(true);
-        ghost.classList.add('atw-ghost');
-        ghost.style.left = B.left + 'px'; ghost.style.top = B.top + 'px';
-        ghost.style.width = B.width + 'px'; ghost.style.height = B.height + 'px';
-        ghost.style.maxHeight = 'none';
-        ghost.scrollTop = box.scrollTop;
-        bd = document.createElement('div'); bd.className = 'atw-ghost-bd';
+      var box = m.querySelector('.mbox'), g = null, bd = null;
+      if (box && !animOff()) {
+        var origin = originFor(id, lastTileClick && lastTileClick.tile);
+        if (origin) g = makeGenie(box, origin.getBoundingClientRect());
+        if (!g) {   // nowhere to fly back to: a soft shrink instead
+          var B = box.getBoundingClientRect(), ghost = box.cloneNode(true);
+          ghost.classList.add('atw-ghost');
+          ghost.style.cssText += ';left:' + B.left + 'px;top:' + B.top + 'px;width:' + B.width + 'px;height:' + B.height + 'px;max-height:none';
+          g = {
+            wrap: ghost,
+            start: function (o, done) {
+              document.body.appendChild(ghost);
+              ghost.animate([{ transform: 'scale(1)', opacity: 1 }, { transform: 'translateY(24px) scale(.9)', opacity: 0 }],
+                { duration: 300, easing: 'ease-in', fill: 'forwards' }).onfinish = function () { ghost.remove(); done && done(); };
+            },
+            cancel: function () { ghost.remove(); }
+          };
+        }
+        bd = document.createElement('div');
+        bd.className = 'atw-ghost-bd';
         bd.style.background = getComputedStyle(m).backgroundColor;
       }
       nativeRemove.call(m);
-      if (!ghost) return;
-      document.body.appendChild(bd); document.body.appendChild(ghost);
-      // let the app finish what it was doing (open the player, reopen details …)
+      if (!g) return;
+      document.body.appendChild(bd);
+      // let the app finish what it was doing first (opening the player, reopening details …)
       Promise.resolve().then(function () {
-        if (document.querySelector('.mod,.player')) { ghost.remove(); bd.remove(); return; }
-        var tile = document.querySelector('.tile[data-id="' + id + '"]:not(.atw-card)');
-        var dur = 420, ease = 'cubic-bezier(.5,0,.2,1)';
-        bd.animate([{ opacity: 1 }, { opacity: 0 }], { duration: dur * 0.85, easing: 'ease-in', fill: 'forwards' });
-        if (tile && inView(tile)) {
-          var T = tile.getBoundingClientRect(), f = fitTo(B, T), rad = parseFloat(getComputedStyle(tile).borderRadius) || 12;
-          var face = tileFace(tile); face.style.opacity = '0'; ghost.appendChild(face);
-          face.animate([{ opacity: 0 }, { opacity: 0, offset: 0.3 }, { opacity: 1 }], { duration: dur, easing: 'ease-in', fill: 'forwards' });
-          ghost.animate([
-            { transform: 'translate(0,0) scale(1)', clipPath: 'inset(0px 0px 0px 0px round 10px)' },
-            { transform: f.transform, clipPath: 'inset(' + f.inset + 'px 0px ' + f.inset + 'px 0px round ' + (rad / f.s) + 'px)' }
-          ], { duration: dur, easing: ease, fill: 'forwards' }).onfinish = function () { ghost.remove(); bd.remove(); };
-        } else {
-          ghost.animate([{ transform: 'scale(1)', opacity: 1 }, { transform: 'translateY(20px) scale(.92)', opacity: 0 }],
-            { duration: 280, easing: 'ease-in', fill: 'forwards' }).onfinish = function () { ghost.remove(); bd.remove(); };
-        }
+        if (document.querySelector('.mod,.player')) { g.cancel(); bd.remove(); return; }
+        bd.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 480, easing: 'ease-in', fill: 'forwards' }).onfinish = function () { bd.remove(); };
+        g.start(false);
       });
     };
   }
@@ -567,8 +616,8 @@
         if (CFG.morph && !animOff() && !hadMod) {
           var mods = $$('.mod'), m = mods[mods.length - 1];
           if (m && m.querySelector('.mbox')) {
-            var lt = lastTileClick && Date.now() - lastTileClick.at < 1200 && lastTileClick.tile.getAttribute('data-id') == id ? lastTileClick.tile : null;
-            if (lt) morphOpen(m, lt);
+            var recent = lastTileClick && Date.now() - lastTileClick.at < 1200 && lastTileClick.tile.getAttribute('data-id') == id;
+            if (recent) morphOpen(m, originFor(id, lastTileClick.tile));
             patchClose(m, id);
           }
         }
@@ -589,7 +638,7 @@
     if (!CFG.reel) return;
     var hero = document.querySelector('.hero');
     if (!hero || hero.querySelector('.atw-spinbtn')) return;
-    if (films().filter(function (t) { return t.status !== 'draft'; }).length < 3) return;
+    if (films().filter(function (t) { return t.status !== 'draft'; }).length < 2) return;
     var b = hero.querySelector('.b');
     if (!b) { b = document.createElement('div'); b.className = 'b'; hero.appendChild(b); }
     var btn = document.createElement('button');
