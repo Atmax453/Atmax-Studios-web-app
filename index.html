@@ -3749,7 +3749,11 @@ const ADMIN = (() => {
         v.nohb = !!v.nohb;
         ["asOn", "afOn", "atOn", "asSn", "afSn", "atSn", "ppd", "ppx"].forEach((k) => v[k] = !!v[k]);
         const r = await sb.from("settings").update({ data: __spreadValues(__spreadValues({}, S2.set), v) }).eq("id", 1);
-        done(r.error ? r.error.message : "Saved. Reload the viewer app to see it.");
+        if (!r.error) {
+          S2.set = __spreadValues(__spreadValues({}, S2.set), v);
+          applyAnim(S2.set);
+        }
+        done(r.error ? r.error.message : "Saved. Open the site in a new tab to see the opening animation; films and trailers use it straight away.");
       };
     }
     document.querySelectorAll("[data-role]").forEach((s) => s.onchange = async () => {

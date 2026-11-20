@@ -2,7 +2,7 @@
  * ATMAX — "Cinema" interface add-on
  * ------------------------------------------------------------
  *  1. Projector Spotlight  rest on a film tile → the lights dim, a projector
- *                          beam with floating dust sweeps onto it, the tile
+ *                          a soft frosty glow appears behind it, the tile
  *                          lifts and tilts, and its trailer plays silently inside
  *  2. Ambient glow         the page takes on the colours of the film in focus
  *  3. Genie open/close    film details pour out of the tile like a Mac window, and back in
@@ -80,9 +80,10 @@
     '.atw-veil{position:absolute;top:0;right:0;bottom:0;left:0;background:radial-gradient(ellipse at 50% 30%,rgba(6,3,4,.55),rgba(2,1,1,.82));opacity:0;transition:opacity .5s ease;pointer-events:auto}' +
     '.atw-spot.tv .atw-veil,.atw-spot.out .atw-veil{pointer-events:none}' +
     '.atw-spot.on .atw-veil{opacity:1}' +
-    '.atw-beam{position:absolute;top:0;left:0;width:100%;height:100%;filter:blur(14px);opacity:0;transition:opacity .45s}' +
-    '.atw-spot.on .atw-beam{opacity:1}' +
-    '.atw-dust{position:absolute;top:0;left:0;width:100%;height:100%}' +
+    '.atw-frost{position:absolute;border-radius:28px;opacity:0;transition:opacity .45s ease;pointer-events:none;' +
+    'background:radial-gradient(ellipse at 50% 50%,rgba(255,255,255,.34) 0%,rgba(235,244,255,.18) 38%,rgba(255,255,255,0) 72%);' +
+    'box-shadow:0 0 70px 14px rgba(235,244,255,.20)}' +
+    '.atw-spot.on .atw-frost{opacity:1}' +
     '.atw-card{position:fixed!important;margin:0!important;pointer-events:auto;cursor:pointer;overflow:hidden;' +
     'transition:box-shadow .5s ease!important;will-change:transform;z-index:2}' +
     '.atw-card:hover,.atw-card:focus{transform:none}' +
@@ -204,7 +205,7 @@
     ambLayers = $$('i', amb);
   }
   function setAmbient(t) {
-    if (!CFG.ambient || animOff() || !t || ambFilm === t.id) return;
+    if (!CFG.ambient || animOff() || isLite() || !t || ambFilm === t.id) return;   // page tint off on phones/TV: repainting the page background while scrolling made it blink
     ambFilm = t.id;
     ensureAmbient();
     filmColor(t, function (c) {
@@ -264,7 +265,7 @@
     var layer = document.createElement('div');
     layer.className = 'atw-spot' + (mode === 'tv' ? ' tv' : '');
     var lite = isLite(), dpr = Math.min(lite ? 1 : 1.5, window.devicePixelRatio || 1);
-    layer.innerHTML = '<div class="atw-veil"></div><canvas class="atw-beam"></canvas><canvas class="atw-dust"></canvas>';
+    layer.innerHTML = '<div class="atw-veil"></div><div class="atw-frost"></div>';
     var card = tile.cloneNode(true);
     card.removeAttribute('id');
     card.classList.add('atw-card');
@@ -285,14 +286,7 @@
     layer.appendChild(card);
     document.body.appendChild(layer);
 
-    var beam = layer.querySelector('.atw-beam'), dust = layer.querySelector('.atw-dust');
-    var bsc = lite ? dpr * 0.5 : dpr;                       // the soft beam needs few pixels; scaling it up looks the same
-    beam.width = Math.ceil(innerWidth * bsc); beam.height = Math.ceil(innerHeight * bsc);
-    dust.width = Math.ceil(innerWidth * dpr); dust.height = Math.ceil(innerHeight * dpr);
-    if (lite) beam.style.filter = 'none';                  // the canvas is already soft; skip the costly full-screen blur
-    var bx = beam.getContext('2d'), dx = dust.getContext('2d');
-    bx.scale(bsc, bsc); dx.scale(dpr, dpr);
-    var lastT = 0;
+    var lite = isLite(), frost = layer.querySelector('.atw-frost');
 
     // where the lifted card ends up (scale about 50% 60%, nudged up)
     var SC = mode === 'tv' ? 1.12 : 1.17, LIFT = -12;
@@ -304,63 +298,14 @@
     var cx = (R.left + R.right) / 2, W = innerWidth;
     var apexTo = W / 2 + (cx - W / 2) * 0.35, apexFrom = W / 2 + (cx < W / 2 ? 1 : -1) * W * 0.32;
 
-    var parts = [];
-    var nDust = mode === 'tv' ? 0 : (isTouch() ? 28 : 55);
-    for (var i = 0; i < nDust; i++) {
-      parts.push({ x: Math.random(), y: Math.random(), s: 0.5 + Math.random() * 1.6, a: 0.15 + Math.random() * 0.45,
-        vx: (Math.random() - 0.5) * 0.00025, vy: -0.00008 - Math.random() * 0.00022, ph: Math.random() * 6.28 });
-    }
-
-    var S0 = { p: 0, alpha: 0 };
     var raf = 0, alive = true;
-    function poly() {
-      var ax = apexFrom + (apexTo - apexFrom) * S0.p, ay = -innerHeight * 0.12, pad = (R.right - R.left) * 0.18;
-      return [[ax - 14, ay], [ax + 14, ay], [R.right + pad, R.bottom + 6], [R.left - pad, R.bottom + 6]];
-    }
-    function draw(ts) {
-      if (!alive) return;
-      if (lite && ts - lastT < 32) { raf = requestAnimationFrame(draw); return; }   // about 30 frames a second on lite devices
-      lastT = ts;
-      var P = poly(), flick = 0.93 + 0.07 * Math.sin(ts / 90) * Math.sin(ts / 37);
-      bx.clearRect(0, 0, innerWidth, innerHeight);
-      var g = bx.createLinearGradient(P[0][0], P[0][1], cx, R.bottom);
-      g.addColorStop(0, 'rgba(255,248,235,' + (0.30 * S0.alpha * flick) + ')');
-      g.addColorStop(0.7, 'rgba(255,244,228,' + (0.10 * S0.alpha * flick) + ')');
-      g.addColorStop(1, 'rgba(255,240,220,' + (0.04 * S0.alpha) + ')');
-      bx.fillStyle = g;
-      bx.beginPath(); bx.moveTo(P[0][0], P[0][1]);
-      for (var k = 1; k < 4; k++) bx.lineTo(P[k][0], P[k][1]);
-      bx.closePath(); bx.fill();
-      // pool of light under the card
-      var pg = bx.createRadialGradient(cx, R.bottom + 8, 4, cx, R.bottom + 8, (R.right - R.left) * 0.9);
-      pg.addColorStop(0, 'rgba(255,240,220,' + (0.18 * S0.alpha) + ')'); pg.addColorStop(1, 'rgba(255,240,220,0)');
-      bx.fillStyle = pg; bx.fillRect(R.left - 200, R.bottom - 60, (R.right - R.left) + 400, 160);
-
-      if (nDust) {
-        dx.clearRect(0, 0, innerWidth, innerHeight);
-        dx.save();
-        dx.beginPath(); dx.moveTo(P[0][0], P[0][1]);
-        for (var q = 1; q < 4; q++) dx.lineTo(P[q][0], P[q][1]);
-        dx.closePath(); dx.clip();
-        var minX = Math.min(P[3][0], P[0][0]), maxX = Math.max(P[2][0], P[1][0]), spanX = maxX - minX, spanY = R.bottom - P[0][1];
-        for (var j = 0; j < parts.length; j++) {
-          var p = parts[j];
-          p.x += p.vx; p.y += p.vy; if (p.y < 0) p.y += 1; if (p.x < 0) p.x += 1; if (p.x > 1) p.x -= 1;
-          var tw = 0.55 + 0.45 * Math.sin(ts / 600 + p.ph);
-          dx.fillStyle = 'rgba(255,250,240,' + (p.a * tw * S0.alpha) + ')';
-          dx.beginPath(); dx.arc(minX + p.x * spanX, P[0][1] + p.y * spanY, p.s, 0, 6.283); dx.fill();
-        }
-        dx.restore();
-      }
-      raf = requestAnimationFrame(draw);
-    }
-    raf = requestAnimationFrame(draw);
+    // frosty glow: one soft light behind the tile (plain CSS, nothing is drawn every frame)
+    frost.style.left = (R.left - 46) + 'px'; frost.style.top = (R.top - 46) + 'px';
+    frost.style.width = (R.right - R.left + 92) + 'px'; frost.style.height = (R.bottom - R.top + 92) + 'px';
 
     requestAnimationFrame(function () { layer.classList.add('on'); });
     G.set(card, { transformPerspective: 900, transformOrigin: '50% 60%' });
     G.to(card, { scale: SC, y: LIFT, duration: 0.65, ease: 'expo.out' });
-    G.to(S0, { p: 1, duration: 0.75, ease: 'power3.out' });
-    G.to(S0, { alpha: 1, duration: 0.5, ease: 'power1.out' });
     var glow = (document.body.style.getPropertyValue('--glc') || 'rgba(242,0,0,.55)');
     card.style.boxShadow = '0 30px 60px rgba(0,0,0,.7),0 0 0 1.5px rgba(255,255,255,.35),0 0 50px ' + glow;
     if (t) setAmbient(t);
@@ -409,12 +354,11 @@
       clearTimeout(trTimer);
       if (trEl) { try { if (trEl.pause) trEl.pause(); trEl.removeAttribute('src'); if (trEl.load) trEl.load(); } catch (e) {} }
       layer.classList.add('out');
-      if (instant) { cancelAnimationFrame(raf); layer.remove(); spot = null; return; }
+      if (instant) { layer.remove(); spot = null; return; }
       layer.classList.remove('on');
-      alive = true;  // keep drawing while the beam fades
-      G.to(S0, { alpha: 0, duration: 0.35, ease: 'power1.in' });
+      alive = true;  // stay alive while the card settles back
       G.to(card, { scale: 1, y: 0, rotationX: 0, rotationY: 0, duration: 0.35, ease: 'power3.inOut',
-        onComplete: function () { alive = false; cancelAnimationFrame(raf); layer.remove(); } });
+        onComplete: function () { alive = false; layer.remove(); } });
       spot = null;
     }
 

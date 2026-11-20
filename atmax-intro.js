@@ -26,7 +26,11 @@
     splashEveryLoad: false,    // false = once per visit (refreshing won't replay it)
     beforeFilms: true,         // play before every film
     beforeTrailers: true,      // play the quick cut before trailers
-    sound: true,               // whoosh + chime before films and trailers (the website intro is always silent)
+    sound: true,               // master switch for sound
+    splashSound: false,        // sound on the website-opening intro (browsers only allow it after the visitor has tapped once)
+    filmSound: true,           // sound before films
+    trailerSound: true,        // sound before trailers
+    splashSpeed: 1, filmSpeed: 1, trailerSpeed: 1,   // 1 = normal, 2 = twice as fast, 0.5 = half speed
     red: '#F20000'
   }, window.ATMAX_INTRO_CONFIG || {});
 
@@ -444,11 +448,17 @@
 
   // the three versions (lengths include the curtain / fade at the end)
   var CUTS = {
-    site:    { theme: 'red',   cut: 'full', speed: 1, hold: 0.3, exitTime: 0.95, sound: false, exit: 'curtain' }, // full animation, normal speed
-    film:    { theme: 'black', cut: 'full', speed: 1, hold: 0.3, exitTime: 0.6,  sound: true,  exit: 'fade' },
-    trailer: { theme: 'black', cut: 'full', speed: 1, hold: 0.3, exitTime: 0.6,  sound: true,  exit: 'fade' }
+    site:    { theme: 'red',   cut: 'full', speed: 2.4, hold: 0.1, exitTime: 0.7, sound: false, exit: 'curtain' }, // full animation, normal speed
+    film:    { theme: 'black', cut: 'full', speed: 3, hold: 0.05, exitTime: 0.4,  sound: true,  exit: 'fade' },
+    trailer: { theme: 'black', cut: 'full', speed: 3, hold: 0.05, exitTime: 0.4,  sound: true,  exit: 'fade' }
   };
-  function preset(name, extra) { return Object.assign({}, CUTS[name], extra || {}); }
+  function preset(name, extra) {
+    var o = Object.assign({}, CUTS[name], extra || {});
+    var key = name === 'site' ? 'splash' : name, sp = +CFG[key + 'Speed'], sn = CFG[key + 'Sound'];
+    if (sp > 0) o.speed = (CUTS[name].speed || 1) * sp;   // the admin's speed is a multiplier on the short built-in timing
+    if (typeof sn === 'boolean') o.sound = sn;
+    return o;
+  }
 
   // 1 ── when the website opens ────────────────────────────────────────
   var splashOverlay = null;
@@ -488,7 +498,7 @@
     if (lastWasTrailer && !CFG.beforeTrailers) return;
     var v = player.querySelector('video'), f = player.querySelector('iframe');
     if (!v && !f) return;                         // "no video added yet" screen
-    if (CFG.sound) audio();
+    if (CFG.sound && (lastWasTrailer ? CFG.trailerSound : CFG.filmSound)) audio();
 
     // hold the film while the intro plays (it keeps loading in the background)
     var holdPlay = null, iframeSrc = null;
