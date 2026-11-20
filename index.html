@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<script src="atmax-intro.js"></script><script src="atmax-wow.js" defer></script>
 <title>ATMAX</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&family=Montserrat:wght@400;600;800&family=Playfair+Display:wght@500;800&family=Bebas+Neue&family=Oswald:wght@400;600&family=Lora:wght@400;600&display=swap" rel="stylesheet">
 <script>(function(){var g=typeof window!=="undefined"?window:self;if(!g.globalThis)g.globalThis=g;
@@ -1846,6 +1847,12 @@ body.tv .hb .sm-img{height:140px}body.tv .sm-t{font-size:2.6rem}
 .ptoast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:#1b1316;color:#fff;border:1px solid rgba(255,255,255,.25);border-radius:10px;padding:.7rem 1.1rem;z-index:99999;max-width:90vw}
 #adm .por{display:flex;align-items:center;margin:.3rem 0}#adm .por>*{margin-right:.5rem}#adm .pop{width:110px}#adm .gh{display:flex;align-items:center;margin:0}
 .revg{display:flex;flex-wrap:wrap}.revg .st{margin:0 .6rem .6rem 0}.revm .mbox{max-width:760px}.revm table{width:100%;font-size:.85rem}
+
+.ytw{position:relative;overflow:hidden;margin:auto;background:#000;flex:none}
+.ytw .yti{position:absolute;left:0;top:-64px;width:100%;height:calc(100% + 128px);border:0;flex:none;min-height:0}
+.ytw .ysh{position:absolute;top:0;right:0;bottom:0;left:0;z-index:2}
+.yc{display:flex;align-items:center;padding:.5rem 1rem;background:rgba(0,0,0,.85);flex:none}.yc>*{margin-right:.7rem}.yc>*:last-child{margin-right:0}
+.yc input[type=range]{flex:1;min-width:0}.yc button{background:none;border:0;color:#fff;font-size:1.3rem;min-width:44px;min-height:44px;cursor:pointer}.yc span{color:#fff;font-size:.85rem;white-space:nowrap}
 </style></head>
 <body><div id="app"></div>
 <script>
@@ -2309,8 +2316,17 @@ function body() {
       const x = S.H.find((y) => y.title_id == t.id);
       return x.position > 5;
     }));
-    const dn = ["Trending Now", "Action", "Drama", "Comedy", "Documentary"], have = S.RALL.map((r) => r.name.toLowerCase());
-    h += S.R.map((r) => rail(r.name, S.T.filter((t) => t.row_id == r.id), 7)).join("");
+    const have = S.RALL.map((r) => r.name.toLowerCase());
+    const dn = ["Trending Now", "Action", "Drama", "Comedy", "Documentary"];
+    const auto = (n) => n == "Trending Now" ? [...S.T].reverse().slice(0, 10) : S.T.filter((t) => (t.genre || "").toLowerCase().includes(n.toLowerCase())), dl = dn.map((x) => x.toLowerCase());
+    h += S.R.map((r) => {
+      let a = S.T.filter((t) => t.row_id == r.id);
+      if (dl.indexOf(r.name.toLowerCase()) > -1) {
+        const nm = dn[dl.indexOf(r.name.toLowerCase())];
+        a = a.concat(auto(nm).filter((t) => !a.some((x) => x.id == t.id) && (!t.row_id || t.row_id == r.id)));
+      }
+      return rail(r.name, a, 7);
+    }).join("");
     h += dn.filter((n) => !have.includes(n.toLowerCase())).map((n) => rail(n, n == "Trending Now" ? [...S.T].reverse().slice(0, 10) : S.T.filter((t) => (t.genre || "").toLowerCase().includes(n.toLowerCase())), 7)).join("");
     const loose = S.T.filter((t) => !t.row_id);
     h += rail("More to watch", loose);
@@ -2495,11 +2511,89 @@ async function play(id, tr) {
   if (d.reason === "login") return gate("watch the full film");
   return _play(id, 0, null);
 }
+function ytInit(p) {
+  const w = p.querySelector(".ytw"), f = p.querySelector(".yti"), sh = p.querySelector(".ysh"), bp = p.querySelector("#yp"), rg = p.querySelector("#ys"), tm = p.querySelector("#yt"), bm = p.querySelector("#ym");
+  const fit = () => {
+    const W = innerWidth, H = innerHeight - 170, ww = Math.max(200, Math.min(W, H * 16 / 9));
+    w.style.width = Math.round(ww) + "px";
+    w.style.height = Math.round(ww * 9 / 16) + "px";
+  };
+  fit();
+  addEventListener("resize", fit);
+  const post = (fn, a) => {
+    try {
+      f.contentWindow.postMessage(JSON.stringify({ event: "command", func: fn, args: a || [] }), "*");
+    } catch (e) {
+    }
+  };
+  const T = { t: 0, d: 0, s: -1, m: false }, fmt = (n) => {
+    n = Math.floor(n || 0);
+    return Math.floor(n / 60) + ":" + String(n % 60).padStart(2, "0");
+  };
+  const paint = () => {
+    bp.textContent = T.s === 1 ? "\u275A\u275A" : "\u25B6";
+    if (T.d) {
+      rg.value = Math.round(T.t / T.d * 1e3);
+      tm.textContent = fmt(T.t) + " / " + fmt(T.d);
+    }
+  };
+  const onmsg = (e) => {
+    if (e.source !== f.contentWindow) return;
+    let d;
+    try {
+      d = JSON.parse(e.data);
+    } catch (x) {
+      return;
+    }
+    const i = d && d.info;
+    if (d.event === "infoDelivery" && i) {
+      if (i.currentTime != null) T.t = i.currentTime;
+      if (i.duration) T.d = i.duration;
+      if (i.playerState != null) T.s = i.playerState;
+      paint();
+    } else if (d.event === "onStateChange" && typeof d.info === "number") {
+      T.s = d.info;
+      paint();
+    }
+  };
+  addEventListener("message", onmsg);
+  const listen = () => {
+    try {
+      f.contentWindow.postMessage(JSON.stringify({ event: "listening", id: 1, channel: "widget" }), "*");
+    } catch (e) {
+    }
+  };
+  f.addEventListener("load", () => {
+    listen();
+    setTimeout(listen, 500);
+    setTimeout(listen, 1500);
+  });
+  const toggle = () => post(T.s === 1 ? "pauseVideo" : "playVideo");
+  sh.onclick = toggle;
+  bp.onclick = toggle;
+  rg.oninput = () => {
+    if (T.d) post("seekTo", [T.d * rg.value / 1e3, true]);
+  };
+  bm.onclick = () => {
+    T.m = !T.m;
+    post(T.m ? "mute" : "unMute");
+    bm.textContent = T.m ? "\u{1F507}" : "\u{1F50A}";
+  };
+  const obs = new MutationObserver(() => {
+    if (!document.body.contains(p)) {
+      removeEventListener("message", onmsg);
+      removeEventListener("resize", fit);
+      obs.disconnect();
+    }
+  });
+  obs.observe(document.body, { childList: true });
+}
 function _play(id, tr, url) {
   const t0 = S.T.find((x) => x.id == id), t = tr ? __spreadProps(__spreadValues({}, t0), { video_url: t0.trailer_url, id: -1 }) : __spreadProps(__spreadValues({}, t0), { video_url: url }), p = document.createElement("div");
   p.className = "player";
   const e = t.video_url ? embedFor(t.video_url) : null, h = S.H.find((x) => x.title_id == id);
-  p.innerHTML = (e ? e.iframe ? '<iframe src="'.concat(esc(e.iframe), '" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen title="').concat(esc(t.title), '"></iframe>') : '<video controls autoplay playsinline src="'.concat(esc(e.video), '"></video>') : '<div class="nov"><div><h3>'.concat(esc(t.title), "</h3><p>No video has been added for this title yet.</p></div></div>")) + '<button class="btn ghost" id="cl" style="color:#fff">Close player</button>';
+  const yt = !!(e && e.iframe && /youtube/.test(e.iframe) && !tr);
+  p.innerHTML = (e ? yt ? '<div class="ytw"><iframe class="yti" src="'.concat(esc(e.iframe), "&controls=0&modestbranding=1&rel=0&iv_load_policy=3&disablekb=1&fs=0&playsinline=1&enablejsapi=1&origin=").concat(encodeURIComponent(location.origin), '" allow="autoplay; encrypted-media" title=""></iframe><div class="ysh"></div></div><div class="yc"><button id="yp" aria-label="Play or pause">\u25B6</button><input id="ys" type="range" min="0" max="1000" value="0" aria-label="Seek"><span id="yt">0:00</span><button id="ym" aria-label="Mute">\u{1F50A}</button></div>') : e.iframe ? '<iframe src="'.concat(esc(e.iframe), '" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen title="').concat(esc(t.title), '"></iframe>') : '<video controls autoplay playsinline src="'.concat(esc(e.video), '"></video>') : '<div class="nov"><div><h3>'.concat(esc(t.title), "</h3><p>No video has been added for this title yet.</p></div></div>")) + '<button class="btn ghost" id="cl" style="color:#fff">Close player</button>';
   document.body.appendChild(p);
   if (!tr) {
     p.oncontextmenu = (e2) => {
@@ -2534,6 +2628,7 @@ function _play(id, tr, url) {
     }
   }
   const v = p.querySelector("video");
+  if (yt) ytInit(p);
   if (t.video_url && !tr) mark(t);
   if (v) {
     let last = 0;
@@ -2560,7 +2655,7 @@ const ADMIN = (() => {
   let S2 = { tab: "films", me: null, set: {}, R: [], T: [], U: [], AE: [], W: {}, edit: null, msg: "" };
   async function load() {
     var _a;
-    const [r, t, u, s, ae, sp, wh, po, pu, ff] = await Promise.all([sb.from("rows").select("*").order("position"), sb.from("titles").select("*").order("id", { ascending: false }), sb.from("profiles").select("*").order("created_at"), sb.from("settings").select("data").eq("id", 1).single(), sb.from("admin_emails").select("*").order("email"), sb.from("sub_profiles").select("id,user_id"), sb.from("watch_history").select("sub_id,title_id"), sb.from("price_options").select("*").order("id"), sb.from("purchases").select("*").order("created_at", { ascending: false }), sb.from("film_files").select("*")]);
+    const [r, t, u, s, ae, sp, wh, po, pu, ff, fi, pa] = await Promise.all([sb.from("rows").select("*").order("position"), sb.from("titles").select("*").order("id", { ascending: false }), sb.from("profiles").select("*").order("created_at"), sb.from("settings").select("data").eq("id", 1).single(), sb.from("admin_emails").select("*").order("email"), sb.from("sub_profiles").select("id,user_id"), sb.from("watch_history").select("sub_id,title_id"), sb.from("price_options").select("*").order("id"), sb.from("purchases").select("*").order("created_at", { ascending: false }), sb.from("film_files").select("*"), sb.from("film_finance").select("*"), sb.from("payouts").select("*").order("created_at", { ascending: false })]);
     S2.R = r.data || [];
     S2.T = t.data || [];
     S2.U = u.data || [];
@@ -2581,6 +2676,10 @@ const ADMIN = (() => {
     });
     S2.PUR = pu.data || [];
     S2.FF = !ff.error;
+    S2.FIN = {};
+    (fi.data || []).forEach((x) => S2.FIN[x.title_id] = x);
+    S2.POUT = pa.data || [];
+    S2.FINOK = !fi.error;
     const fm = {};
     (ff.data || []).forEach((x) => fm[x.title_id] = x.video_url);
     if (S2.FF) S2.T.forEach((t2) => {
@@ -2588,7 +2687,7 @@ const ADMIN = (() => {
     });
     shell();
   }
-  const T9 = [["films", "Films", "Add, edit and hide films"], ["rows", "Home layout", "Rows and their order"], ["look", "Look & feel", "Name, logo and colors"], ["users", "Users", "Roles and blocking"], ["site", "Site rules", "Maintenance, profiles, previews"], ["ann", "Announcements", "Banner message for viewers"], ["stats", "Analytics", "Most watched titles"], ["team", "Admin team", "Who can open this panel"], ["backup", "Backup", "Download films and users"], ["pay", "Payments", "Revenue, buyers, Paystack check"], ["pics", "Picture check", "Tests every saved film picture"]];
+  const T9 = [["films", "Films", "Add, edit and hide films"], ["rows", "Home layout", "Rows and their order"], ["look", "Look & feel", "Name, logo and colors"], ["users", "Users", "Roles and blocking"], ["site", "Site rules", "Maintenance, profiles, previews"], ["ann", "Announcements", "Banner message for viewers"], ["stats", "Analytics", "Most watched titles"], ["team", "Admin team", "Who can open this panel"], ["backup", "Backup", "Download films and users"], ["pay", "Payments", "Revenue, buyers, payouts"], ["house", "House dashboard", "What the site earns"], ["pics", "Picture check", "Tests every saved film picture"]];
   function home() {
     const day = 864e5, now = Date.now(), n = (a, f) => a.filter(f).length;
     const st = [["Films", S2.T.length], ["Accounts", S2.U.length], ["New this week", n(S2.U, (u) => now - new Date(u.created_at) < 7 * day)], ["Active today", n(S2.U, (u) => u.last_seen && now - new Date(u.last_seen) < day)], ["Revenue GH\u20B5", Math.round(okP().reduce((s, p) => s + Number(p.amount), 0))]];
@@ -2612,7 +2711,7 @@ const ADMIN = (() => {
   function shell() {
     const cur = T9.find((t) => t[0] == S2.tab);
     app.innerHTML = '<div id="adm"><header><b>'.concat(esc(S2.set.brand || "Admin"), " admin").concat(cur ? ": " + cur[1] : "", "</b>").concat(cur ? '<button class="btn ghost" data-t="home">Dashboard</button>' : "", '<button class="btn ghost" id="vs">View site</button><button class="btn ghost" id="out">Sign out</button></header><main id="pane"></main></div>');
-    const U = users().split('<div class="panel scroll">'), P = { home, films, rows, pay: payTab, look, users: () => '<div class="panel scroll">' + U[1], team: () => U[0], site, ann, stats, backup, pics };
+    const U = users().split('<div class="panel scroll">'), P = { home, films, rows, pay: payTab, house: houseTab, look, users: () => '<div class="panel scroll">' + U[1], team: () => U[0], site, ann, stats, backup, pics };
     $("#pane").innerHTML = (P[S2.tab] || home)();
     document.querySelectorAll("[data-t]").forEach((b) => b.onclick = () => {
       S2.tab = b.dataset.t;
@@ -2705,6 +2804,11 @@ const ADMIN = (() => {
   const DAYS = [[7, "1 week"], [14, "2 weeks"], [30, "1 month"], [180, "6 months"], [365, "1 year"]];
   const gh2 = (n) => "GH\u20B5" + Number(n || 0).toFixed(2);
   const porow = (o) => '<div class="por" data-id="'.concat(o.id || "", '"><select class="pod" aria-label="Access period">').concat(DAYS.map(([d, l]) => '<option value="'.concat(d, '" ').concat(o.days == d ? "selected" : "", ">").concat(l, "</option>")).join(""), '</select><label class="gh">GH\u20B5 <input class="pop" type="number" min="0.1" step="0.01" value="').concat(o.price != null ? o.price : "", '" placeholder="Price" aria-label="Price in cedis"></label><button type="button" class="btn del pox" aria-label="Remove option">\u2715</button></div>');
+  const NETS = [["MTN", "MTN MoMo"], ["VOD", "Telecel Cash"], ["ATL", "AirtelTigo Money"]];
+  const finEditor = (e) => {
+    const f = (S2.FIN || {})[e.id] || {}, ty = f.payee_type || "mobile_money";
+    return '<fieldset class="slot"><legend>Money: house cut and payout details</legend><p style="color:var(--mute);margin:0 0 .5rem;font-size:.85rem">The house cut is the percentage of every payment that ATMAX STUDIOS keeps. The rest is owed to the film owner and is sent from the Payments tab. These details are private to admins.'.concat(S2.FINOK ? "" : " (Run 3_payouts_setup.sql first.)", '</p><label>House cut % of each payment<input name="fin_pct" type="number" min="0" max="100" step="0.5" value="').concat(f.house_pct != null ? f.house_pct : 20, '"></label><label>Owner\'s name (as registered on the account)<input name="fin_name" value="').concat(esc(f.payee_name), '"></label><label>Pay the owner by<select name="fin_type"><option value="mobile_money" ').concat(ty == "mobile_money" ? "selected" : "", '>Mobile Money</option><option value="bank" ').concat(ty == "bank" ? "selected" : "", '>Bank account</option></select></label><label>Mobile Money network (if Mobile Money)<select name="fin_net"><option value="">Choose\u2026</option>').concat(NETS.map(([c, l]) => '<option value="'.concat(c, '" ').concat(f.payee_network == c ? "selected" : "", ">").concat(l, "</option>")).join(""), '</select></label><label>Mobile Money number or bank account number<input name="fin_acct" inputmode="numeric" value="').concat(esc(f.payee_account), '"></label><label>Paystack bank code (bank accounts only)<input name="fin_bank" value="').concat(esc(f.payee_bank_code), '" placeholder="e.g. 030100"></label></fieldset>');
+  };
   const poEditor = (e) => '<fieldset class="slot"><legend>Price options (pay per view)</legend><p style="color:var(--mute);margin:0 0 .5rem;font-size:.85rem">Leave empty for a free film (viewers only need to sign in). Add one or more options, for example 1 week GH\u20B55 and 1 month GH\u20B510. Viewers choose one when they pay.</p><div id="po">'.concat((S2.PO[e.id] || []).map(porow).join(""), '</div><div class="acts" style="margin-top:.4rem"><button type="button" class="btn ghost" id="poadd">+ Add price option</button></div></fieldset>');
   const priceSum = (id) => {
     const o = (S2.PO[id] || []).filter((x) => +x.price > 0);
@@ -2725,7 +2829,7 @@ const ADMIN = (() => {
   }
   function films() {
     const e = S2.edit || {}, opts2 = S2.R.map((r) => '<option value="'.concat(r.id, '" ').concat(e.row_id == r.id ? "selected" : "", ">").concat(esc(r.name), "</option>")).join("");
-    return '<form id="f" class="panel"><h3>'.concat(e.id ? "Edit film" : "Add film", '</h3>\n <label>Title<input name="title" required value="').concat(esc(e.title), '"></label><label>Year<input name="year" type="number" value="').concat(esc(e.year), '"></label><label>Genre<input name="genre" value="').concat(esc(e.genre), '"></label>\n <label>Description<textarea name="description" rows="3">').concat(esc(e.description), "</textarea></label>\n ").concat(SLOTS.map(([k, l, ar, sz, un, fn]) => '<fieldset class="slot"><legend>'.concat(l, " \xB7 ").concat(ar, " (").concat(sz, ')</legend><label>Paste a picture link<input name="').concat(un, '" value="').concat(esc(e[un]), '"></label><label>\u2026or upload a picture file (saved inside your Supabase storage)<input type="file" name="').concat(fn, '" accept="image/*"></label>').concat(/\/object\/public\/films\//.test(e[un] || "") ? '<div class="stored">\u2713 Stored in your Supabase storage. The link above is just this picture\'s address and is kept automatically.</div>' : "", '<input type="hidden" name="fx_').concat(k, '" value="').concat(esc(((e.focus || {})[k] || [50, 50]).join(" ")), '"><div class="fp" data-slot="').concat(k, '" style="aspect-ratio:').concat(ar.replace(":", "/"), ";max-width:").concat(k == "phone" ? "200px" : k == "poster" ? "150px" : "320px", '" title="Click to set the focus point"><i></i></div><small style="color:var(--mute)">Click the picture to choose which part stays in view when it is cropped.</small></fieldset>')).join(""), '<div class="hint">Empty slots fall back to the PC banner, then the tile poster. Google Drive picture links are converted automatically. Links must be open: no password, no sign-in.</div>\n <label class="chk"><input type="radio" name="source" value="link" checked> Video: paste a link</label><label class="chk"><input type="radio" name="source" value="upload"> Video: upload a file</label>\n <label id="vl">Video link (Google Drive, YouTube, Vimeo or .mp4)<input name="video_url" value="').concat(esc(e.video_url), '"></label><label id="vf" style="display:none">Video file<input type="file" name="video_file" accept="video/*"></label>\n <div style="font-size:.82rem;color:var(--mute)">Google Drive: open the file, click Share, set General access to "Anyone with the link", then paste the link. Uploads are limited by your Supabase plan\'s per-file size; use a link for full-length films.</div>\n').concat(poEditor(e), '\n <label>Trailer link (open link, no password)<input name="trailer_url" value="').concat(esc(e.trailer_url), '"></label><label>\u2026or upload a trailer<input type="file" name="trailer_file" accept="video/*"></label><label class="chk"><input type="checkbox" name="allow_rate" ').concat(e.allow_rate !== false ? "checked" : "", '> Allow ratings</label><label class="chk"><input type="checkbox" name="allow_comment" ').concat(e.allow_comment !== false ? "checked" : "", '> Allow comments</label><label>Status<select name="status"><option value="published" ').concat(e.status !== "draft" ? "selected" : "", '>Published</option><option value="soon" ').concat(e.status === "soon" ? "selected" : "", '>Coming soon (trailer only)</option><option value="draft" ').concat(e.status === "draft" ? "selected" : "", '>Draft (hidden from viewers)</option></select></label><label>Go live at (Ghana time, optional)<input type="datetime-local" name="publish_at" value="').concat(e.publish_at ? esc(String(e.publish_at).slice(0, 16)) : "", '"></label><label>Row<select name="row_id"><option value="">None</option>').concat(opts2, '</select></label>\n <label class="chk"><input type="checkbox" name="featured" ').concat(e.featured ? "checked" : "", '> Feature in the rotating banner on Home</label>\n <h3>Preview</h3><div class="acts" style="margin-top:0"><button type="button" class="btn ghost" data-pv="pc">PC</button><button type="button" class="btn ghost" data-pv="ph">Phone</button></div><div id="pv"></div><div class="acts"><button class="btn">').concat(e.id ? "Save changes" : "Add film", "</button>").concat(e.id ? '<button type="button" class="btn ghost" id="cancel">Cancel</button>' : "", "</div>").concat(note(), '</form>\n <div class="panel scroll"><h3>All films (').concat(S2.T.length, ")</h3><table><tr><th>Title</th><th>Row</th><th>Price</th><th>Plays</th><th></th></tr>").concat(S2.T.map((t) => {
+    return '<form id="f" class="panel"><h3>'.concat(e.id ? "Edit film" : "Add film", '</h3>\n <label>Title<input name="title" required value="').concat(esc(e.title), '"></label><label>Year<input name="year" type="number" value="').concat(esc(e.year), '"></label><label>Genre<input name="genre" value="').concat(esc(e.genre), '"></label>\n <label>Description<textarea name="description" rows="3">').concat(esc(e.description), "</textarea></label>\n ").concat(SLOTS.map(([k, l, ar, sz, un, fn]) => '<fieldset class="slot"><legend>'.concat(l, " \xB7 ").concat(ar, " (").concat(sz, ')</legend><label>Paste a picture link<input name="').concat(un, '" value="').concat(esc(e[un]), '"></label><label>\u2026or upload a picture file (saved inside your Supabase storage)<input type="file" name="').concat(fn, '" accept="image/*"></label>').concat(/\/object\/public\/films\//.test(e[un] || "") ? '<div class="stored">\u2713 Stored in your Supabase storage. The link above is just this picture\'s address and is kept automatically.</div>' : "", '<input type="hidden" name="fx_').concat(k, '" value="').concat(esc(((e.focus || {})[k] || [50, 50]).join(" ")), '"><div class="fp" data-slot="').concat(k, '" style="aspect-ratio:').concat(ar.replace(":", "/"), ";max-width:").concat(k == "phone" ? "200px" : k == "poster" ? "150px" : "320px", '" title="Click to set the focus point"><i></i></div><small style="color:var(--mute)">Click the picture to choose which part stays in view when it is cropped.</small></fieldset>')).join(""), '<div class="hint">Empty slots fall back to the PC banner, then the tile poster. Google Drive picture links are converted automatically. Links must be open: no password, no sign-in.</div>\n <label class="chk"><input type="radio" name="source" value="link" checked> Video: paste a link</label><label class="chk"><input type="radio" name="source" value="upload"> Video: upload a file</label>\n <label id="vl">Video link (Google Drive, YouTube, Vimeo or .mp4)<input name="video_url" value="').concat(esc(e.video_url), '"></label><label id="vf" style="display:none">Video file<input type="file" name="video_file" accept="video/*"></label>\n <div style="font-size:.82rem;color:var(--mute)">Google Drive: open the file, click Share, set General access to "Anyone with the link", then paste the link. Uploads are limited by your Supabase plan\'s per-file size; use a link for full-length films.</div>\n').concat(poEditor(e)).concat(finEditor(e), '\n <label>Trailer link (open link, no password)<input name="trailer_url" value="').concat(esc(e.trailer_url), '"></label><label>\u2026or upload a trailer<input type="file" name="trailer_file" accept="video/*"></label><label class="chk"><input type="checkbox" name="allow_rate" ').concat(e.allow_rate !== false ? "checked" : "", '> Allow ratings</label><label class="chk"><input type="checkbox" name="allow_comment" ').concat(e.allow_comment !== false ? "checked" : "", '> Allow comments</label><label>Status<select name="status"><option value="published" ').concat(e.status !== "draft" ? "selected" : "", '>Published</option><option value="soon" ').concat(e.status === "soon" ? "selected" : "", '>Coming soon (trailer only)</option><option value="draft" ').concat(e.status === "draft" ? "selected" : "", '>Draft (hidden from viewers)</option></select></label><label>Go live at (Ghana time, optional)<input type="datetime-local" name="publish_at" value="').concat(e.publish_at ? esc(String(e.publish_at).slice(0, 16)) : "", '"></label><label>Row<select name="row_id"><option value="">None</option>').concat(opts2, '</select></label>\n <label class="chk"><input type="checkbox" name="featured" ').concat(e.featured ? "checked" : "", '> Feature in the rotating banner on Home</label>\n <h3>Preview</h3><div class="acts" style="margin-top:0"><button type="button" class="btn ghost" data-pv="pc">PC</button><button type="button" class="btn ghost" data-pv="ph">Phone</button></div><div id="pv"></div><div class="acts"><button class="btn">').concat(e.id ? "Save changes" : "Add film", "</button>").concat(e.id ? '<button type="button" class="btn ghost" id="cancel">Cancel</button>' : "", "</div>").concat(note(), '</form>\n <div class="panel scroll"><h3>All films (').concat(S2.T.length, ")</h3><table><tr><th>Title</th><th>Row</th><th>Price</th><th>Plays</th><th></th></tr>").concat(S2.T.map((t) => {
       var _a;
       return "<tr><td>".concat(esc(t.title)).concat(t.featured ? " \u2605" : "").concat(t.status === "draft" ? " (draft)" : "", "</td><td>").concat(esc(((_a = S2.R.find((r) => r.id == t.row_id)) == null ? void 0 : _a.name) || "\u2014"), "</td><td>").concat(priceSum(t.id), "</td><td>").concat(t.plays || 0, '</td><td><button class="btn ghost" data-rev="').concat(t.id, '">\u{1F4CA} Dashboard</button> <button class="btn ghost" data-edit="').concat(t.id, '">Edit</button> <button class="btn del" data-del="').concat(t.id, '">Delete</button></td></tr>');
     }).join(""), "</table></div>");
@@ -2885,6 +2989,61 @@ const ADMIN = (() => {
     document.body.appendChild(m);
     paint();
   }
+  const finOf = (id) => (S2.FIN || {})[id] || { house_pct: 20 };
+  const ownOf = (p) => p.owner_amount != null ? +p.owner_amount : +p.amount * (1 - +finOf(p.title_id).house_pct / 100);
+  const houseOf = (p) => p.house_amount != null ? +p.house_amount : +p.amount - ownOf(p);
+  const sentOf = (id) => (S2.POUT || []).filter((x) => x.title_id == id && ["pending", "otp", "success"].indexOf(x.status) > -1).reduce((s, x) => s + +x.amount, 0);
+  const earnedOf = (id) => okP().filter((p) => p.title_id == id).reduce((s, p) => s + ownOf(p), 0);
+  const owedOf = (id) => Math.round((earnedOf(id) - sentOf(id)) * 100) / 100;
+  const openOf = (id) => (S2.POUT || []).some((x) => x.title_id == id && (x.status == "pending" || x.status == "otp"));
+  const payeeOk = (id) => {
+    const f = (S2.FIN || {})[id];
+    return !!(f && f.payee_name && f.payee_account && (f.payee_type == "bank" ? f.payee_bank_code : f.payee_network));
+  };
+  const stLabel = { pending: "Sending\u2026", otp: "Needs approval in Paystack", success: "Paid", failed: "Failed", reversed: "Reversed" };
+  function confirmPayout(ids, after) {
+    const items = ids.map((id) => ({ id, t: S2.T.find((x) => x.id == id), f: (S2.FIN || {})[id] || {}, amt: owedOf(id) })), ready = items.filter((x) => x.amt >= 1 && payeeOk(x.id) && !openOf(x.id)), skip = items.filter((x) => ready.indexOf(x) < 0), tot = ready.reduce((s, x) => s + x.amt, 0);
+    const m = document.createElement("div");
+    m.className = "mod revm";
+    m.setAttribute("role", "dialog");
+    m.setAttribute("aria-modal", "true");
+    m.innerHTML = '<div class="mbox"><div class="mbody"><h3>Confirm payout</h3>'.concat(ready.length ? "<table><tr><th>Film</th><th>Pay to</th><th>Amount</th></tr>".concat(ready.map((x) => "<tr><td>".concat(esc(x.t ? x.t.title : ""), "</td><td>").concat(esc(x.f.payee_name), " (").concat(x.f.payee_type == "bank" ? "bank" : esc(x.f.payee_network), " \u2026").concat(esc(String(x.f.payee_account).slice(-4)), ")</td><td>").concat(gh2(x.amt), "</td></tr>")).join(""), "</table><p><b>Total: ").concat(gh2(tot), "</b> will be sent from your Paystack balance. Real money cannot be taken back once sent.</p>") : "<p>Nothing can be paid out right now.</p>").concat(skip.length ? '<p style="color:var(--mute)">Skipped: '.concat(skip.map((x) => esc(x.t ? x.t.title : "") + " (" + (openOf(x.id) ? "a payout is in progress" : !payeeOk(x.id) ? "payee details missing" : "under GH\u20B51 owed") + ")").join("; "), "</p>") : "", '<p id="pom" style="color:var(--mute)"></p><div class="acts">').concat(ready.length ? '<button class="btn" id="pgo">Send ' + gh2(tot) + " now</button>" : "", '<button class="btn ghost" id="pno">Cancel</button></div></div></div>');
+    m.onclick = (e) => {
+      if (e.target === m) m.remove();
+    };
+    document.body.appendChild(m);
+    m.querySelector("#pno").onclick = () => m.remove();
+    const go2 = m.querySelector("#pgo");
+    if (go2) go2.onclick = async () => {
+      go2.disabled = true;
+      const o = m.querySelector("#pom");
+      o.textContent = "Sending\u2026 please wait, do not close this.";
+      const d = await payfn({ action: "payout", confirm: true, title_ids: ready.map((x) => x.id) });
+      if (d.error) {
+        o.textContent = "Not sent: " + d.error;
+        go2.disabled = false;
+        return;
+      }
+      m.remove();
+      after((d.results || []).map((x) => (x.title || "Film") + ": " + (x.ok ? x.status == "otp" ? "sent, but Paystack needs your approval (see your Paystack dashboard)" : x.status == "success" ? "paid " + gh2(x.amount) : "on its way " + gh2(x.amount) : x.error)).join(" \xB7 "));
+    };
+  }
+  function houseTab() {
+    const ok = okP(), now = /* @__PURE__ */ new Date(), mo = /* @__PURE__ */ new Date();
+    mo.setDate(1);
+    mo.setHours(0, 0, 0, 0);
+    const hs = (a) => a.reduce((s, p) => s + houseOf(p), 0), all = hs(ok), mon = hs(ok.filter((p) => new Date(p.created_at) >= mo)), gross = ok.reduce((s, p) => s + +p.amount, 0), paid = (S2.POUT || []).filter((x) => x.status == "success").reduce((s, x) => s + +x.amount, 0), owe = S2.T.reduce((s, t) => s + Math.max(0, owedOf(t.id)), 0);
+    const per = S2.T.map((t) => {
+      const ps = ok.filter((p) => p.title_id == t.id);
+      return { t, g: ps.reduce((s, p) => s + +p.amount, 0), h: hs(ps), pct: finOf(t.id).house_pct };
+    }).filter((x) => x.g > 0).sort((a, b) => b.h - a.h);
+    const mm = {};
+    ok.forEach((p) => {
+      const k = String(p.created_at).slice(0, 7);
+      mm[k] = (mm[k] || 0) + houseOf(p);
+    });
+    return '<div class="panel"><h3>House dashboard</h3><div class="revg"><div class="st"><b>'.concat(gh2(all), '</b>House earnings (all time)</div><div class="st"><b>').concat(gh2(mon), '</b>This month</div><div class="st"><b>').concat(gh2(gross), '</b>Total paid by viewers</div><div class="st"><b>').concat(gh2(paid), '</b>Paid out to owners</div><div class="st"><b>').concat(gh2(owe), '</b>Still owed to owners</div></div><p style="color:var(--mute)">House earnings are the house cut of every payment. Paystack\'s own fees are taken from your Paystack balance separately.</p><div class="acts"><button class="btn ghost" id="hcsv">Download CSV</button></div></div>\n <div class="panel scroll"><h3>By film</h3>').concat(per.length ? "<table><tr><th>Film</th><th>Viewers paid</th><th>House %</th><th>House earns</th></tr>".concat(per.map((x) => "<tr><td>".concat(esc(x.t.title), "</td><td>").concat(gh2(x.g), "</td><td>").concat(x.pct, "%</td><td>").concat(gh2(x.h), "</td></tr>")).join(""), "</table>") : "<p>No payments yet.</p>", '</div>\n <div class="panel scroll"><h3>By month</h3>').concat(Object.keys(mm).length ? "<table><tr><th>Month</th><th>House earns</th></tr>".concat(Object.keys(mm).sort().reverse().map((k) => "<tr><td>".concat(esc(k), "</td><td>").concat(gh2(mm[k]), "</td></tr>")).join(""), "</table>") : "<p>No payments yet.</p>", "</div>");
+  }
   function payTab() {
     const ok = okP(), now = Date.now(), mo = /* @__PURE__ */ new Date();
     mo.setDate(1);
@@ -2894,9 +3053,21 @@ const ADMIN = (() => {
       const ps = ok.filter((p) => p.title_id == t.id);
       return { t, n: ps.length, r: ps.reduce((s, p) => s + Number(p.amount), 0) };
     }).sort((a, b) => b.r - a.r);
-    return '<div class="panel"><h3>Payments</h3><div class="revg"><div class="st"><b>'.concat(gh2(tot), '</b>Total revenue</div><div class="st"><b>').concat(gh2(mtot), '</b>This month</div><div class="st"><b>').concat(ok.length, '</b>Payments</div><div class="st"><b>').concat(act, '</b>Viewers with active access</div></div>\n <div class="acts"><button class="btn" id="pping">Check Paystack connection</button><button class="btn ghost" data-pexp="1">Download all payments (CSV)</button></div><p id="pout" style="color:var(--mute)">').concat(S2.FF ? "" : "The video protection step has not been run yet (run 1_pay_setup.sql). ", 'Set the price of each film in Films \u2192 Edit.</p></div>\n <div class="panel scroll"><h3>Revenue by film</h3><table><tr><th>Film</th><th>Price</th><th>Plays</th><th>Payments</th><th>Revenue</th><th></th></tr>').concat(per.map((x) => "<tr><td>".concat(esc(x.t.title), "</td><td>").concat(esc(priceSum(x.t.id)), "</td><td>").concat(x.t.plays || 0, "</td><td>").concat(x.n, "</td><td>").concat(gh2(x.r), '</td><td><button class="btn ghost" data-rev="').concat(x.t.id, '">\u{1F4CA}</button></td></tr>')).join(""), '</table></div>\n <div class="panel scroll"><h3>Latest payments</h3>').concat(ok.length ? "<table><tr><th>When</th><th>Viewer</th><th>Film</th><th>Option</th><th>Paid</th></tr>".concat(ok.slice(0, 20).map((p) => "<tr><td>".concat(esc(new Date(p.created_at).toLocaleString()), "</td><td>").concat(esc(p.email || ""), "</td><td>").concat(esc((S2.T.find((t) => t.id == p.title_id) || {}).title || ""), "</td><td>").concat(esc(p.option_label || p.days + " days"), "</td><td>").concat(gh2(p.amount), "</td></tr>")).join(""), "</table>") : "<p>No payments yet.</p>", "</div>");
+    return '<div class="panel"><h3>Payments</h3><div class="revg"><div class="st"><b>'.concat(gh2(tot), '</b>Total revenue</div><div class="st"><b>').concat(gh2(mtot), '</b>This month</div><div class="st"><b>').concat(ok.length, '</b>Payments</div><div class="st"><b>').concat(act, '</b>Viewers with active access</div></div>\n <div class="acts"><button class="btn" id="pping">Check Paystack connection</button><button class="btn ghost" data-pexp="1">Download all payments (CSV)</button></div><p id="pout" style="color:var(--mute)">').concat(S2.FF ? "" : "The video protection step has not been run yet (run 1_pay_setup.sql). ", 'Set the price of each film in Films \u2192 Edit.</p></div>\n <div class="panel scroll"><h3>Revenue by film</h3><table><tr><th>Film</th><th>Price</th><th>Plays</th><th>Payments</th><th>Revenue</th><th>Owner owed</th><th></th></tr>').concat(per.map((x) => "<tr><td>".concat(esc(x.t.title), "</td><td>").concat(esc(priceSum(x.t.id)), "</td><td>").concat(x.t.plays || 0, "</td><td>").concat(x.n, "</td><td>").concat(gh2(x.r), "</td><td>").concat(gh2(Math.max(0, owedOf(x.t.id))), '</td><td><button class="btn ghost" data-rev="').concat(x.t.id, '">\u{1F4CA}</button> <button class="btn" data-pay="').concat(x.t.id, '" ').concat(owedOf(x.t.id) >= 1 && payeeOk(x.t.id) && !openOf(x.t.id) ? "" : "disabled", ' title="').concat(payeeOk(x.t.id) ? "" : "Add payee details in Films \u2192 Edit", '">Payout</button></td></tr>')).join(""), '</table><div class="acts" style="margin-top:.6rem"><button class="btn" id="payall">Pay out all films</button><button class="btn ghost" id="pbal">Check Paystack balance</button></div><p id="pbo" style="color:var(--mute)">Payouts go from your Paystack balance to the payee saved on each film. You will be asked to confirm before any money is sent.</p></div>\n <div class="panel scroll"><h3>Payout history</h3>').concat((S2.POUT || []).length ? "<table><tr><th>When</th><th>Film</th><th>To</th><th>Amount</th><th>Status</th></tr>".concat(S2.POUT.slice(0, 30).map((x) => "<tr><td>".concat(esc(new Date(x.created_at).toLocaleString()), "</td><td>").concat(esc(x.title_name || ""), "</td><td>").concat(esc(x.payee_name || ""), " ").concat(esc(x.payee_hint || ""), "</td><td>").concat(gh2(x.amount), "</td><td>").concat(esc(stLabel[x.status] || x.status)).concat(x.failure ? " \xB7 " + esc(x.failure) : "", "</td></tr>")).join(""), "</table>") : "<p>No payouts yet.</p>", '</div>\n <div class="panel scroll"><h3>Latest payments</h3>').concat(ok.length ? "<table><tr><th>When</th><th>Viewer</th><th>Film</th><th>Option</th><th>Paid</th></tr>".concat(ok.slice(0, 20).map((p) => "<tr><td>".concat(esc(new Date(p.created_at).toLocaleString()), "</td><td>").concat(esc(p.email || ""), "</td><td>").concat(esc((S2.T.find((t) => t.id == p.title_id) || {}).title || ""), "</td><td>").concat(esc(p.option_label || p.days + " days"), "</td><td>").concat(gh2(p.amount), "</td></tr>")).join(""), "</table>") : "<p>No payments yet.</p>", "</div>");
   }
   function bindPay() {
+    document.querySelectorAll("[data-pay]").forEach((b) => b.onclick = () => confirmPayout([+b.dataset.pay], (m) => done(m)));
+    const pa = $("#payall");
+    if (pa) pa.onclick = () => confirmPayout(S2.T.map((t) => t.id), (m) => done(m));
+    const pb = $("#pbal");
+    if (pb) pb.onclick = async () => {
+      const o = $("#pbo");
+      o.textContent = "Checking\u2026";
+      const d = await payfn({ action: "balance" });
+      o.textContent = d.error ? "Could not read the balance: " + d.error : "Paystack balance available: " + gh2(d.balance);
+    };
+    const hc = $("#hcsv");
+    if (hc) hc.onclick = () => csvDown("house-earnings.csv", [["when", "film", "viewer_paid_ghs", "house_pct", "house_ghs", "owner_ghs", "reference"]].concat(okP().map((p) => [p.created_at, (S2.T.find((t) => t.id == p.title_id) || {}).title, p.amount, p.house_pct != null ? p.house_pct : finOf(p.title_id).house_pct, houseOf(p).toFixed(2), ownOf(p).toFixed(2), p.reference])));
     document.querySelectorAll("[data-rev]").forEach((b) => b.onclick = () => revDash(+b.dataset.rev));
     const pp = $("#pping");
     if (pp) pp.onclick = async () => {
@@ -2962,6 +3133,13 @@ const ADMIN = (() => {
           }
           const q2 = await savePO(tid);
           if (q2) r = { error: { message: q2 } };
+          else if (S2.FINOK) {
+            const old = S2.FIN[tid] || {}, pct = Math.min(100, Math.max(0, parseFloat(v.fin_pct)));
+            const nf = { title_id: tid, house_pct: isNaN(pct) ? 20 : pct, payee_name: (v.fin_name || "").trim() || null, payee_type: v.fin_type || "mobile_money", payee_network: v.fin_net || null, payee_account: (v.fin_acct || "").replace(/\s+/g, "") || null, payee_bank_code: (v.fin_bank || "").trim() || null, updated_at: (/* @__PURE__ */ new Date()).toISOString() };
+            if (old.payee_account !== nf.payee_account || old.payee_type !== nf.payee_type || old.payee_network !== nf.payee_network || old.payee_bank_code !== nf.payee_bank_code || old.payee_name !== nf.payee_name) nf.recipient_code = null;
+            const q3 = await sb.from("film_finance").upsert(nf, { onConflict: "title_id" });
+            if (q3.error) r = q3;
+          }
         }
       } catch (err) {
         ok.textContent = err.message || "Something went wrong.";
@@ -3349,7 +3527,7 @@ init();
   try {
     const b = document.createElement("button");
     b.id = "tvsw";
-    b.textContent = (TV ? "Leave TV mode" : "\u{1F4FA} TV mode") + " \xB7 v5";
+    b.textContent = (TV ? "Leave TV mode" : "\u{1F4FA} TV mode") + " \xB7 v9";
     b.style.cssText = "position:fixed;right:10px;bottom:10px;z-index:9000;padding:.35rem .7rem;border-radius:20px;border:1px solid rgba(255,255,255,.4);background:rgba(0,0,0,.65);color:#fff;font-size:12px;cursor:pointer;opacity:.75";
     b.onclick = () => {
       try {
