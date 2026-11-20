@@ -15,7 +15,7 @@ if(!Element.prototype.remove)Element.prototype.remove=function(){this.parentNode
 if(typeof Promise!=="undefined"&&!Promise.prototype.finally)Promise.prototype.finally=function(f){return this.then(function(v){return Promise.resolve(f()).then(function(){return v})},function(e){return Promise.resolve(f()).then(function(){throw e})})};
 try{document.createElement("div").style.gap="1px";if(!(("gap" in document.createElement("div").style)))document.documentElement.className+=" nofg"}catch(e){}
 window.__ok=0;
-function show(m){try{if(window.__ok>1)return;var d=document.getElementById("__err");if(!d){d=document.createElement("div");d.id="__err";d.style.cssText="position:fixed;left:0;right:0;bottom:0;z-index:99999;background:#300;color:#fff;font:16px monospace;padding:10px;white-space:pre-wrap;max-height:40%;overflow:auto";(document.body||document.documentElement).appendChild(d)}d.textContent="ATMAX error: "+m+"\nTip: add ?tv=0 to the address to leave TV mode."}catch(e){}}
+function show(m){try{if(/ResizeObserver/.test(String(m)))return;var d=document.getElementById("__err");if(!d){d=document.createElement("div");d.id="__err";d.style.cssText="position:fixed;left:0;right:0;bottom:0;z-index:99999;background:#300;color:#fff;font:16px monospace;padding:10px;white-space:pre-wrap;max-height:40%;overflow:auto";(document.body||document.documentElement).appendChild(d)}d.textContent="ATMAX error: "+m+"\nTip: add ?tv=0 to the address to leave TV mode."}catch(e){}}
 window.addEventListener("error",function(e){show((e.message||"error")+(e.lineno?" (line "+e.lineno+")":""))});
 window.addEventListener("unhandledrejection",function(e){show(String(e.reason&&e.reason.message||e.reason))});
 setTimeout(function(){var ap=document.getElementById("app");if(!window.__ok&&ap&&!ap.children.length)show("The app did not start. Your TV browser may be too old or could not load the Supabase library.")},9000);
@@ -1982,7 +1982,13 @@ async function init() {
   theme();
   const { data: { session } } = await sb.auth.getSession();
   S.user = (session == null ? void 0 : session.user) || null;
-  go();
+  try {
+    await go();
+  } catch (e) {
+    console.error(e);
+    S.user = null;
+    login("The page failed to load: " + (e && e.message || e));
+  }
 }
 async function go(msg) {
   if (!S.user) return guest();
@@ -2046,7 +2052,13 @@ function login(msg) {
     if (error) return $("#err").textContent = error.message;
     if (!data.session) return $("#err").textContent = "Check your email to confirm your account, then sign in.";
     S.user = data.user;
-    go();
+    try {
+      await go();
+    } catch (e) {
+      console.error(e);
+      S.user = null;
+      login("Signed in, but the page failed to load: " + (e && e.message || e));
+    }
   };
 }
 async function out() {
