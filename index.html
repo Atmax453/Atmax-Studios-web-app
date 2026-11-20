@@ -1859,6 +1859,7 @@ body.tv .hb .sm-img{height:140px}body.tv .sm-t{font-size:2.6rem}
 .pm{position:relative;flex:1;min-height:0;display:flex;align-items:center;justify-content:center;background:#000;overflow:hidden}
 .pm video{width:100%;height:100%;object-fit:contain;background:#000}.pm>iframe{width:100%;height:100%}
 .pc{position:absolute;top:0;right:0;bottom:0;left:0;z-index:4;pointer-events:none;transition:opacity .3s}.pc>*{pointer-events:auto}
+.player.rot{right:auto;bottom:auto;left:0;top:100vh;width:100vh;height:100vw;transform-origin:0 0;-webkit-transform:rotate(-90deg);transform:rotate(-90deg)}
 .player.idle .pc{opacity:0}.player.idle .pc>*{pointer-events:none}.player.idle{cursor:none}
 .pbtn{border-radius:50%;border:2px solid rgba(255,255,255,.9);background:rgba(0,0,0,.4);color:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer;padding:0;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
 .pbtn:focus-visible{outline:3px solid #fff;outline-offset:3px}.pbtn svg{fill:currentColor;display:block}
@@ -2552,7 +2553,7 @@ async function play(id, tr) {
   if (d.reason === "login") return gate("watch the full film");
   return _play(id, 0, null);
 }
-const IC = { play: '<svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>', pause: '<svg viewBox="0 0 24 24"><path d="M6 5h4v14H6zM14 5h4v14h-4z"/></svg>', back: '<svg viewBox="0 0 24 24"><path d="M11 18V6l-8.5 6zM21 18V6l-8.5 6z"/></svg>', fwd: '<svg viewBox="0 0 24 24"><path d="M13 6v12l8.5-6zM3 6v12l8.5-6z"/></svg>', x: '<svg viewBox="0 0 24 24"><path d="M6.4 5 5 6.4 10.6 12 5 17.6 6.4 19 12 13.4 17.6 19 19 17.6 13.4 12 19 6.4 17.6 5 12 10.6z"/></svg>', vol: '<svg viewBox="0 0 24 24"><path d="M3 9v6h4l5 4V5L7 9zm13.5 3A4.5 4.5 0 0 0 14 8v8a4.5 4.5 0 0 0 2.5-4z"/></svg>', mute: '<svg viewBox="0 0 24 24"><path d="M3 9v6h4l5 4V5L7 9zm13 .6L14.6 11l1.4 1.4-1.4 1.4L16 15.2l1.4-1.4 1.4 1.4 1.4-1.4-1.4-1.4 1.4-1.4-1.4-1.4z"/></svg>', full: '<svg viewBox="0 0 24 24"><path d="M5 5h5v2H7v3H5zm9 0h5v5h-2V7h-3zM5 14h2v3h3v2H5zm12 0h2v5h-5v-2h3z"/></svg>' };
+const IC = { play: '<svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>', pause: '<svg viewBox="0 0 24 24"><path d="M6 5h4v14H6zM14 5h4v14h-4z"/></svg>', back: '<svg viewBox="0 0 24 24"><path d="M11 18V6l-8.5 6zM21 18V6l-8.5 6z"/></svg>', fwd: '<svg viewBox="0 0 24 24"><path d="M13 6v12l8.5-6zM3 6v12l8.5-6z"/></svg>', x: '<svg viewBox="0 0 24 24"><path d="M6.4 5 5 6.4 10.6 12 5 17.6 6.4 19 12 13.4 17.6 19 19 17.6 13.4 12 19 6.4 17.6 5 12 10.6z"/></svg>', vol: '<svg viewBox="0 0 24 24"><path d="M3 9v6h4l5 4V5L7 9zm13.5 3A4.5 4.5 0 0 0 14 8v8a4.5 4.5 0 0 0 2.5-4z"/></svg>', mute: '<svg viewBox="0 0 24 24"><path d="M3 9v6h4l5 4V5L7 9zm13 .6L14.6 11l1.4 1.4-1.4 1.4L16 15.2l1.4-1.4 1.4 1.4 1.4-1.4-1.4-1.4 1.4-1.4-1.4-1.4z"/></svg>', fullx: '<svg viewBox="0 0 24 24"><path d="M7 5h2v5H4V8h3zm8 0h2v3h3v2h-5zM4 14h5v5H7v-3H4zm11 0h5v2h-3v3h-2z"/></svg>', full: '<svg viewBox="0 0 24 24"><path d="M5 5h5v2H7v3H5zm9 0h5v5h-2V7h-3zM5 14h2v3h3v2H5zm12 0h2v5h-5v-2h3z"/></svg>' };
 const genreSet = (t) => String(t.genre || "").toLowerCase().split(/[,/|]/).map((x) => x.trim()).filter(Boolean);
 function playerUI(p, A, f, isTrailer, closeFn) {
   const q = (s) => p.querySelector(s), bp = q("#pp1"), bb = q("#pb"), bf = q("#pf"), rg = q("#ps"), tm = q("#pt"), td = q("#pd"), bm = q("#pm"), bz = q("#pz"), pan = q("#ppan");
@@ -2570,7 +2571,11 @@ function playerUI(p, A, f, isTrailer, closeFn) {
       if (A.playing() && !scr && !isOpen()) p.classList.add("idle");
     }, 3200);
   };
-  ["pointermove", "pointerdown", "touchstart", "keydown"].forEach((ev) => p.addEventListener(ev, showUI));
+  ["pointerdown", "touchstart", "keydown"].forEach((ev) => p.addEventListener(ev, showUI));
+  p.addEventListener("pointermove", (e) => {
+    if (e.pointerType === "mouse") showUI();
+  });
+  let wasIdle = false;
   const seek = (d) => {
     const D = A.d() || 1e9;
     A.seek(Math.max(0, Math.min(D - 1, A.t() + d)));
@@ -2634,20 +2639,98 @@ function playerUI(p, A, f, isTrailer, closeFn) {
     A.mute(muted);
     bm.innerHTML = muted ? IC.mute : IC.vol;
   };
-  const rq = p.requestFullscreen || p.webkitRequestFullscreen;
-  if (!rq || TV) bz.style.display = "none";
-  bz.innerHTML = IC.full;
-  bz.onclick = () => {
-    const on = document.fullscreenElement || document.webkitFullscreenElement;
-    if (on) (document.exitFullscreen || document.webkitExitFullscreen).call(document);
-    else rq.call(p);
+  const rq = p.requestFullscreen || p.webkitRequestFullscreen, fsEl = () => document.fullscreenElement || document.webkitFullscreenElement;
+  const isFS = () => !!fsEl() || p.classList.contains("rot"), fit = () => setTimeout(() => dispatchEvent(new Event("resize")), 120);
+  const lockL = () => {
+    try {
+      const o = screen.orientation;
+      o && o.lock && o.lock("landscape").catch(() => {
+      });
+    } catch (e) {
+    }
+  }, unlock = () => {
+    try {
+      screen.orientation && screen.orientation.unlock && screen.orientation.unlock();
+    } catch (e) {
+    }
   };
+  const ico = () => {
+    bz.innerHTML = isFS() ? IC.fullx : IC.full;
+    bz.setAttribute("aria-label", isFS() ? "Exit full screen" : "Full screen");
+  };
+  const goFS = () => {
+    if (isFS()) {
+      if (fsEl()) (document.exitFullscreen || document.webkitExitFullscreen).call(document);
+      p.classList.remove("rot");
+      unlock();
+      ico();
+      fit();
+      return;
+    }
+    if (rq) {
+      const r = rq.call(p);
+      const ok = () => {
+        lockL();
+        ico();
+        fit();
+      };
+      if (r && r.then) r.then(ok, () => {
+        rotFallback();
+      });
+      else ok();
+    } else rotFallback();
+  };
+  const rotFallback = () => {
+    if (innerHeight > innerWidth) p.classList.add("rot");
+    ico();
+    fit();
+  };
+  ["fullscreenchange", "webkitfullscreenchange"].forEach((ev) => document.addEventListener(ev, () => {
+    if (!p.isConnected) return;
+    if (!fsEl()) unlock();
+    ico();
+    fit();
+  }));
+  addEventListener("orientationchange", () => {
+    if (p.classList.contains("rot") && innerWidth > innerHeight) {
+      p.classList.remove("rot");
+      ico();
+      fit();
+    }
+  });
+  bz.onclick = (e) => {
+    e.stopPropagation();
+    goFS();
+  };
+  ico();
+  let pt = "touch";
+  q(".pm").addEventListener("pointerdown", (e) => {
+    pt = e.pointerType || "touch";
+    wasIdle = p.classList.contains("idle");
+  });
   q(".pm").addEventListener("click", (e) => {
-    if (p.classList.contains("idle")) {
+    if (pt === "mouse") {
+      wasIdle = false;
+      if (isOpen()) {
+        pan.classList.remove("open");
+        pan.classList.add("peek");
+      } else toggle();
+      return;
+    }
+    if (wasIdle) {
+      wasIdle = false;
       showUI();
       return;
     }
-    toggle();
+    if (isOpen()) {
+      pan.classList.remove("open");
+      pan.classList.add("peek");
+      return;
+    }
+    if (A.playing()) {
+      clearTimeout(hideT);
+      p.classList.add("idle");
+    }
   });
   const closePan = () => {
     pan.classList.remove("peek", "open");
@@ -2734,6 +2817,13 @@ function playerUI(p, A, f, isTrailer, closeFn) {
       toggle();
     } else if (e.key === "ArrowLeft") seek(-10);
     else if (e.key === "ArrowRight") seek(10);
+    else if (e.key === "f" || e.key === "F") goFS();
+    else if (e.key === "m" || e.key === "M") bm.click();
+    else if (e.key === "Escape" && p.classList.contains("rot")) {
+      p.classList.remove("rot");
+      ico();
+      fit();
+    }
   };
   document.addEventListener("keydown", kd);
   p.__ctl = { key: (d) => {
@@ -2792,7 +2882,13 @@ function ytInit(p) {
     setTimeout(listen, 1500);
   });
   p.__yp = () => T.s === 1;
-  p.__ya = { t: () => T.t, d: () => T.d, playing: () => T.s === 1, play: () => post("playVideo"), pause: () => post("pauseVideo"), seek: (s) => {
+  p.__ya = { t: () => T.t, d: () => T.d, playing: () => T.s === 1, play: () => {
+    T.s = 1;
+    post("playVideo");
+  }, pause: () => {
+    T.s = 2;
+    post("pauseVideo");
+  }, seek: (s) => {
     T.t = s;
     post("seekTo", [s, true]);
   }, mute: (m) => post(m ? "mute" : "unMute") };
@@ -3550,11 +3646,9 @@ const ADMIN = (() => {
 })();
 let TV = /Tizen|Web0S|webOS|SMART-TV|SmartTV|AFT|BRAVIA|Android TV|GoogleTV|HbbTV|VIDAA|CrKey/i.test(navigator.userAgent);
 try {
+  localStorage.removeItem("tv");
   const m = location.search.match(/[?&]tv=([01])/);
-  if (m) localStorage.setItem("tv", m[1]);
-  const s = localStorage.getItem("tv");
-  if (s === "1") TV = true;
-  if (s === "0") TV = false;
+  if (m) TV = m[1] === "1";
 } catch (e) {
 }
 if (TV) {
@@ -3772,23 +3866,6 @@ init();
   window.addEventListener("resize", go2);
   setTimeout(fix, 500);
   setTimeout(fix, 2e3);
-})();
-(function() {
-  try {
-    const b = document.createElement("button");
-    b.id = "tvsw";
-    b.textContent = (TV ? "Leave TV mode" : "\u{1F4FA} TV mode") + " \xB7 v15";
-    b.style.cssText = "position:fixed;right:10px;bottom:10px;z-index:9000;padding:.35rem .7rem;border-radius:20px;border:1px solid rgba(255,255,255,.4);background:rgba(0,0,0,.65);color:#fff;font-size:12px;cursor:pointer;opacity:.75";
-    b.onclick = () => {
-      try {
-        localStorage.setItem("tv", TV ? "0" : "1");
-      } catch (e) {
-      }
-      location.href = location.pathname + "?tv=" + (TV ? "0" : "1");
-    };
-    document.body.appendChild(b);
-  } catch (e) {
-  }
 })();
 window.__ok=2;
 </script></body></html>
