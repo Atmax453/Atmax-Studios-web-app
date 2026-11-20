@@ -1861,15 +1861,30 @@ body.tv .hb .sm-img{height:140px}body.tv .sm-t{font-size:2.6rem}
 .pc{position:absolute;top:0;right:0;bottom:0;left:0;z-index:4;pointer-events:none;transition:opacity .3s}.pc>*{pointer-events:auto}
 .player.rot{right:auto;bottom:auto;left:0;top:100vh;width:100vh;height:100vw;transform-origin:0 0;-webkit-transform:rotate(-90deg);transform:rotate(-90deg)}
 .player.idle .pc{opacity:0}.player.idle .pc>*{pointer-events:none}.player.idle{cursor:none}
-.pbtn{border-radius:50%;border:2px solid rgba(255,255,255,.9);background:rgba(0,0,0,.4);color:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer;padding:0;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
+.pbtn{border-radius:50%;border:1px solid rgba(255,255,255,.38);background:rgba(255,255,255,.14);-webkit-backdrop-filter:blur(14px) saturate(1.4);backdrop-filter:blur(14px) saturate(1.4);box-shadow:0 4px 18px rgba(0,0,0,.35),inset 0 1px 0 rgba(255,255,255,.28);color:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer;padding:0;-webkit-tap-highlight-color:transparent;touch-action:manipulation;transition:background .2s,-webkit-transform .15s,transform .15s}
+.pbtn:active{background:rgba(255,255,255,.28);-webkit-transform:scale(.94);transform:scale(.94)}
+body.tv .pbtn,body.tv .pbar{-webkit-backdrop-filter:none;backdrop-filter:none;background-color:rgba(30,30,34,.7)}
 .pbtn:focus-visible{outline:3px solid #fff;outline-offset:3px}.pbtn svg{fill:currentColor;display:block}
 .pclose{position:absolute;top:14px;right:14px;width:44px;height:44px;z-index:6;margin:0}
 .pcen{position:absolute;left:50%;top:50%;-webkit-transform:translate(-50%,-50%);transform:translate(-50%,-50%);display:flex;align-items:center;z-index:5}
 #pp1{width:112px;width:clamp(88px,26vw,132px);height:112px;height:clamp(88px,26vw,132px);margin:0 18px}#pp1 svg{width:46%;height:46%}
 .sk{width:56px;width:clamp(48px,14vw,66px);height:56px;height:clamp(48px,14vw,66px);position:relative}.sk svg{width:52%;height:52%}.sk i{position:absolute;bottom:-1.4em;left:0;right:0;text-align:center;font:600 .72rem system-ui,sans-serif;font-style:normal;opacity:.85}
-.pbar{position:absolute;left:0;right:0;bottom:0;padding:26px 16px 12px;display:flex;align-items:center;background:linear-gradient(transparent,rgba(0,0,0,.7));z-index:5;transition:bottom .3s}
-.pbar>*{margin-right:12px}.pbar>*:last-child{margin-right:0}.pbar input[type=range]{flex:1;min-width:0}.pbar span{font:.82rem system-ui,sans-serif;white-space:nowrap;color:#fff}
-.pbar .pbtn{width:40px;height:40px;border-width:1.5px;font-size:.9rem}.pbar .pbtn svg{width:50%;height:50%}
+.pbar{position:absolute;left:0;right:0;bottom:0;padding:34px 16px max(12px,env(safe-area-inset-bottom));display:flex;flex-direction:column;background:linear-gradient(transparent,rgba(0,0,0,.78));z-index:5;transition:bottom .3s}
+.pr1{display:flex;align-items:center;width:100%}.pr1 span{font:600 .8rem system-ui,sans-serif;white-space:nowrap;color:#fff;opacity:.92;min-width:2.6rem}.pr1 #pt{text-align:left;margin-right:10px}.pr1 #pd{text-align:right;margin-left:10px}
+.pr2{display:flex;align-items:center;justify-content:space-between;width:100%;margin-top:8px}.pg{display:flex;align-items:center}.pg>*{margin-right:10px}.pg>*:last-child{margin-right:0}
+.pbar .pbtn{width:42px;height:42px}.pbar .pbtn svg{width:50%;height:50%}
+.pbar .pill{width:auto;border-radius:22px;padding:0 14px;font:600 .8rem system-ui,sans-serif}.pill svg{width:18px!important;height:18px!important;margin-right:6px}
+.pbar .pbtn.on{background:var(--wine,#9b2c4b);border-color:transparent}
+.pbar input[type=range]{-webkit-appearance:none;appearance:none;background:transparent;height:28px;margin:0;cursor:pointer;touch-action:none;--pv:0%}
+#ps{flex:1;min-width:0}#pv{width:92px;flex:none}
+.pbar input[type=range]::-webkit-slider-runnable-track{height:4px;border-radius:3px;background:linear-gradient(90deg,var(--wine,#9b2c4b) var(--pv),rgba(255,255,255,.28) var(--pv));transition:height .15s}
+.pbar input[type=range]::-moz-range-track{height:4px;border-radius:3px;background:rgba(255,255,255,.28)}.pbar input[type=range]::-moz-range-progress{height:4px;border-radius:3px;background:var(--wine,#9b2c4b)}
+.pbar input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;height:16px;border-radius:50%;background:#fff;margin-top:-6px;border:0;box-shadow:0 0 0 4px rgba(155,44,75,.35),0 0 12px var(--wine,#9b2c4b);transition:-webkit-transform .15s,transform .15s}
+.pbar input[type=range]::-moz-range-thumb{width:16px;height:16px;border-radius:50%;background:#fff;border:0;box-shadow:0 0 0 4px rgba(155,44,75,.35),0 0 12px var(--wine,#9b2c4b)}
+.pbar input[type=range]:active::-webkit-slider-runnable-track{height:7px}.pbar input[type=range]:active::-webkit-slider-thumb{-webkit-transform:scale(1.25);transform:scale(1.25);margin-top:-5px}
+.ptitle{position:absolute;top:14px;left:16px;right:76px;z-index:6;text-shadow:0 2px 10px rgba(0,0,0,.8);pointer-events:none}.ptitle b{display:block;font-size:1.05rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.ptitle small{opacity:.8;font-size:.8rem}
+.ycov{position:absolute;top:0;right:0;bottom:0;left:0;z-index:3;background-size:cover;background-position:center;background-color:#000}.ycov:after{content:"";position:absolute;top:0;right:0;bottom:0;left:0;background:linear-gradient(rgba(0,0,0,.55),rgba(0,0,0,.35) 40%,rgba(0,0,0,.75))}
+.ytfb .ycov,.ytfb .ysh,.ytfb .pcen{display:none}.yhint{position:absolute;left:0;right:0;top:18%;text-align:center;z-index:6;font:600 .95rem system-ui,sans-serif;text-shadow:0 2px 10px #000;padding:0 1rem;pointer-events:none}
 .player.pk .pbar{bottom:96px}
 .ppan{position:absolute;left:0;right:0;bottom:0;max-height:64%;overflow-y:auto;-webkit-overflow-scrolling:touch;background:rgba(14,11,12,.95);color:#fff;border-radius:18px 18px 0 0;-webkit-transform:translateY(100%);transform:translateY(100%);transition:-webkit-transform .35s,transform .35s;z-index:7;padding:.4rem 1rem 1rem;box-sizing:border-box}
 .ppan.peek{-webkit-transform:translateY(calc(100% - 96px));transform:translateY(calc(100% - 96px))}.ppan.open{-webkit-transform:none;transform:none}
@@ -2137,7 +2152,7 @@ async function picker() {
   $("#out").onclick = out;
 }
 async function browse() {
-  const g = !S.user, E = { data: [] }, C = "id,title,year,genre,description,poster_url,trailer_url,row_id,featured,status,runtime,allow_rate,allow_comment,publish_at,banner_pc,banner_phone,header_img,focus,plays,director,series_name,episode_no";
+  const g = !S.user, E = { data: [] }, C = "id,title,year,genre,description,poster_url,trailer_url,row_id,featured,status,runtime,allow_rate,allow_comment,publish_at,banner_pc,banner_phone,header_img,focus,plays,director,series_name,episode_no,subtitles_url";
   let [r, t, m, h, ra, co] = await Promise.all([sb.from("rows").select("*").order("position"), sb.from("titles").select(g ? C : "*").order("id"), g ? E : sb.from("my_list").select("title_id").eq("sub_id", S.sub.id), g ? E : sb.from("watch_history").select("*").eq("sub_id", S.sub.id), sb.from("ratings").select("title_id,user_id,stars"), sb.from("comments").select("*").order("created_at", { ascending: false })]);
   let tt = t;
   if (t.error) {
@@ -2553,10 +2568,10 @@ async function play(id, tr) {
   if (d.reason === "login") return gate("watch the full film");
   return _play(id, 0, null);
 }
-const IC = { play: '<svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>', pause: '<svg viewBox="0 0 24 24"><path d="M6 5h4v14H6zM14 5h4v14h-4z"/></svg>', back: '<svg viewBox="0 0 24 24"><path d="M11 18V6l-8.5 6zM21 18V6l-8.5 6z"/></svg>', fwd: '<svg viewBox="0 0 24 24"><path d="M13 6v12l8.5-6zM3 6v12l8.5-6z"/></svg>', x: '<svg viewBox="0 0 24 24"><path d="M6.4 5 5 6.4 10.6 12 5 17.6 6.4 19 12 13.4 17.6 19 19 17.6 13.4 12 19 6.4 17.6 5 12 10.6z"/></svg>', vol: '<svg viewBox="0 0 24 24"><path d="M3 9v6h4l5 4V5L7 9zm13.5 3A4.5 4.5 0 0 0 14 8v8a4.5 4.5 0 0 0 2.5-4z"/></svg>', mute: '<svg viewBox="0 0 24 24"><path d="M3 9v6h4l5 4V5L7 9zm13 .6L14.6 11l1.4 1.4-1.4 1.4L16 15.2l1.4-1.4 1.4 1.4 1.4-1.4-1.4-1.4 1.4-1.4-1.4-1.4z"/></svg>', fullx: '<svg viewBox="0 0 24 24"><path d="M7 5h2v5H4V8h3zm8 0h2v3h3v2h-5zM4 14h5v5H7v-3H4zm11 0h5v2h-3v3h-2z"/></svg>', full: '<svg viewBox="0 0 24 24"><path d="M5 5h5v2H7v3H5zm9 0h5v5h-2V7h-3zM5 14h2v3h3v2H5zm12 0h2v5h-5v-2h3z"/></svg>' };
+const IC = { play: '<svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>', pause: '<svg viewBox="0 0 24 24"><path d="M6 5h4v14H6zM14 5h4v14h-4z"/></svg>', back: '<svg viewBox="0 0 24 24"><path d="M11 18V6l-8.5 6zM21 18V6l-8.5 6z"/></svg>', fwd: '<svg viewBox="0 0 24 24"><path d="M13 6v12l8.5-6zM3 6v12l8.5-6z"/></svg>', x: '<svg viewBox="0 0 24 24"><path d="M6.4 5 5 6.4 10.6 12 5 17.6 6.4 19 12 13.4 17.6 19 19 17.6 13.4 12 19 6.4 17.6 5 12 10.6z"/></svg>', vol: '<svg viewBox="0 0 24 24"><path d="M3 9v6h4l5 4V5L7 9zm13.5 3A4.5 4.5 0 0 0 14 8v8a4.5 4.5 0 0 0 2.5-4z"/></svg>', mute: '<svg viewBox="0 0 24 24"><path d="M3 9v6h4l5 4V5L7 9zm13 .6L14.6 11l1.4 1.4-1.4 1.4L16 15.2l1.4-1.4 1.4 1.4 1.4-1.4-1.4-1.4 1.4-1.4-1.4-1.4z"/></svg>', fullx: '<svg viewBox="0 0 24 24"><path d="M7 5h2v5H4V8h3zm8 0h2v3h3v2h-5zM4 14h5v5H7v-3H4zm11 0h5v2h-3v3h-2z"/></svg>', next: '<svg viewBox="0 0 24 24"><path d="M6 6l8.5 6L6 18zM16 6h2v12h-2z"/></svg>', cc: '<svg viewBox="0 0 24 24"><path d="M19 4H5a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2zm-8 7H9.5v-.5h-2v3h2V13H11v1a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1v-4a1 1 0 0 1 1-1h3a1 1 0 0 1 1 1zm7 0h-1.5v-.5h-2v3h2V13H18v1a1 1 0 0 1-1 1h-3a1 1 0 0 1-1-1v-4a1 1 0 0 1 1-1h3a1 1 0 0 1 1 1z"/></svg>', full: '<svg viewBox="0 0 24 24"><path d="M5 5h5v2H7v3H5zm9 0h5v5h-2V7h-3zM5 14h2v3h3v2H5zm12 0h2v5h-5v-2h3z"/></svg>' };
 const genreSet = (t) => String(t.genre || "").toLowerCase().split(/[,/|]/).map((x) => x.trim()).filter(Boolean);
 function playerUI(p, A, f, isTrailer, closeFn) {
-  const q = (s) => p.querySelector(s), bp = q("#pp1"), bb = q("#pb"), bf = q("#pf"), rg = q("#ps"), tm = q("#pt"), td = q("#pd"), bm = q("#pm"), bz = q("#pz"), pan = q("#ppan");
+  const q = (s) => p.querySelector(s), bp = q("#pp1"), bb = q("#pb"), bf = q("#pf"), rg = q("#ps"), tm = q("#pt"), td = q("#pd"), bm = q("#pm"), bv = q("#pv"), bz = q("#pz"), pan = q("#ppan");
   const fmt = (n) => {
     n = Math.floor(n || 0);
     const h = Math.floor(n / 3600), m = Math.floor(n % 3600 / 60), s = n % 60;
@@ -2627,18 +2642,64 @@ function playerUI(p, A, f, isTrailer, closeFn) {
   bp.onclick = toggle;
   rg.oninput = () => {
     drag = 1;
+    fill(rg);
     const d = A.d();
     if (d) A.seek(d * rg.value / 1e3);
   };
   rg.onchange = () => {
     drag = 0;
   };
-  bm.innerHTML = IC.vol;
+  const iosV = /iPhone|iPad|iPod/.test(navigator.userAgent) || navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1;
+  let vol = 1;
+  const volIco = () => {
+    bm.innerHTML = muted || vol === 0 ? IC.mute : IC.vol;
+  };
+  const fill = (el) => el.style.setProperty("--pv", el.value / el.max * 100 + "%");
   bm.onclick = () => {
     muted = !muted;
     A.mute(muted);
-    bm.innerHTML = muted ? IC.mute : IC.vol;
+    if (!muted && vol === 0) {
+      vol = 0.5;
+      bv.value = 50;
+      A.vol && A.vol(vol);
+      fill(bv);
+    }
+    volIco();
+    if (!muted || vol > 0) {
+      bv.value = muted ? 0 : vol * 100;
+      fill(bv);
+    }
   };
+  if (iosV || !A.vol) bv.style.display = "none";
+  bv.oninput = () => {
+    vol = bv.value / 100;
+    A.vol && A.vol(vol);
+    if (vol > 0 && muted) {
+      muted = false;
+      A.mute(false);
+    }
+    if (vol === 0) {
+      muted = true;
+      A.mute(true);
+    }
+    volIco();
+    fill(bv);
+  };
+  fill(bv);
+  volIco();
+  const nx = (() => {
+    if (isTrailer || !f || !f.series_name) return null;
+    const ep = S.T.filter((x) => x.series_name && x.series_name.toLowerCase() == f.series_name.toLowerCase() && x.status !== "soon" && (x.episode_no || 0) > (f.episode_no || 0)).sort((a, b) => a.episode_no - b.episode_no);
+    return ep[0] || null;
+  })();
+  const bnx = q("#pnx");
+  if (nx && bnx) {
+    bnx.style.display = "";
+    bnx.onclick = () => {
+      closeFn();
+      play(nx.id);
+    };
+  }
   const rq = p.requestFullscreen || p.webkitRequestFullscreen, fsEl = () => document.fullscreenElement || document.webkitFullscreenElement;
   const isFS = () => !!fsEl() || p.classList.contains("rot"), fit = () => setTimeout(() => dispatchEvent(new Event("resize")), 120);
   const lockL = () => {
@@ -2788,6 +2849,11 @@ function playerUI(p, A, f, isTrailer, closeFn) {
       bp.setAttribute("aria-label", on ? "Pause" : "Play");
     }
     if (d && !drag) rg.value = Math.round(t / d * 1e3);
+    fill(rg);
+    if (p.__ya && p.__ya.real && p.__ya.real()) {
+      const c = p.querySelector(".ycov");
+      c && c.remove();
+    }
     tm.textContent = fmt(t);
     td.textContent = d ? fmt(d) : "";
     if (!on && ever) {
@@ -2852,6 +2918,13 @@ function ytInit(p) {
     }
   };
   const T = { t: 0, d: 0, s: -1 };
+  const ok = () => {
+    T.r = 1;
+    clearTimeout(T.fb);
+    p.classList.remove("ytfb");
+    const h = p.querySelector(".yhint");
+    h && h.remove();
+  };
   const onmsg = (e) => {
     if (e.source !== f.contentWindow) return;
     let d;
@@ -2864,9 +2937,13 @@ function ytInit(p) {
     if (d.event === "infoDelivery" && i) {
       if (i.currentTime != null) T.t = i.currentTime;
       if (i.duration) T.d = i.duration;
-      if (i.playerState != null) T.s = i.playerState;
+      if (i.playerState != null) {
+        T.s = i.playerState;
+        if (T.s === 1) ok();
+      }
     } else if (d.event === "onStateChange" && typeof d.info === "number") {
       T.s = d.info;
+      if (T.s === 1) ok();
     }
   };
   addEventListener("message", onmsg);
@@ -2885,13 +2962,19 @@ function ytInit(p) {
   p.__ya = { t: () => T.t, d: () => T.d, playing: () => T.s === 1, play: () => {
     T.s = 1;
     post("playVideo");
+    if (!T.r && !T.fb) T.fb = setTimeout(() => {
+      if (T.r) return;
+      T.s = -1;
+      p.classList.add("ytfb");
+      if (!p.querySelector(".yhint")) p.insertAdjacentHTML("beforeend", '<div class="yhint">Tap the red play button to start</div>');
+    }, 2600);
   }, pause: () => {
     T.s = 2;
     post("pauseVideo");
   }, seek: (s) => {
     T.t = s;
     post("seekTo", [s, true]);
-  }, mute: (m) => post(m ? "mute" : "unMute") };
+  }, mute: (m) => post(m ? "mute" : "unMute"), vol: (x) => post("setVolume", [Math.round(x * 100)]), real: () => !!T.r };
   const obs = new MutationObserver(() => {
     if (!document.body.contains(p)) {
       removeEventListener("message", onmsg);
@@ -2906,8 +2989,8 @@ function _play(id, tr, url) {
   p.className = "player";
   const e = t.video_url ? embedFor(t.video_url) : null, h = S.H.find((x) => x.title_id == id);
   const yt = !!(e && e.iframe && /youtube/.test(e.iframe) && !tr);
-  const ctl = '<div class="pc"><div class="pcen"><button class="pbtn sk" id="pb" aria-label="Back 10 seconds. Hold to rewind">'.concat(IC.back, '<i>10s</i></button><button class="pbtn" id="pp1" aria-label="Play or pause"></button><button class="pbtn sk" id="pf" aria-label="Forward 10 seconds. Hold to fast forward">').concat(IC.fwd, '<i>10s</i></button></div><div class="pbar"><span id="pt">0:00</span><input id="ps" type="range" min="0" max="1000" value="0" aria-label="Seek"><span id="pd"></span><button class="pbtn" id="pm" aria-label="Mute"></button><button class="pbtn" id="pz" aria-label="Full screen"></button></div></div><div class="ppan" id="ppan"></div>'), xbtn = '<button class="pbtn pclose" id="cl" aria-label="Close player">'.concat(IC.x, "</button>");
-  const media = e ? yt ? '<div class="ytw"><iframe class="yti" src="'.concat(esc(e.iframe), "&controls=0&modestbranding=1&rel=0&iv_load_policy=3&disablekb=1&fs=0&playsinline=1&enablejsapi=1&origin=").concat(encodeURIComponent(location.origin), '" allow="autoplay; encrypted-media" title=""></iframe><div class="ysh"></div></div>') : e.iframe ? '<iframe src="'.concat(esc(e.iframe), '" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen title="').concat(esc(t.title), '"></iframe>') : '<video autoplay playsinline src="'.concat(esc(e.video), '"></video>') : '<div class="nov"><div><h3>'.concat(esc(t.title), "</h3><p>No video has been added for this title yet.</p></div></div>");
+  const ctl = '<div class="pc">'.concat(tr ? "" : '<div class="ptitle"><b>'.concat(esc(t0.title), "</b><small>").concat(esc([t0.year, t0.genre].filter(Boolean).join(" \xB7 ")), "</small></div>"), '<div class="pcen"><button class="pbtn sk" id="pb" aria-label="Back 10 seconds. Hold to rewind">').concat(IC.back, '<i>10s</i></button><button class="pbtn" id="pp1" aria-label="Play or pause"></button><button class="pbtn sk" id="pf" aria-label="Forward 10 seconds. Hold to fast forward">').concat(IC.fwd, '<i>10s</i></button></div><div class="pbar"><div class="pr1"><span id="pt">0:00</span><input id="ps" type="range" min="0" max="1000" value="0" aria-label="Seek"><span id="pd"></span></div><div class="pr2"><div class="pg"><button class="pbtn" id="pm" aria-label="Mute"></button><input id="pv" type="range" min="0" max="100" value="100" aria-label="Volume"></div><div class="pg"><button class="pbtn pill" id="pnx" style="display:none" aria-label="Next episode">').concat(IC.next, '<span>Next ep</span></button><button class="pbtn" id="pcc" style="display:none" aria-label="Subtitles">').concat(IC.cc, '</button><button class="pbtn" id="pz" aria-label="Full screen"></button></div></div></div></div><div class="ppan" id="ppan"></div>'), xbtn = '<button class="pbtn pclose" id="cl" aria-label="Close player">'.concat(IC.x, "</button>");
+  const media = e ? yt ? '<div class="ytw"><iframe class="yti" src="'.concat(esc(e.iframe.replace("autoplay=1", "autoplay=0")), "&controls=0&modestbranding=1&rel=0&iv_load_policy=3&disablekb=1&fs=0&playsinline=1&enablejsapi=1&origin=").concat(encodeURIComponent(location.origin), '" allow="autoplay; encrypted-media" title=""></iframe><div class="ysh"></div></div><div class="ycov" style="background-image:').concat(artf(t0, "pc"), '"></div>') : e.iframe ? '<iframe src="'.concat(esc(e.iframe), '" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen title="').concat(esc(t.title), '"></iframe>') : '<video autoplay playsinline src="'.concat(esc(e.video), '"></video>') : '<div class="nov"><div><h3>'.concat(esc(t.title), "</h3><p>No video has been added for this title yet.</p></div></div>");
   const own = !!(e && (yt || e.video));
   p.innerHTML = '<div class="pm">'.concat(media, "</div>") + (own ? ctl + '<div class="ppx"></div>' : "") + xbtn;
   document.body.appendChild(p);
@@ -2976,8 +3059,30 @@ function _play(id, tr, url) {
       v.currentTime = x;
     }, mute: (m) => {
       v.muted = m;
+    }, vol: (x) => {
+      v.volume = x;
     } } : p.__ya;
     playerUI(p, A, tr ? null : t0, !!tr, closeFn);
+    if (v && !tr && t0.subtitles_url) {
+      const cb = p.querySelector("#pcc");
+      fetch(t0.subtitles_url).then((r) => r.ok ? r.text() : Promise.reject()).then((tx) => {
+        if (!/^\s*WEBVTT/.test(tx)) tx = "WEBVTT\n\n" + tx.replace(/\r/g, "").replace(/(\d\d:\d\d:\d\d),(\d{3})/g, "$1.$2");
+        const tk = document.createElement("track");
+        tk.kind = "subtitles";
+        tk.label = "Subtitles";
+        tk.srclang = "en";
+        tk.src = URL.createObjectURL(new Blob([tx], { type: "text/vtt" }));
+        v.appendChild(tk);
+        tk.track.mode = "disabled";
+        cb.style.display = "";
+        cb.onclick = () => {
+          const on = tk.track.mode !== "showing";
+          tk.track.mode = on ? "showing" : "disabled";
+          cb.classList.toggle("on", on);
+        };
+      }).catch(() => {
+      });
+    }
     const pp = p.querySelector("#pp1");
     if (pp) pp.focus();
   } else $("#cl").focus();
@@ -3167,7 +3272,7 @@ const ADMIN = (() => {
   }
   function films() {
     const e = S2.edit || {}, opts2 = S2.R.map((r) => '<option value="'.concat(r.id, '" ').concat(e.row_id == r.id ? "selected" : "", ">").concat(esc(r.name), "</option>")).join("");
-    return '<form id="f" class="panel"><h3>'.concat(e.id ? "Edit film" : "Add film", '</h3>\n <label>Title<input name="title" required value="').concat(esc(e.title), '"></label><label>Year<input name="year" type="number" value="').concat(esc(e.year), '"></label><label>Genre<input name="genre" value="').concat(esc(e.genre), '"></label><label>Director (optional)<input name="director" value="').concat(esc(e.director), '"></label><label>Series name (optional, same spelling on every episode)<input name="series_name" value="').concat(esc(e.series_name), '"></label><label>Episode number (optional)<input name="episode_no" type="number" min="1" value="').concat(esc(e.episode_no), '"></label>\n <label>Description<textarea name="description" rows="3">').concat(esc(e.description), "</textarea></label>\n ").concat(SLOTS.map(([k, l, ar, sz, un, fn]) => '<fieldset class="slot"><legend>'.concat(l, " \xB7 ").concat(ar, " (").concat(sz, ')</legend><label>Paste a picture link<input name="').concat(un, '" value="').concat(esc(e[un]), '"></label><label>\u2026or upload a picture file (saved inside your Supabase storage)<input type="file" name="').concat(fn, '" accept="image/*"></label>').concat(/\/object\/public\/films\//.test(e[un] || "") ? '<div class="stored">\u2713 Stored in your Supabase storage. The link above is just this picture\'s address and is kept automatically.</div>' : "", '<input type="hidden" name="fx_').concat(k, '" value="').concat(esc(((e.focus || {})[k] || [50, 50]).join(" ")), '"><div class="fp" data-slot="').concat(k, '" style="aspect-ratio:').concat(ar.replace(":", "/"), ";max-width:").concat(k == "phone" ? "200px" : k == "poster" ? "150px" : "320px", '" title="Click to set the focus point"><i></i></div><small style="color:var(--mute)">Click the picture to choose which part stays in view when it is cropped.</small></fieldset>')).join(""), '<div class="hint">Empty slots fall back to the PC banner, then the tile poster. Google Drive picture links are converted automatically. Links must be open: no password, no sign-in.</div>\n <label class="chk"><input type="radio" name="source" value="link" checked> Video: paste a link</label><label class="chk"><input type="radio" name="source" value="upload"> Video: upload a file</label>\n <label id="vl">Video link (Google Drive, YouTube, Vimeo or .mp4)<input name="video_url" value="').concat(esc(e.video_url), '"></label><label id="vf" style="display:none">Video file<input type="file" name="video_file" accept="video/*"></label>\n <div style="font-size:.82rem;color:var(--mute)">Google Drive: open the file, click Share, set General access to "Anyone with the link", then paste the link. Uploads are limited by your Supabase plan\'s per-file size; use a link for full-length films.</div>\n').concat(poEditor(e)).concat(finEditor(e), '\n <label>Trailer link (open link, no password)<input name="trailer_url" value="').concat(esc(e.trailer_url), '"></label><label>\u2026or upload a trailer<input type="file" name="trailer_file" accept="video/*"></label><label class="chk"><input type="checkbox" name="allow_rate" ').concat(e.allow_rate !== false ? "checked" : "", '> Allow ratings</label><label class="chk"><input type="checkbox" name="allow_comment" ').concat(e.allow_comment !== false ? "checked" : "", '> Allow comments</label><label>Status<select name="status"><option value="published" ').concat(e.status !== "draft" ? "selected" : "", '>Published</option><option value="soon" ').concat(e.status === "soon" ? "selected" : "", '>Coming soon (trailer only)</option><option value="draft" ').concat(e.status === "draft" ? "selected" : "", '>Draft (hidden from viewers)</option></select></label><label>Go live at (Ghana time, optional)<input type="datetime-local" name="publish_at" value="').concat(e.publish_at ? esc(String(e.publish_at).slice(0, 16)) : "", '"></label><label>Row<select name="row_id"><option value="">None</option>').concat(opts2, '</select></label>\n <label class="chk"><input type="checkbox" name="featured" ').concat(e.featured ? "checked" : "", '> Feature in the rotating banner on Home</label>\n <h3>Preview</h3><div class="acts" style="margin-top:0"><button type="button" class="btn ghost" data-pv="pc">PC</button><button type="button" class="btn ghost" data-pv="ph">Phone</button></div><div id="pv"></div><div class="acts"><button class="btn">').concat(e.id ? "Save changes" : "Add film", "</button>").concat(e.id ? '<button type="button" class="btn ghost" id="cancel">Cancel</button>' : "", "</div>").concat(note(), '</form>\n <div class="panel scroll"><h3>All films (').concat(S2.T.length, ")</h3><table><tr><th>Title</th><th>Row</th><th>Price</th><th>Plays</th><th></th></tr>").concat(S2.T.map((t) => {
+    return '<form id="f" class="panel"><h3>'.concat(e.id ? "Edit film" : "Add film", '</h3>\n <label>Title<input name="title" required value="').concat(esc(e.title), '"></label><label>Year<input name="year" type="number" value="').concat(esc(e.year), '"></label><label>Genre<input name="genre" value="').concat(esc(e.genre), '"></label><label>Director (optional)<input name="director" value="').concat(esc(e.director), '"></label><label>Series name (optional, same spelling on every episode)<input name="series_name" value="').concat(esc(e.series_name), '"></label><label>Episode number (optional)<input name="episode_no" type="number" min="1" value="').concat(esc(e.episode_no), '"></label><label>Subtitles link (.vtt or .srt, optional; uploaded films only)<input name="subtitles_url" value="').concat(esc(e.subtitles_url), '"></label><label>\u2026or upload a subtitles file<input type="file" name="subtitles_file" accept=".vtt,.srt,text/vtt"></label>\n <label>Description<textarea name="description" rows="3">').concat(esc(e.description), "</textarea></label>\n ").concat(SLOTS.map(([k, l, ar, sz, un, fn]) => '<fieldset class="slot"><legend>'.concat(l, " \xB7 ").concat(ar, " (").concat(sz, ')</legend><label>Paste a picture link<input name="').concat(un, '" value="').concat(esc(e[un]), '"></label><label>\u2026or upload a picture file (saved inside your Supabase storage)<input type="file" name="').concat(fn, '" accept="image/*"></label>').concat(/\/object\/public\/films\//.test(e[un] || "") ? '<div class="stored">\u2713 Stored in your Supabase storage. The link above is just this picture\'s address and is kept automatically.</div>' : "", '<input type="hidden" name="fx_').concat(k, '" value="').concat(esc(((e.focus || {})[k] || [50, 50]).join(" ")), '"><div class="fp" data-slot="').concat(k, '" style="aspect-ratio:').concat(ar.replace(":", "/"), ";max-width:").concat(k == "phone" ? "200px" : k == "poster" ? "150px" : "320px", '" title="Click to set the focus point"><i></i></div><small style="color:var(--mute)">Click the picture to choose which part stays in view when it is cropped.</small></fieldset>')).join(""), '<div class="hint">Empty slots fall back to the PC banner, then the tile poster. Google Drive picture links are converted automatically. Links must be open: no password, no sign-in.</div>\n <label class="chk"><input type="radio" name="source" value="link" checked> Video: paste a link</label><label class="chk"><input type="radio" name="source" value="upload"> Video: upload a file</label>\n <label id="vl">Video link (Google Drive, YouTube, Vimeo or .mp4)<input name="video_url" value="').concat(esc(e.video_url), '"></label><label id="vf" style="display:none">Video file<input type="file" name="video_file" accept="video/*"></label>\n <div style="font-size:.82rem;color:var(--mute)">Google Drive: open the file, click Share, set General access to "Anyone with the link", then paste the link. Uploads are limited by your Supabase plan\'s per-file size; use a link for full-length films.</div>\n').concat(poEditor(e)).concat(finEditor(e), '\n <label>Trailer link (open link, no password)<input name="trailer_url" value="').concat(esc(e.trailer_url), '"></label><label>\u2026or upload a trailer<input type="file" name="trailer_file" accept="video/*"></label><label class="chk"><input type="checkbox" name="allow_rate" ').concat(e.allow_rate !== false ? "checked" : "", '> Allow ratings</label><label class="chk"><input type="checkbox" name="allow_comment" ').concat(e.allow_comment !== false ? "checked" : "", '> Allow comments</label><label>Status<select name="status"><option value="published" ').concat(e.status !== "draft" ? "selected" : "", '>Published</option><option value="soon" ').concat(e.status === "soon" ? "selected" : "", '>Coming soon (trailer only)</option><option value="draft" ').concat(e.status === "draft" ? "selected" : "", '>Draft (hidden from viewers)</option></select></label><label>Go live at (Ghana time, optional)<input type="datetime-local" name="publish_at" value="').concat(e.publish_at ? esc(String(e.publish_at).slice(0, 16)) : "", '"></label><label>Row<select name="row_id"><option value="">None</option>').concat(opts2, '</select></label>\n <label class="chk"><input type="checkbox" name="featured" ').concat(e.featured ? "checked" : "", '> Feature in the rotating banner on Home</label>\n <h3>Preview</h3><div class="acts" style="margin-top:0"><button type="button" class="btn ghost" data-pv="pc">PC</button><button type="button" class="btn ghost" data-pv="ph">Phone</button></div><div id="pv"></div><div class="acts"><button class="btn">').concat(e.id ? "Save changes" : "Add film", "</button>").concat(e.id ? '<button type="button" class="btn ghost" id="cancel">Cancel</button>' : "", "</div>").concat(note(), '</form>\n <div class="panel scroll"><h3>All films (').concat(S2.T.length, ")</h3><table><tr><th>Title</th><th>Row</th><th>Price</th><th>Plays</th><th></th></tr>").concat(S2.T.map((t) => {
       var _a;
       return "<tr><td>".concat(esc(t.title)).concat(t.featured ? " \u2605" : "").concat(t.status === "draft" ? " (draft)" : "", "</td><td>").concat(esc(((_a = S2.R.find((r) => r.id == t.row_id)) == null ? void 0 : _a.name) || "\u2014"), "</td><td>").concat(priceSum(t.id), "</td><td>").concat(t.plays || 0, '</td><td><button class="btn ghost" data-rev="').concat(t.id, '">\u{1F4CA} Dashboard</button> <button class="btn ghost" data-edit="').concat(t.id, '">Edit</button> <button class="btn del" data-del="').concat(t.id, '">Delete</button></td></tr>');
     }).join(""), "</table></div>");
@@ -3283,13 +3388,13 @@ const ADMIN = (() => {
   });
   async function upload(file, folder) {
     const ext = (file.name.split(".").pop() || "bin").toLowerCase(), path = "".concat(folder, "/").concat(Date.now(), "-").concat(Math.random().toString(36).slice(2, 8), ".").concat(ext);
-    const { error } = await sb.storage.from("films").upload(path, file, { cacheControl: "3600", contentType: file.type });
+    const { error } = await sb.storage.from("films").upload(path, file, { cacheControl: "3600", contentType: file.type || "text/plain" });
     if (error) throw error;
     return sb.storage.from("films").getPublicUrl(path).data.publicUrl;
   }
   async function uploadPrivate(file) {
     const ext = (file.name.split(".").pop() || "mp4").toLowerCase().replace(/[^a-z0-9]/g, ""), path = "".concat(Date.now(), "-").concat(Math.random().toString(36).slice(2, 10), ".").concat(ext);
-    const { error } = await sb.storage.from("videos").upload(path, file, { cacheControl: "3600", contentType: file.type });
+    const { error } = await sb.storage.from("videos").upload(path, file, { cacheControl: "3600", contentType: file.type || "text/plain" });
     if (error) throw error;
     return "storage:" + path;
   }
@@ -3454,6 +3559,11 @@ const ADMIN = (() => {
         poster = imgs.poster || "";
         const focus = {};
         SLOTS.forEach(([k]) => focus[k] = (v["fx_" + k] || "50 50").split(" ").map(Number));
+        let subs = (v.subtitles_url || "").trim();
+        if (v.subtitles_file && v.subtitles_file.size) {
+          ok.textContent = "Uploading subtitles\u2026";
+          subs = await upload(v.subtitles_file, "subs");
+        }
         let trailer = (v.trailer_url || "").trim();
         if (v.trailer_file && v.trailer_file.size) {
           ok.textContent = "Uploading the trailer\u2026";
@@ -3462,7 +3572,7 @@ const ADMIN = (() => {
         let rt = S2.edit && S2.edit.video_url === video ? S2.edit.runtime : null;
         if (v.source === "upload" && v.video_file && v.video_file.size) rt = await dur(URL.createObjectURL(v.video_file));
         else if (/\.(mp4|webm|mov|m4v)(\?|$)/i.test(video)) rt = await dur(video);
-        const row = { trailer_url: trailer || null, allow_rate: !!v.allow_rate, allow_comment: !!v.allow_comment, runtime: rt, title: v.title.trim(), year: v.year ? +v.year : null, genre: v.genre || null, director: (v.director || "").trim() || null, series_name: (v.series_name || "").trim() || null, episode_no: v.episode_no ? +v.episode_no : null, description: v.description || null, poster_url: poster || null, video_url: S2.FF ? null : video || null, row_id: v.row_id ? +v.row_id : null, featured: !!v.featured, status: v.status || "published", banner_pc: imgs.pc, banner_phone: imgs.phone, header_img: imgs.head, focus, publish_at: v.publish_at ? (/* @__PURE__ */ new Date(v.publish_at + ":00Z")).toISOString() : null };
+        const row = { trailer_url: trailer || null, allow_rate: !!v.allow_rate, allow_comment: !!v.allow_comment, runtime: rt, title: v.title.trim(), year: v.year ? +v.year : null, genre: v.genre || null, director: (v.director || "").trim() || null, series_name: (v.series_name || "").trim() || null, episode_no: v.episode_no ? +v.episode_no : null, subtitles_url: subs || null, description: v.description || null, poster_url: poster || null, video_url: S2.FF ? null : video || null, row_id: v.row_id ? +v.row_id : null, featured: !!v.featured, status: v.status || "published", banner_pc: imgs.pc, banner_phone: imgs.phone, header_img: imgs.head, focus, publish_at: v.publish_at ? (/* @__PURE__ */ new Date(v.publish_at + ":00Z")).toISOString() : null };
         let tid;
         if (S2.edit) {
           r = await sb.from("titles").update(row).eq("id", S2.edit.id);
