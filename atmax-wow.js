@@ -38,6 +38,11 @@
   var reduceMotion = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
   function animOff() { return reduceMotion || document.body.classList.contains('noanim'); }
   function isTV() { return document.body.classList.contains('tv'); }
+  // lite = phones, TVs and weaker devices: same effects, drawn with fewer pixels and fewer frames
+  function isLite() {
+    var mem = navigator.deviceMemory, cores = navigator.hardwareConcurrency;
+    return isTV() || (window.matchMedia && matchMedia('(pointer:coarse)').matches) || (mem && mem <= 4) || (cores && cores <= 4);
+  }
   function isTouch() { return matchMedia('(hover: none)').matches; }
   function films() { try { return (typeof S !== 'undefined' && S && S.T) ? S.T : []; } catch (e) { return []; } }
   function filmById(id) { var a = films(); for (var i = 0; i < a.length; i++) if (a[i].id == id) return a[i]; return null; }
@@ -51,11 +56,15 @@
 
   // ------------------------------------------------------------- GSAP
   var gsapReady = window.gsap ? Promise.resolve(window.gsap) : new Promise(function (res, rej) {
-    var s = document.createElement('script');
-    s.src = 'https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js';
-    s.onload = function () { window.gsap ? res(window.gsap) : rej(); };
-    s.onerror = rej;
-    (document.head || document.documentElement).appendChild(s);
+    function load(src, next) {
+      var s = document.createElement('script');
+      s.src = src;
+      s.onload = function () { window.gsap ? res(window.gsap) : rej(); };
+      s.onerror = next || rej;
+      (document.head || document.documentElement).appendChild(s);
+    }
+    // your own copy first (no wait for a third-party server); the public copy only if it is missing
+    load('gsap.min.js', function () { load('https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js'); });
   });
   var G = null;
   gsapReady.then(function (g) { G = g; }).catch(function () {});
@@ -254,7 +263,7 @@
 
     var layer = document.createElement('div');
     layer.className = 'atw-spot' + (mode === 'tv' ? ' tv' : '');
-    var dpr = Math.min(2, window.devicePixelRatio || 1);
+    var lite = isLite(), dpr = Math.min(lite ? 1 : 1.5, window.devicePixelRatio || 1);
     layer.innerHTML = '<div class="atw-veil"></div><canvas class="atw-beam"></canvas><canvas class="atw-dust"></canvas>';
     var card = tile.cloneNode(true);
     card.removeAttribute('id');
@@ -277,9 +286,13 @@
     document.body.appendChild(layer);
 
     var beam = layer.querySelector('.atw-beam'), dust = layer.querySelector('.atw-dust');
-    [beam, dust].forEach(function (c) { c.width = innerWidth * dpr; c.height = innerHeight * dpr; });
+    var bsc = lite ? dpr * 0.5 : dpr;                       // the soft beam needs few pixels; scaling it up looks the same
+    beam.width = Math.ceil(innerWidth * bsc); beam.height = Math.ceil(innerHeight * bsc);
+    dust.width = Math.ceil(innerWidth * dpr); dust.height = Math.ceil(innerHeight * dpr);
+    if (lite) beam.style.filter = 'none';                  // the canvas is already soft; skip the costly full-screen blur
     var bx = beam.getContext('2d'), dx = dust.getContext('2d');
-    bx.scale(dpr, dpr); dx.scale(dpr, dpr);
+    bx.scale(bsc, bsc); dx.scale(dpr, dpr);
+    var lastT = 0;
 
     // where the lifted card ends up (scale about 50% 60%, nudged up)
     var SC = mode === 'tv' ? 1.12 : 1.17, LIFT = -12;
@@ -306,6 +319,8 @@
     }
     function draw(ts) {
       if (!alive) return;
+      if (lite && ts - lastT < 32) { raf = requestAnimationFrame(draw); return; }   // about 30 frames a second on lite devices
+      lastT = ts;
       var P = poly(), flick = 0.93 + 0.07 * Math.sin(ts / 90) * Math.sin(ts / 37);
       bx.clearRect(0, 0, innerWidth, innerHeight);
       var g = bx.createLinearGradient(P[0][0], P[0][1], cx, R.bottom);
@@ -471,7 +486,7 @@
         });
         if (best) { ambientSoon(filmById(best.getAttribute('data-id')), 0); startSpot(best, 'touch'); }
       }, 550);
-    }, true);
+    }, { capture: true, passive: true });
     window.addEventListener('resize', function () { endSpot(true); });
   }
 
@@ -708,7 +723,7 @@
         onUpdate: function () {
           film.style.transform = 'translateX(' + state.x + 'px)';
           var v = Math.abs(state.x - lastX); lastX = state.x;
-          film.style.filter = v > 6 ? 'blur(' + Math.min(6, v / 10).toFixed(1) + 'px)' : 'none';
+          film.style.filter = !isLite() && v > 6 ? 'blur(' + Math.min(6, v / 10).toFixed(1) + 'px)' : 'none';
           var idx = Math.floor((center - state.x - 14 + gap / 2) / step);
           if (idx !== lastIdx) { lastIdx = idx; tick(); }
         },

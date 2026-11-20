@@ -1846,14 +1846,19 @@ body.tv .hb .sm-img{height:140px}body.tv .sm-t{font-size:2.6rem}
 .wm{position:absolute;z-index:3;pointer-events:none;color:rgba(255,255,255,.3);font:600 14px system-ui,sans-serif;text-shadow:0 0 3px #000;transition:top 2s,left 2s}
 .ptoast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:#1b1316;color:#fff;border:1px solid rgba(255,255,255,.25);border-radius:10px;padding:.7rem 1.1rem;z-index:99999;max-width:90vw}
 #adm .por{display:flex;align-items:center;margin:.3rem 0}#adm .por>*{margin-right:.5rem}#adm .pop{width:110px}#adm .gh{display:flex;align-items:center;margin:0}
-.revg{display:flex;flex-wrap:wrap}.revg .st{margin:0 .6rem .6rem 0}.revm .mbox{max-width:760px}.revm table{width:100%;font-size:.85rem}
+.revg{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:.7rem;margin:.8rem 0}.revg .st{background:#fff;border:1px solid var(--line);border-radius:12px;padding:.7rem .9rem;color:var(--mute);font-size:.8rem;margin:0}.revg .st b{display:block;font-size:1.5rem;color:var(--wine);line-height:1.2}
+.revm .mbox{max-width:780px;width:100%}.revm .mbody h3{margin:0 0 .6rem}.revm .mbody h4{margin:1rem 0 .3rem}.revm .mbody label{display:flex;align-items:center;gap:.6rem;font-weight:600}.revm .mbody select{padding:.4rem .6rem;border:1px solid var(--line);border-radius:8px;font:inherit}
+.revm table{width:100%;border-collapse:collapse;font-size:.85rem;margin:.4rem 0}.revm th,.revm td{text-align:left;padding:.5rem .45rem;border-bottom:1px solid var(--line);vertical-align:middle}.revm th{color:var(--mute);font-weight:600;font-size:.78rem;text-transform:uppercase;letter-spacing:.03em}
+.revm .scroll{overflow-x:auto;max-height:38vh;overflow-y:auto;-webkit-overflow-scrolling:touch}.revm .acts{margin-top:1rem;position:sticky;bottom:-1.2rem;background:inherit;padding:.6rem 0}
+.revm .acts .btn{padding:.6rem 1.1rem}
+@media(max-width:560px){.revm .mbody{padding:1rem}.revg{grid-template-columns:repeat(2,1fr)}.revm table{font-size:.78rem}}
 
 .ytw{position:relative;overflow:hidden;margin:auto;background:#000;flex:none}
 .ytw .yti{position:absolute;left:0;top:-64px;width:100%;height:calc(100% + 128px);border:0;flex:none;min-height:0}
 .ytw .ysh{position:absolute;top:0;right:0;bottom:0;left:0;z-index:2}
 .yc{display:flex;align-items:center;padding:.5rem 1rem;background:rgba(0,0,0,.85);flex:none}.yc>*{margin-right:.7rem}.yc>*:last-child{margin-right:0}
 .yc input[type=range]{flex:1;min-width:0}.yc button{background:none;border:0;color:#fff;font-size:1.3rem;min-width:44px;min-height:44px;cursor:pointer}.yc span{color:#fff;font-size:.85rem;white-space:nowrap}
-</style></head>
+.legal{position:fixed;left:0;right:0;bottom:3.6rem;text-align:center;font-size:.78rem;z-index:2}.legal a{color:inherit;opacity:.75;text-decoration:underline;margin:0 .3rem}</style></head>
 <body><div id="app"></div>
 <script>
 var __defProp = Object.defineProperty;
@@ -2027,7 +2032,7 @@ async function go(msg) {
 }
 function login(msg) {
   const up = S.mode === "up";
-  app.innerHTML = '<div class="login"><div class="card"><h1>'.concat(up ? "Create account" : "Sign in", '</h1>\n <label for="em">Email</label><input id="em" type="email" autocomplete="email">\n <label for="pw">Password</label><input id="pw" type="password" autocomplete="').concat(up ? "new-password" : "current-password", '">\n <div class="err" id="err" role="alert">').concat(esc(msg || ""), '</div>\n <button class="btn" id="go">').concat(up ? "Create account" : "Sign in", "</button>").concat(GOOGLE_LOGIN ? '<button class="btn ghost" id="gg">Continue with Google</button>' : "", '\n <div class="alt">').concat(up ? "Have an account?" : "New here?", ' <button id="sw">').concat(up ? "Sign in" : "Create account", '</button></div></div><div class="lbrand">').concat(studioMark() || brand(), "</div></div>");
+  app.innerHTML = '<div class="login"><div class="card"><h1>'.concat(up ? "Create account" : "Sign in", '</h1>\n <label for="em">Email</label><input id="em" type="email" autocomplete="email">\n <label for="pw">Password</label><input id="pw" type="password" autocomplete="').concat(up ? "new-password" : "current-password", '">\n <div class="err" id="err" role="alert">').concat(esc(msg || ""), '</div>\n <button class="btn" id="go">').concat(up ? "Create account" : "Sign in", "</button>").concat(GOOGLE_LOGIN ? '<button class="btn ghost" id="gg">Continue with Google</button>' : "", '\n <div class="alt">').concat(up ? "Have an account?" : "New here?", ' <button id="sw">').concat(up ? "Sign in" : "Create account", '</button></div></div><div class="lbrand">').concat(studioMark() || brand(), '</div><div class="legal"><a href="privacy.html">Privacy Policy</a> \xB7 <a href="terms.html">Terms of Service</a></div></div>');
   $("#sw").onclick = () => {
     S.mode = up ? "in" : "up";
     login();
@@ -2501,11 +2506,13 @@ async function play(id, tr) {
   if (r.error || !r.data) return _play(id, 0, t0.video_url);
   const d = r.data;
   if (d.ok) {
-    sb.rpc("count_play", { p_title: id }).then(() => {
-    }, () => {
-    });
-    t0.plays = (t0.plays || 0) + 1;
-    return _play(id, 0, d.url);
+    let u = d.url;
+    if (/^storage:/.test(u || "")) {
+      const sg = await sb.storage.from("videos").createSignedUrl(u.slice(8), 21600);
+      if (sg.error || !sg.data) return ptoast("Could not open this film. Please try again.");
+      u = sg.data.signedUrl;
+    }
+    return _play(id, 0, u);
   }
   if (d.reason === "pay") return buy(id);
   if (d.reason === "login") return gate("watch the full film");
@@ -2568,6 +2575,7 @@ function ytInit(p) {
     setTimeout(listen, 500);
     setTimeout(listen, 1500);
   });
+  p.__yp = () => T.s === 1;
   const toggle = () => post(T.s === 1 ? "pauseVideo" : "playVideo");
   sh.onclick = toggle;
   bp.onclick = toggle;
@@ -2629,6 +2637,25 @@ function _play(id, tr, url) {
   }
   const v = p.querySelector("video");
   if (yt) ytInit(p);
+  if (!tr && S.user && t.video_url) {
+    let sec = 0;
+    const ct = setInterval(() => {
+      if (!document.body.contains(p)) {
+        clearInterval(ct);
+        return;
+      }
+      if (document.hidden) return;
+      const on = v ? !v.paused && !v.ended : yt ? p.__yp && p.__yp() : true;
+      if (!on) return;
+      if (++sec >= 30) {
+        clearInterval(ct);
+        sb.rpc("count_play", { p_title: id }).then(() => {
+        }, () => {
+        });
+        t0.plays = (t0.plays || 0) + 1;
+      }
+    }, 1e3);
+  }
   if (t.video_url && !tr) mark(t);
   if (v) {
     let last = 0;
@@ -2676,6 +2703,12 @@ const ADMIN = (() => {
     });
     S2.PUR = pu.data || [];
     S2.FF = !ff.error;
+    S2.VS = {};
+    try {
+      const q = await sb.rpc("view_stats");
+      S2.VS = q.data || {};
+    } catch (e) {
+    }
     S2.FIN = {};
     (fi.data || []).forEach((x) => S2.FIN[x.title_id] = x);
     S2.POUT = pa.data || [];
@@ -2949,6 +2982,12 @@ const ADMIN = (() => {
     if (error) throw error;
     return sb.storage.from("films").getPublicUrl(path).data.publicUrl;
   }
+  async function uploadPrivate(file) {
+    const ext = (file.name.split(".").pop() || "mp4").toLowerCase().replace(/[^a-z0-9]/g, ""), path = "".concat(Date.now(), "-").concat(Math.random().toString(36).slice(2, 10), ".").concat(ext);
+    const { error } = await sb.storage.from("videos").upload(path, file, { cacheControl: "3600", contentType: file.type });
+    if (error) throw error;
+    return "storage:" + path;
+  }
   async function done(m) {
     S2.msg = m;
     await load();
@@ -2978,7 +3017,8 @@ const ADMIN = (() => {
         by[k].n++;
         by[k].r += Number(p.amount);
       });
-      m.innerHTML = '<div class="mbox"><div class="mbody"><h3>\u{1F4CA} '.concat(esc(t.title), '</h3><label>Period<select id="rf"><option value="all" ').concat(f == "all" ? "selected" : "", '>All time</option><option value="7" ').concat(f == "7" ? "selected" : "", '>Last 7 days</option><option value="30" ').concat(f == "30" ? "selected" : "", '>Last 30 days</option><option value="m" ').concat(f == "m" ? "selected" : "", '>This month</option></select></label>\n  <div class="revg"><div class="st"><b>').concat(gh2(tot), '</b>Revenue</div><div class="st"><b>').concat(ps.length, '</b>Payments</div><div class="st"><b>').concat(buyers, '</b>Paying viewers</div><div class="st"><b>').concat(actU, '</b>Active access now</div><div class="st"><b>').concat(t.plays || 0, '</b>Total plays</div></div>\n  <p style="color:var(--mute)">Price: ').concat(esc(priceSum(id))).concat(Object.keys(by).length ? "" : " \xB7 No payments in this period yet.", "</p>\n  ").concat(Object.keys(by).length ? "<table><tr><th>Option</th><th>Sold</th><th>Revenue</th></tr>".concat(Object.keys(by).map((k) => "<tr><td>".concat(esc(k), "</td><td>").concat(by[k].n, "</td><td>").concat(gh2(by[k].r), "</td></tr>")).join(""), "</table>") : "", "\n  ").concat(ps.length ? '<div class="scroll"><table><tr><th>Viewer</th><th>Option</th><th>Paid</th><th>On</th><th>Access ends</th><th>Via</th></tr>'.concat(ps.slice(0, 100).map((p) => "<tr><td>".concat(esc(p.email || ""), "</td><td>").concat(esc(p.option_label || p.days + " days"), "</td><td>").concat(gh2(p.amount), "</td><td>").concat(esc(new Date(p.created_at).toLocaleDateString()), "</td><td>").concat(esc(new Date(p.expires_at).toLocaleDateString())).concat(new Date(p.expires_at) < now ? " (ended)" : "", "</td><td>").concat(esc(p.channel || "")).concat(p.auto_renew ? " \u21BB" : "", "</td></tr>")).join(""), "</table></div>") : "", '\n  <div class="acts"><button class="btn ghost" id="rcsv">Download CSV</button><button class="btn ghost" id="rx">Close</button></div></div></div>');
+      const vf = ((S2.VS || {}).films || []).find((x) => x.title_id == id) || { logged: 0, unique: 0 }, vs = { u: vf.unique, re: Math.max(0, vf.logged - vf.unique), un: Math.max(0, (t.plays || 0) - vf.logged) }, top = ((S2.VS || {}).top || []).filter((x) => x.title_id == id);
+      m.innerHTML = '<div class="mbox"><div class="mbody"><h3>\u{1F4CA} '.concat(esc(t.title), '</h3><label>Period<select id="rf"><option value="all" ').concat(f == "all" ? "selected" : "", '>All time</option><option value="7" ').concat(f == "7" ? "selected" : "", '>Last 7 days</option><option value="30" ').concat(f == "30" ? "selected" : "", '>Last 30 days</option><option value="m" ').concat(f == "m" ? "selected" : "", '>This month</option></select></label>\n  <div class="revg"><div class="st"><b>').concat(gh2(tot), '</b>Revenue</div><div class="st"><b>').concat(ps.length, '</b>Payments</div><div class="st"><b>').concat(buyers, '</b>Paying viewers</div><div class="st"><b>').concat(actU, '</b>Active access now</div><div class="st"><b>').concat(t.plays || 0, '</b>Total views</div><div class="st"><b>').concat(vs.u, '</b>Unique viewers</div><div class="st"><b>').concat(vs.re, '</b>Rewatches</div></div>\n  <p style="color:var(--mute)">A view counts after 30 seconds of watching. Total views include rewatches; unique viewers count each account once.').concat(vs.un ? " " + vs.un + " earlier view" + (vs.un > 1 ? "s" : "") + " cannot be tied to an account, so they are in the total only." : "", "</p>\n  ").concat(top.length ? "<h4>Top rewatchers</h4><table><tr><th>Account</th><th>Views</th></tr>".concat(top.map((x) => "<tr><td>".concat(esc(x.email || "unknown"), "</td><td>").concat(x.n, "</td></tr>")).join(""), "</table>") : "", '\n  <p style="color:var(--mute)">Price: ').concat(esc(priceSum(id))).concat(Object.keys(by).length ? "" : " \xB7 No payments in this period yet.", "</p>\n  ").concat(Object.keys(by).length ? "<table><tr><th>Option</th><th>Sold</th><th>Revenue</th></tr>".concat(Object.keys(by).map((k) => "<tr><td>".concat(esc(k), "</td><td>").concat(by[k].n, "</td><td>").concat(gh2(by[k].r), "</td></tr>")).join(""), "</table>") : "", "\n  ").concat(ps.length ? '<div class="scroll"><table><tr><th>Viewer</th><th>Option</th><th>Paid</th><th>On</th><th>Access ends</th><th>Via</th></tr>'.concat(ps.slice(0, 100).map((p) => "<tr><td>".concat(esc(p.email || ""), "</td><td>").concat(esc(p.option_label || p.days + " days"), "</td><td>").concat(gh2(p.amount), "</td><td>").concat(esc(new Date(p.created_at).toLocaleDateString()), "</td><td>").concat(esc(new Date(p.expires_at).toLocaleDateString())).concat(new Date(p.expires_at) < now ? " (ended)" : "", "</td><td>").concat(esc(p.channel || "")).concat(p.auto_renew ? " \u21BB" : "", "</td></tr>")).join(""), "</table></div>") : "", '\n  <div class="acts"><button class="btn ghost" id="rcsv">Download CSV</button><button class="btn ghost" id="rx">Close</button></div></div></div>');
       m.querySelector("#rf").onchange = paint;
       m.querySelector("#rx").onclick = () => m.remove();
       m.querySelector("#rcsv").onclick = () => csvDown("revenue-" + t.title.replace(/\W+/g, "-") + ".csv", [["email", "option", "amount_ghs", "paid_on", "access_ends", "channel", "reference"]].concat(ps.map((p) => [p.email, p.option_label, p.amount, p.created_at, p.expires_at, p.channel, p.reference])));
@@ -3094,7 +3134,7 @@ const ADMIN = (() => {
         if (v.source === "upload") {
           if (!v.video_file || !v.video_file.size) throw new Error("Choose a video file to upload.");
           ok.textContent = "Uploading the video. Keep this page open\u2026";
-          video = await upload(v.video_file, "videos");
+          video = await uploadPrivate(v.video_file);
         } else if (/drive\.google\.com\/drive\/folders/.test(video)) throw new Error("That is a folder link. Open the film file itself, click Share and copy that link.");
         const imgs = {};
         for (const [k, l, , , un, fn] of SLOTS) {
@@ -3191,6 +3231,7 @@ const ADMIN = (() => {
       if (confirm("Delete this film? This cannot be undone.")) {
         const t = S2.T.find((x) => x.id == b.dataset.del), paths = [t == null ? void 0 : t.video_url, t == null ? void 0 : t.poster_url].map((u) => (u || "").split("/object/public/films/")[1]).filter(Boolean).map(decodeURIComponent);
         if (paths.length) await sb.storage.from("films").remove(paths);
+        if (t && /^storage:/.test(t.video_url || "")) await sb.storage.from("videos").remove([t.video_url.slice(8)]);
         await sb.from("titles").delete().eq("id", b.dataset.del);
         done("Film deleted.");
       }
@@ -3527,7 +3568,7 @@ init();
   try {
     const b = document.createElement("button");
     b.id = "tvsw";
-    b.textContent = (TV ? "Leave TV mode" : "\u{1F4FA} TV mode") + " \xB7 v9";
+    b.textContent = (TV ? "Leave TV mode" : "\u{1F4FA} TV mode") + " \xB7 v13";
     b.style.cssText = "position:fixed;right:10px;bottom:10px;z-index:9000;padding:.35rem .7rem;border-radius:20px;border:1px solid rgba(255,255,255,.4);background:rgba(0,0,0,.65);color:#fff;font-size:12px;cursor:pointer;opacity:.75";
     b.onclick = () => {
       try {
