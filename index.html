@@ -3533,6 +3533,11 @@ const ADMIN = (() => {
     S2.FINOK = !fi.error;
     await loadPeople();
     await loadPriv();
+    {
+      const b = await sb.from("film_budget").select("title_id,budget");
+      S2.BUD = {};
+      (b.data || []).forEach((x) => S2.BUD[x.title_id] = +x.budget);
+    }
     const fm = {};
     (ff.data || []).forEach((x) => fm[x.title_id] = x.video_url);
     if (S2.FF) S2.T.forEach((t2) => {
@@ -3540,7 +3545,7 @@ const ADMIN = (() => {
     });
     shell();
   }
-  const T9 = [["films", "Films", "Add, edit and hide films"], ["rows", "Home layout", "Rows and their order"], ["look", "Look & feel", "Name, logo and colors"], ["users", "Users", "Roles and blocking"], ["site", "Site rules", "Maintenance, profiles, previews"], ["ann", "Announcements", "Banner message for viewers"], ["stats", "Analytics", "Most watched titles"], ["team", "Admin team", "Who can open this panel"], ["backup", "Backup", "Download films and users"], ["pay", "Payments", "Revenue, buyers, payouts"], ["house", "House dashboard", "What the site earns"], ["people", "People", "Cast & crew directory: edit, merge duplicates"], ["pics", "Picture check", "Tests every saved film picture"]];
+  const T9 = [["films", "Films", "Add, edit and hide films"], ["rows", "Home layout", "Rows and their order"], ["look", "Look & feel", "Name, logo and colors"], ["users", "Users", "Roles and blocking"], ["site", "Site rules", "Maintenance, profiles, previews"], ["ann", "Announcements", "Banner message for viewers"], ["stats", "Analytics", "Most watched titles"], ["team", "Admin team", "Who can open this panel"], ["backup", "Backup", "Download films and users"], ["pay", "Payments", "Revenue, buyers, payouts"], ["house", "House dashboard", "What the site earns"], ["people", "People", "Cast & crew directory: edit, merge duplicates"], ["profit", "Film profit", "Budget vs money made, per film (private)"], ["pics", "Picture check", "Tests every saved film picture"]];
   function home() {
     const day = 864e5, now = Date.now(), n = (a, f) => a.filter(f).length;
     const st = [["Films", S2.T.length], ["Accounts", S2.U.length], ["New this week", n(S2.U, (u) => now - new Date(u.created_at) < 7 * day)], ["Active today", n(S2.U, (u) => u.last_seen && now - new Date(u.last_seen) < day)], ["Revenue GH\u20B5", Math.round(okP().reduce((s, p) => s + Number(p.amount), 0))]];
@@ -3690,7 +3695,7 @@ const ADMIN = (() => {
   function shell() {
     const cur = T9.find((t) => t[0] == S2.tab);
     app.innerHTML = '<div id="adm"><header><b>'.concat(esc(S2.set.brand || "Admin"), " admin").concat(cur ? ": " + cur[1] : "", "</b>").concat(cur ? '<button class="btn ghost" data-t="home">Dashboard</button>' : "", '<button class="btn ghost" id="vs">View site</button><button class="btn ghost" id="out">Sign out</button></header><main id="pane"></main></div>');
-    const U = users().split('<div class="panel scroll">'), P = { home, films, rows, pay: payTab, house: houseTab, people: peopleTab, look, users: () => '<div class="panel scroll">' + U[1], team: () => U[0], site, ann, stats, backup, pics };
+    const U = users().split('<div class="panel scroll">'), P = { home, films, rows, pay: payTab, house: houseTab, people: peopleTab, profit: profitTab, look, users: () => '<div class="panel scroll">' + U[1], team: () => U[0], site, ann, stats, backup, pics };
     $("#pane").innerHTML = (P[S2.tab] || home)();
     document.querySelectorAll("[data-t]").forEach((b) => b.onclick = () => {
       S2.tab = b.dataset.t;
@@ -4175,6 +4180,13 @@ const ADMIN = (() => {
       after((d.results || []).map((x) => (x.title || "Film") + ": " + (x.ok ? x.status == "otp" ? "sent, but Paystack needs your approval (see your Paystack dashboard)" : x.status == "success" ? "paid " + gh2(x.amount) : "on its way " + gh2(x.amount) : x.error)).join(" \xB7 "));
     };
   }
+  function profitTab() {
+    const bud = S2.BUD || {}, rows2 = S2.T.map((t) => {
+      const g = okP().filter((p) => p.title_id == t.id).reduce((a, p) => a + +p.amount, 0), b = bud[t.id] || 0;
+      return { t, g, b, n: g - b };
+    }), tg = rows2.reduce((a, r) => a + r.g, 0), tb = rows2.reduce((a, r) => a + r.b, 0);
+    return '<div class="panel scroll"><h3 style="margin:0 0 .3rem">Film profit</h3><p style="color:var(--mute);font-size:.85rem;margin:.2rem 0 .8rem">Private to admins. Money made is the total paid by viewers for each film (before the house cut and payment fees). Enter each film\'s budget to see profit or loss.</p>\n <table><tr><th>Film</th><th>Budget (GH\u20B5)</th><th>Money made</th><th>Profit / loss</th><th>Budget recovered</th><th></th></tr>'.concat(rows2.map(({ t, g, b, n }) => "<tr><td>".concat(esc(t.title), '</td><td><input type="number" min="0" step="0.01" value="').concat(b || "", '" placeholder="0" data-bud="').concat(t.id, '" style="width:110px"></td><td>').concat(GH(g), '</td><td style="font-weight:700;color:').concat(!b ? "inherit" : n >= 0 ? "#2e9e5b" : "#d64545", '">').concat(b ? (n >= 0 ? "+" : "\u2212") + GH(Math.abs(n)) : "\u2013", "</td><td>").concat(b ? Math.round(g / b * 100) + "%" : "\u2013", "</td><td>").concat(b ? n >= 0 ? "In profit" : "Not recovered yet" : "No budget set", "</td></tr>")).join(""), "<tr><td><b>All films</b></td><td><b>").concat(GH(tb), "</b></td><td><b>").concat(GH(tg), "</b></td><td><b>").concat(tb ? (tg - tb >= 0 ? "+" : "\u2212") + GH(Math.abs(tg - tb)) : "\u2013", "</b></td><td>").concat(tb ? Math.round(tg / tb * 100) + "%" : "\u2013", '</td><td></td></tr></table><div class="acts"><button class="btn" id="budsave">Save budgets</button></div>').concat(note(), "</div>");
+  }
   function houseTab() {
     const ok = okP(), now = /* @__PURE__ */ new Date(), mo = /* @__PURE__ */ new Date();
     mo.setDate(1);
@@ -4228,6 +4240,14 @@ const ADMIN = (() => {
   }
   function bind() {
     bindPay();
+    {
+      const bs = $("#budsave");
+      if (bs) bs.onclick = async () => {
+        bs.disabled = true;
+        const rowsx = [...document.querySelectorAll("[data-bud]")].map((i) => ({ title_id: +i.dataset.bud, budget: Math.max(0, parseFloat(i.value) || 0), updated_at: (/* @__PURE__ */ new Date()).toISOString() })), r = await sb.from("film_budget").upsert(rowsx, { onConflict: "title_id" });
+        done(r.error ? r.error.message : "Budgets saved.");
+      };
+    }
     const pcb = $("#pcheck");
     if (pcb) pcb.onclick = runPicCheck;
     const f = $("#f");
