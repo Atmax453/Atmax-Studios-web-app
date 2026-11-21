@@ -346,7 +346,7 @@ async function picker() {
   $("#out").onclick = out;
 }
 async function browse() {
-  const g = !S.user, E = { data: [] }, C = "id,title,year,genre,description,poster_url,trailer_url,row_id,featured,status,runtime,allow_rate,allow_comment,publish_at,banner_pc,banner_phone,header_img,focus,plays,director,series_name,episode_no,subtitles_url,credits,synopsis,behind,donate_on,in_production,fund_goal";
+  const g = !S.user, E = { data: [] }, C = "id,title,year,genre,description,poster_url,trailer_url,row_id,featured,status,runtime,allow_rate,allow_comment,publish_at,banner_pc,banner_phone,header_img,focus,plays,director,series_name,episode_no,subtitles_url,credits,synopsis,behind,donate_on,in_production,fund_goal,ep_slots,ep_price";
   let [r, t, m, h, ra, co] = await Promise.all([sb.from("rows").select("*").order("position"), sb.from("titles").select(g ? C : "*").order("id"), g ? E : sb.from("my_list").select("title_id").eq("sub_id", S.sub.id), g ? E : sb.from("watch_history").select("*").eq("sub_id", S.sub.id), sb.from("ratings").select("title_id,user_id,stars"), sb.from("comments").select("*").order("created_at", { ascending: false })]);
   let tt = t;
   if (t.error) {
@@ -476,7 +476,21 @@ async function verifyPay(ref) {
   ptoast("Confirming your payment\u2026");
   const d = await payfn({ action: "verify", reference: ref });
   if (d.ok && d.kind === "donation") {
-    thanks("don", d.title_id);
+    if (d.ep) {
+      try {
+        await loadPeople();
+        const q = await sb.rpc("my_person");
+        S.me = q.data && q.data[0] || S.me;
+      } catch (e) {
+      }
+      try {
+        const q = await sb.from("titles").select("credits").eq("id", d.title_id).single();
+        const t = S.T.find((x) => x.id == d.title_id);
+        if (t && q.data) t.credits = q.data.credits;
+      } catch (e) {
+      }
+    }
+    thanks("don", d.title_id, d.ep);
   } else if (d.ok) {
     await loadPay();
     draw();
@@ -1191,7 +1205,7 @@ const donOn = (t) => S.set.donate !== false && (!t || t.donate_on !== false && t
 const donBtn = (t) => donOn(t) ? '<button class="don" data-don="'.concat(t.id, '">').concat(t.in_production ? "Fund this film" : "Donate", "</button>") : "";
 const fundBox = (t) => {
   if (!t.in_production || !donOn(t)) return "";
-  return '<div class="fbox" id="fbox"><b>This film is still being made</b><div id="fprog"></div><p>Your gift helps pay for the shoot and the people working on it. Give any amount you like. It is a gift, not a purchase. Pay safely with Mobile Money or card.</p><button class="don" data-don="'.concat(t.id, '">Fund this film</button></div>');
+  return '<div class="fbox" id="fbox"><b>This film is still being made</b><div id="fprog"></div><p>Your gift helps pay for the shoot and the people working on it.'.concat(+t.ep_slots > 0 && +t.ep_price > 0 ? " You can also buy an Executive Producer credit (".concat(GH(t.ep_price), " or more).") : "", ' Give any amount you like. It is a gift, not a purchase. Pay safely with Mobile Money or card.</p><button class="don" data-don="').concat(t.id, '">Fund this film</button></div>');
 };
 async function fundLoad(t) {
   const el = document.getElementById("fprog");
@@ -1204,16 +1218,25 @@ async function fundLoad(t) {
   } catch (e) {
   }
 }
-function donate(id) {
+async function donate(id) {
   if (!S.user) return gate("donate");
   const t = id ? S.T.find((x) => x.id == id) : null;
   if (S.set.donate === false || t && !donOn(t)) return ptoast("Donations are switched off right now.");
+  const hasEp = !!(t && t.in_production && +t.ep_slots > 0 && +t.ep_price > 0);
+  let left = 0;
+  if (hasEp) {
+    try {
+      const r = await sb.rpc("film_funding", { p_title: t.id });
+      left = +t.ep_slots - (+(r.data || {}).eps || 0);
+    } catch (e) {
+    }
+  }
   const min = DON_MIN(), prod = t && t.in_production, m = document.createElement("div");
   m.className = "mod sheetp";
   m.setAttribute("role", "dialog");
   m.setAttribute("aria-modal", "true");
   const q = [5, 10, 20, 50, 100].filter((x) => x >= min);
-  m.innerHTML = '<div class="mbox"><div class="mbody"><h3>'.concat(prod ? "Fund" : "Donate to", " ").concat(t ? esc(t.title) : esc(S.set.brand || "ATMAX STUDIOS"), "</h3><p>").concat(prod ? "This film is still being made. Your gift helps pay for the shoot and the people working on it." : t ? "Your donation supports this film and the people who made it." : "Your donation supports Ghanaian film-makers on ATMAX STUDIOS.", ' It is a gift, not a purchase, and it does not unlock any film. You choose the amount and pay safely with Mobile Money or card through Paystack.</p><div class="dq">').concat(q.map((x) => '<button type="button" data-q="'.concat(x, '">').concat(GH(x), "</button>")).join(""), '</div><label class="dam"><b>GH\u20B5</b><input id="damt" type="number" inputmode="decimal" min="').concat(min, '" step="1" placeholder="Other amount" aria-label="Donation amount in cedis"></label><small>Smallest donation: ').concat(GH(min), '</small><div class="err" id="derr" role="alert"></div><div class="acts"><button class="don" id="dgo">Donate</button><button class="btn ghost" id="dc">Cancel</button></div></div></div>');
+  m.innerHTML = '<div class="mbox"><div class="mbody"><h3>'.concat(prod ? "Fund" : "Donate to", " ").concat(t ? esc(t.title) : esc(S.set.brand || "ATMAX STUDIOS"), "</h3><p>").concat(prod ? "This film is still being made. Your gift helps pay for the shoot and the people working on it." : t ? "Your donation supports this film and the people who made it." : "Your donation supports Ghanaian film-makers on ATMAX STUDIOS.", " It is a gift, not a purchase, and it does not unlock any film. You choose the amount and pay safely with Mobile Money or card through Paystack.</p>").concat(left > 0 ? '<div class="fbox"><label class="chk"><input type="checkbox" id="dep"> <b>Become an Executive Producer</b> for '.concat(GH(t.ep_price), " or more (").concat(left, " of ").concat(t.ep_slots, " spot").concat(t.ep_slots == 1 ? "" : "s", ' left)</label><p>Your name goes in the film\'s credits as Executive Producer, and you get your own producer profile page on ATMAX STUDIOS.</p><input id="dnm" maxlength="60" placeholder="Name to show in the credits" value="').concat(esc(S.me && S.me.name || ""), '" style="display:none;width:100%;box-sizing:border-box;padding:.6rem;border-radius:8px;border:1.5px solid currentColor;background:none;color:inherit"></div>') : hasEp ? "<p><small>All the Executive Producer spots on this film are taken. You can still donate any amount.</small></p>" : "", '<div class="dq">').concat(q.map((x) => '<button type="button" data-q="'.concat(x, '">').concat(GH(x), "</button>")).join(""), '</div><label class="dam"><b>GH\u20B5</b><input id="damt" type="number" inputmode="decimal" min="').concat(min, '" step="1" placeholder="Other amount" aria-label="Donation amount in cedis"></label><small>Smallest donation: ').concat(GH(min), '</small><div class="err" id="derr" role="alert"></div><div class="acts"><button class="don" id="dgo">Donate</button><button class="btn ghost" id="dc">Cancel</button></div></div></div>');
   document.body.appendChild(m);
   const close = () => m.remove();
   m.onclick = (e) => {
@@ -1227,16 +1250,34 @@ function donate(id) {
   });
   inp.oninput = () => m.querySelectorAll("[data-q]").forEach((x) => x.classList.toggle("on", x.dataset.q === inp.value));
   inp.focus();
-  const go2 = m.querySelector("#dgo"), er = m.querySelector("#derr");
+  const go2 = m.querySelector("#dgo"), er = m.querySelector("#derr"), dep = m.querySelector("#dep"), dnm = m.querySelector("#dnm");
+  if (dep) dep.onchange = () => {
+    dnm.style.display = dep.checked ? "block" : "none";
+    if (dep.checked && !(parseFloat(inp.value) >= +t.ep_price)) {
+      inp.value = t.ep_price;
+      m.querySelectorAll("[data-q]").forEach((x) => x.classList.remove("on"));
+    }
+  };
   go2.onclick = async () => {
     const a = Math.round(parseFloat(inp.value) * 100) / 100;
     if (!isFinite(a) || a < min) {
       er.textContent = "Enter an amount of " + GH(min) + " or more.";
       return;
     }
+    const ep = !!(dep && dep.checked);
+    if (ep) {
+      if (a < +t.ep_price) {
+        er.textContent = "An Executive Producer credit is " + GH(t.ep_price) + " or more.";
+        return;
+      }
+      if (dnm.value.trim().length < 2) {
+        er.textContent = "Enter the name to show in the credits.";
+        return;
+      }
+    }
     go2.disabled = true;
     er.textContent = "Opening Paystack\u2026";
-    const d = await payfn({ action: "donate", title_id: id || null, amount: a });
+    const d = await payfn({ action: "donate", title_id: id || null, amount: a, ep, credit_name: ep ? dnm.value.trim() : null });
     if (d.url) {
       location.href = d.url;
     } else {
@@ -1245,12 +1286,12 @@ function donate(id) {
     }
   };
 }
-function thanks(kind, id) {
+function thanks(kind, id, ep) {
   const t = S.T.find((x) => x.id == id), m = document.createElement("div");
   m.className = "mod sheetp";
   m.setAttribute("role", "dialog");
   m.setAttribute("aria-modal", "true");
-  m.innerHTML = '<div class="mbox"><div class="mbody"><h3>'.concat(kind === "don" ? "Thank you for your support" : "Payment received", "</h3><p>").concat(kind === "don" ? "Your donation" + (t ? " to " + esc(t.title) : "") + " went through. You are helping Ghanaian film-makers make more films." : "Enjoy " + (t ? esc(t.title) : "the film") + "!", '</p><div class="acts">').concat(kind === "buy" && t ? '<button class="btn" id="tw">Watch now</button>' : "").concat(kind === "buy" && t && donOn(t) ? '<button class="don" id="td">Donate to support it</button>' : "", '<button class="btn ghost" id="tx">Close</button></div></div></div>');
+  m.innerHTML = '<div class="mbox"><div class="mbody"><h3>'.concat(ep ? "You are now an Executive Producer" : kind === "don" ? "Thank you for your support" : "Payment received", "</h3><p>").concat(ep ? "Your name is now in the credits of " + (t ? esc(t.title) : "the film") + ". You have your own producer profile: open it from the menu to add a photo, a bio and your links." : kind === "don" ? "Your donation" + (t ? " to " + esc(t.title) : "") + " went through. You are helping Ghanaian film-makers make more films." : "Enjoy " + (t ? esc(t.title) : "the film") + "!", '</p><div class="acts">').concat(kind === "buy" && t ? '<button class="btn" id="tw">Watch now</button>' : "").concat(kind === "buy" && t && donOn(t) ? '<button class="don" id="td">Donate to support it</button>' : "", '<button class="btn ghost" id="tx">Close</button></div></div></div>');
   document.body.appendChild(m);
   const close = () => m.remove();
   m.onclick = (e) => {
