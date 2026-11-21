@@ -70,7 +70,8 @@ main{animation:fi .7s ease both}.hero{animation:fi .9s ease both;box-shadow:inse
 .rowt{color:var(--tx,#f4ecef)}.empty{color:#a89aa0}.rc{position:relative}
 .rail{scroll-behavior:smooth;scrollbar-width:none;padding:1.4rem 4% 1.6rem;gap:.9rem}.rail::-webkit-scrollbar{display:none}
 .tile{padding:0;border-radius:12px;box-shadow:0 6px 18px rgba(0,0,0,.45);transition:transform .35s cubic-bezier(.2,.8,.2,1),box-shadow .35s}
-.tile:hover,.tile:focus-visible{transform:scale(1.09) translateY(-6px);z-index:3;box-shadow:0 18px 40px rgba(0,0,0,.6),0 0 0 1.5px rgba(255,255,255,.35),0 0 28px var(--glc,rgba(155,44,75,.55))}
+.tile:focus-visible{transform:scale(1.09) translateY(-6px);z-index:3;box-shadow:0 18px 40px rgba(0,0,0,.6),0 0 0 1.5px rgba(255,255,255,.35),0 0 28px var(--glc,rgba(155,44,75,.55))}
+@media(hover:hover){.tile:hover{transform:scale(1.09) translateY(-6px);z-index:3;box-shadow:0 18px 40px rgba(0,0,0,.6),0 0 0 1.5px rgba(255,255,255,.35),0 0 28px var(--glc,rgba(155,44,75,.55))}}
 .gl{margin:.6rem;padding:.6rem .7rem;border-radius:9px;background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.28);backdrop-filter:blur(10px) saturate(140%);-webkit-backdrop-filter:blur(10px) saturate(140%);display:flex;flex-direction:column;gap:.1rem}
 .sfc{display:flex;flex-wrap:wrap;margin:0 4% .8rem;padding-top:.9rem}.sfc button,.sfg button{border:1px solid rgba(255,255,255,.25);background:rgba(255,255,255,.08);color:#fff;border-radius:20px;padding:.38rem .95rem;margin:0 .45rem .45rem 0;font-size:.82rem;cursor:pointer}.sfc button.on{background:var(--wine);border-color:transparent}.sfg{display:flex;flex-wrap:wrap;margin:0 4% .6rem}
 .lbc.ppc{padding-top:1rem}.lbh .lbk{width:100%;margin:.5rem 0 .3rem}.lbh .lbk button{margin-left:0;margin-right:.4rem}
@@ -99,7 +100,7 @@ main{animation:fi .7s ease both}.hero{animation:fi .9s ease both;box-shadow:inse
 .cdb b{font:800 1.05rem/1 system-ui,sans-serif;font-variant-numeric:tabular-nums;background:linear-gradient(180deg,rgba(255,255,255,.2),rgba(255,255,255,.06));border:1px solid rgba(255,255,255,.18);border-radius:7px;padding:.3rem .25rem;min-width:2rem;text-align:center}
 .cdb small{font-size:.5rem;letter-spacing:.1em;text-transform:uppercase;opacity:.65;margin-top:.2rem}.cdb i:last-child b{color:var(--wine);background:#fff}
 .cd.big{position:static;margin:.8rem 0;padding:.8rem .6rem;pointer-events:auto;background:rgba(155,44,75,.1);color:inherit;border-color:rgba(155,44,75,.35);box-shadow:none}.cd.big .cdl{font-size:.7rem;color:var(--wine);opacity:1}.cd.big .cdb i{min-width:3.4rem;margin:0 .25rem}.cd.big .cdb b{font-size:1.7rem;padding:.55rem .3rem;min-width:3.2rem;background:var(--bar);color:#fff;border-color:transparent}.cd.big .cdb small{font-size:.62rem}.cd.big .cdb i:last-child b{background:var(--wine);color:#fff}.cd.big .cdd{font-size:.8rem;opacity:.8}
-.gl em{font-style:normal;font-size:.78rem;max-height:0;opacity:0;overflow:hidden;transition:max-height .3s,opacity .3s}.tile:hover .gl em,.tile:focus-visible .gl em{max-height:1.4rem;opacity:1}
+.gl em{font-style:normal;font-size:.78rem;max-height:0;opacity:0;overflow:hidden;transition:max-height .3s,opacity .3s}.tile:focus-visible .gl em{max-height:1.4rem;opacity:1}@media(hover:hover){.tile:hover .gl em{max-height:1.4rem;opacity:1}}
 .tile.ph{cursor:default;border:1px solid rgba(255,255,255,.12);background:radial-gradient(circle at 30% 20%,var(--phc,#3a1a24),#0a0809)}
 .ar{position:absolute;top:1.4rem;bottom:1.6rem;width:3.2rem;z-index:4;border:0;color:#fff;font-size:2.2rem;opacity:0;transition:opacity .25s;background:linear-gradient(90deg,rgba(10,8,9,.85),transparent)}
 .ar.l{left:0}.ar.r{right:0;background:linear-gradient(270deg,rgba(10,8,9,.85),transparent)}.rc:hover .ar,.ar:focus-visible{opacity:1}@media(hover:none){.ar{display:none}}
@@ -283,3 +284,4 @@ body.tv .gl,body.tv .rt,body.tv.dk nav{backdrop-filter:none!important;-webkit-ba
 .dam{display:flex;align-items:center;gap:.4rem;border:1.5px solid currentColor;border-radius:10px;padding:.2rem .8rem;margin:.4rem 0}.dam b{font-size:1.2rem}.dam input{flex:1;border:0;background:none;color:inherit;font-size:1.4rem;font-weight:700;min-width:0;padding:.4rem 0;outline:0}
 .donend{position:absolute;left:0;right:0;bottom:0;top:0;z-index:6;background:rgba(0,0,0,.82);display:grid;place-items:center;padding:1rem;text-align:center}.donend>div{max-width:420px}.donend .btn{margin:.3rem}
 @media(prefers-reduced-motion:reduce){.don,.fundc{animation:none}}
+.tile,.tile *{-webkit-tap-highlight-color:transparent}@media(pointer:coarse){.tile{transition:none}}
