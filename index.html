@@ -2,7 +2,10 @@
 <html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <script>try{var _a=localStorage.getItem("atmax_anim");if(_a)window.ATMAX_INTRO_CONFIG=JSON.parse(_a)}catch(e){}</script><script src="atmax-intro.js"></script><script src="atmax-wow.js" defer></script>
-<title>ATMAX</title>
+<title>ATMAX STUDIOS – Watch Ghanaian films &amp; series online</title>
+<meta name="description" content="ATMAX STUDIOS is a Ghanaian streaming service. Watch films and series, discover directors and actors, and rate your favourite performances.">
+<link rel="canonical" href="https://atmaxstudios.com/"><meta property="og:site_name" content="ATMAX STUDIOS"><meta property="og:type" content="website"><meta property="og:title" content="ATMAX STUDIOS – Watch Ghanaian films &amp; series online"><meta property="og:description" content="Stream Ghanaian films and series, meet the directors and actors, and rate performances."><meta property="og:url" content="https://atmaxstudios.com/"><meta name="twitter:card" content="summary">
+<script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebSite","name":"ATMAX STUDIOS","url":"https://atmaxstudios.com/"},{"@type":"Organization","name":"ATMAX STUDIOS","url":"https://atmaxstudios.com/","email":"atmaxstudios@gmail.com","areaServed":"GH"}]}</script>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&family=Montserrat:wght@400;600;800&family=Playfair+Display:wght@500;800&family=Bebas+Neue&family=Oswald:wght@400;600&family=Lora:wght@400;600&display=swap" rel="stylesheet">
 <script>(function(){var g=typeof window!=="undefined"?window:self;if(!g.globalThis)g.globalThis=g;
 if(!Object.fromEntries)Object.fromEntries=function(i){var o={};for(var x of i)o[x[0]]=x[1];return o};
@@ -1927,8 +1930,10 @@ body.tv .pbtn,body.tv .pbar{-webkit-backdrop-filter:none;backdrop-filter:none;ba
 @media(pointer:coarse),(max-width:820px){.gl,.rt{backdrop-filter:none!important;-webkit-backdrop-filter:none!important}.gl{background:rgba(20,14,16,.62)}.rt{background:rgba(20,14,16,.6)}body.dk nav{backdrop-filter:none;-webkit-backdrop-filter:none}}
 body.tv .gl,body.tv .rt,body.tv.dk nav{backdrop-filter:none!important;-webkit-backdrop-filter:none!important}
 .legal{text-align:center;font-size:.8rem;padding:1.5rem 1rem 2rem;opacity:.8}.legal a{color:inherit;text-decoration:underline;margin:0 .35rem}
+.cst{display:grid;grid-template-columns:repeat(4,1fr);gap:.4rem;margin:.8rem 0;text-align:center}.cst div{background:rgba(127,127,127,.14);border-radius:12px;padding:.6rem .2rem}.cst b{display:block;font-size:1.25rem}.cst small{opacity:.65;font-size:.68rem}.ctr{display:flex;justify-content:center;align-items:flex-end;gap:4px;height:90px}.ctr span{flex:1;max-width:34px;height:100%;display:flex;flex-direction:column;justify-content:flex-end;align-items:center}.ctr i{width:100%;background:var(--acc,#e50914);border-radius:4px 4px 0 0;display:block}.ctr small{font-size:.6rem;opacity:.6}
+#cpf label{display:block;font-size:.8rem;margin:.6rem 0;opacity:.85}#cpf textarea{display:block;width:100%;box-sizing:border-box;margin-top:.25rem;padding:.6rem;border-radius:10px;font:inherit}
 </style></head>
-<body><div id="app"></div>
+<body><div id="app"></div><noscript><h1>ATMAX STUDIOS</h1><p>Watch Ghanaian films and series online.</p><p><a href="films/">Browse films</a> · <a href="people/">Directors, actors and crew</a> · <a href="about.html">About</a></p></noscript>
 <script>
 var __defProp = Object.defineProperty;
 var __defProps = Object.defineProperties;
@@ -1954,7 +1959,11 @@ const GOOGLE_LOGIN = true;
 const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 const $ = (s) => document.querySelector(s), app = $("#app");
 const ROLE_OPTS = '<optgroup label="Cast"><option>Lead Actor</option><option>Lead Actress</option><option>Supporting Actor</option><option>Supporting Actress</option><option>Co-Star</option><option>Guest Star</option><option>Cameo</option><option>Special Appearance</option><option>Voice Actor</option><option>Narrator</option><option>Motion Capture Performer</option><option>Stand-in</option><option>Body Double</option><option>Photo Double</option><option>Background Actor / Extra</option><option>Child Actor</option><option>Stunt Performer</option><option>Stunt Double</option></optgroup><optgroup label="Directing"><option>Director</option><option>Co-Director</option><option>Second Unit Director</option><option>Assistant Director (1st AD)</option><option>Second Assistant Director (2nd AD)</option><option>Third Assistant Director</option><option>Script Supervisor</option><option>Director\'s Assistant</option><option>Creative Director</option></optgroup><optgroup label="Producing"><option>Executive Producer</option><option>Producer</option><option>Co-Producer</option><option>Associate Producer</option><option>Line Producer</option><option>Supervising Producer</option><option>Consulting Producer</option><option>Production Manager</option><option>Unit Production Manager</option><option>Production Supervisor</option><option>Production Coordinator</option><option>Assistant Production Coordinator</option><option>Production Assistant</option><option>Production Accountant</option><option>Post-Production Supervisor</option><option>Post-Production Coordinator</option><option>Development Executive</option><option>Studio Executive</option><option>Showrunner</option></optgroup><optgroup label="Writing"><option>Writer</option><option>Screenplay</option><option>Story By</option><option>Screenwriter</option><option>Co-Writer</option><option>Staff Writer</option><option>Script Editor</option><option>Script Consultant</option><option>Story Editor</option><option>Adapted From (Source Author)</option><option>Dialogue Writer</option><option>Original Concept By</option></optgroup><optgroup label="Casting"><option>Casting Director</option><option>Casting Associate</option><option>Casting Assistant</option><option>Extras Casting</option></optgroup><optgroup label="Camera"><option>Director of Photography (DP)</option><option>Cinematographer</option><option>Camera Operator</option><option>A-Camera Operator</option><option>B-Camera Operator</option><option>First Assistant Camera (Focus Puller)</option><option>Second Assistant Camera (Clapper Loader)</option><option>DIT (Digital Imaging Technician)</option><option>Data Wrangler</option><option>Steadicam Operator</option><option>Drone Operator</option><option>Aerial Cinematographer</option><option>Underwater Cinematographer</option><option>Still Photographer</option><option>Camera Trainee</option><option>Video Assist Operator</option><option>Colour Grading Consultant</option></optgroup><optgroup label="Lighting & Grip"><option>Gaffer</option><option>Best Boy Electric</option><option>Electrician</option><option>Lighting Technician</option><option>Lighting Director</option><option>Key Grip</option><option>Best Boy Grip</option><option>Dolly Grip</option><option>Grip</option><option>Rigging Gaffer</option><option>Generator Operator</option></optgroup><optgroup label="Sound"><option>Production Sound Mixer</option><option>Boom Operator</option><option>Sound Assistant</option><option>Sound Designer</option><option>Supervising Sound Editor</option><option>Sound Editor</option><option>Dialogue Editor</option><option>ADR Editor</option><option>ADR Mixer</option><option>Foley Artist</option><option>Foley Mixer</option><option>Re-recording Mixer</option><option>Sound Effects Editor</option><option>Music Editor</option><option>Sound Recordist</option></optgroup><optgroup label="Art Department"><option>Production Designer</option><option>Art Director</option><option>Assistant Art Director</option><option>Set Decorator</option><option>Set Dresser</option><option>Leadman</option><option>Property Master</option><option>Prop Maker</option><option>Props Assistant</option><option>Scenic Artist</option><option>Graphic Designer</option><option>Concept Artist</option><option>Storyboard Artist</option><option>Illustrator</option><option>Draughtsperson</option><option>Construction Coordinator</option><option>Carpenter</option><option>Painter</option><option>Greensman</option><option>Model Maker</option><option>Art Department Coordinator</option></optgroup><optgroup label="Costume"><option>Costume Designer</option><option>Assistant Costume Designer</option><option>Costume Supervisor</option><option>Wardrobe Supervisor</option><option>Wardrobe Assistant</option><option>Costume Standby</option><option>Tailor / Seamstress</option><option>Costume Cutter</option><option>Costume Buyer</option></optgroup><optgroup label="Hair & Makeup"><option>Makeup Artist</option><option>Key Makeup Artist</option><option>Makeup Designer</option><option>Special Effects Makeup Artist</option><option>Prosthetics Designer</option><option>Hair Stylist</option><option>Key Hairstylist</option><option>Hair Designer</option><option>Wig Maker</option><option>Makeup Assistant</option></optgroup><optgroup label="Visual Effects & Animation"><option>VFX Supervisor</option><option>VFX Producer</option><option>VFX Artist</option><option>Compositor</option><option>CGI Artist</option><option>3D Artist</option><option>Animator</option><option>Lead Animator</option><option>Character Animator</option><option>Motion Graphics Artist</option><option>Matte Painter</option><option>Title Designer</option><option>Rotoscope Artist</option><option>Previs Artist</option><option>Colourist</option><option>Creature Designer</option><option>Rigging Artist</option><option>Lighting Artist (CG)</option></optgroup><optgroup label="Special Effects & Stunts"><option>Special Effects Supervisor</option><option>Special Effects Coordinator</option><option>Pyrotechnician</option><option>Armourer</option><option>Weapons Master</option><option>Stunt Coordinator</option><option>Fight Choreographer</option><option>Stunt Rigger</option><option>Safety Officer</option><option>Animal Trainer</option><option>Animal Wrangler</option><option>Intimacy Coordinator</option><option>Dance Choreographer</option><option>Choreographer</option></optgroup><optgroup label="Editing & Post"><option>Editor</option><option>Film Editor</option><option>Supervising Editor</option><option>Assistant Editor</option><option>Online Editor</option><option>Offline Editor</option><option>Trailer Editor</option><option>Post Production Sound</option><option>Subtitle Translator</option><option>Subtitler</option><option>Digital Intermediate Producer</option><option>Dailies Technician</option><option>Conform Editor</option><option>Archive Researcher</option><option>Footage Archivist</option></optgroup><optgroup label="Music"><option>Composer</option><option>Original Score By</option><option>Music Supervisor</option><option>Orchestrator</option><option>Conductor</option><option>Songwriter</option><option>Lyricist</option><option>Music Producer</option><option>Music Arranger</option><option>Sound Mixer (Music)</option><option>Soloist</option><option>Performed By</option><option>Soundtrack Artist</option><option>Song Performed By</option><option>Music Coordinator</option><option>Music Clearance</option></optgroup><optgroup label="Locations & Transport"><option>Location Manager</option><option>Assistant Location Manager</option><option>Location Scout</option><option>Location Assistant</option><option>Unit Manager</option><option>Transportation Coordinator</option><option>Transport Captain</option><option>Driver</option><option>Picture Car Coordinator</option><option>Marine Coordinator</option><option>Aerial Coordinator</option></optgroup><optgroup label="Set Operations"><option>Unit Publicist</option><option>Set Medic</option><option>Health &amp; Safety Officer</option><option>Security</option><option>Craft Services</option><option>Catering</option><option>Production Runner</option><option>Set Production Assistant</option><option>Cleaner</option><option>Fixer</option><option>Interpreter</option><option>Dialect Coach</option><option>Dialogue Coach</option><option>Acting Coach</option><option>Child Wrangler</option><option>Tutor</option></optgroup><optgroup label="Marketing & Distribution"><option>Distributor</option><option>Sales Agent</option><option>Publicist</option><option>Marketing Manager</option><option>Poster Designer</option><option>Trailer House</option><option>Social Media Manager</option><option>EPK Producer</option><option>Behind the Scenes Videographer</option><option>Making-of Producer</option></optgroup><optgroup label="Business & Legal"><option>Production Company</option><option>Financier</option><option>Completion Guarantor</option><option>Entertainment Lawyer</option><option>Insurance Broker</option><option>Clearance Coordinator</option><option>Executive in Charge of Production</option><option>Talent Agent</option><option>Manager</option></optgroup><optgroup label="Special Thanks"><option>Special Thanks</option><option>In Loving Memory Of</option><option>Sponsor</option><option>Partner</option><option>Supported By</option><option>Filmed At</option></optgroup>';
-const LEGAL = '<div class="legal"><a href="about.html" target="_blank" rel="noopener">About</a>\xB7<a href="privacy.html" target="_blank" rel="noopener">Privacy Policy</a>\xB7<a href="terms.html" target="_blank" rel="noopener">Terms of Service</a></div>';
+window.DEEP = (() => {
+  const m = location.search.match(/[?&](film|person)=(\d+)/);
+  return m ? m[1] == "film" ? { f: m[2] } : { p: m[2] } : null;
+})();
+const LEGAL = '<div class="legal"><a href="films/">Films</a>\xB7<a href="people/">Cast &amp; crew</a>\xB7<a href="about.html" target="_blank" rel="noopener">About</a>\xB7<a href="privacy.html" target="_blank" rel="noopener">Privacy Policy</a>\xB7<a href="terms.html" target="_blank" rel="noopener">Terms of Service</a></div>';
 const esc = (s) => String(s != null ? s : "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
 let S = { set: {}, user: null, sub: null, view: "home", q: "", mode: "in", T: [], R: [], L: [], H: [], isAdmin: false, preview: false };
 window.__ROOT = S;
@@ -2068,7 +2077,7 @@ function theme() {
     document.head.appendChild(st);
   }
   st.textContent = String(d.ccss || "").replace(/<\/?style/gi, "");
-  document.title = d.brand || "Watch";
+  document.title = (d.brand || "ATMAX STUDIOS") + " \u2013 Watch Ghanaian films & series online";
 }
 async function init() {
   const { data } = await sb.from("settings").select("data").eq("id", 1).single();
@@ -2168,6 +2177,7 @@ function login(msg) {
 async function out() {
   await sb.auth.signOut();
   S.user = null;
+  S.me = null;
   S.sub = null;
   S.isAdmin = false;
   S.preview = false;
@@ -2214,6 +2224,14 @@ async function browse() {
     if (x.status === "soon" && x.publish_at && new Date(x.publish_at) <= now) x.status = "published";
   });
   await loadPeople();
+  S.me = null;
+  if (S.user && !S.isAdmin) {
+    try {
+      const mr = await sb.rpc("my_person");
+      S.me = mr.data && mr.data[0] || null;
+    } catch (e) {
+    }
+  }
   S.L = (m.data || []).map((x) => x.title_id);
   S.H = h.data || [];
   S.RT = ra.data || [];
@@ -2352,7 +2370,7 @@ const isCast = (r) => !!r && !crewSet().has(String(r).toLowerCase());
 const pOf = (id) => (window.PPL || {})[id];
 const pnorm = (x) => String(x || "").trim().toLowerCase();
 async function loadPeople() {
-  const r = await sb.from("people").select("id,name,label,photo_url").order("name");
+  const r = await sb.from("people").select("id,name,label,photo_url,bio,links").order("name");
   window.PPL = {};
   (r.data || []).forEach((p) => window.PPL[p.id] = p);
 }
@@ -2365,13 +2383,6 @@ const creds = (t) => {
       if (p) c.push({ id: p.id, n: p.name, l: p.label || "", p: p.photo_url || "", r: x.r || "" });
     } else if (x.n) c.push({ id: 0, n: x.n, l: "", p: x.p || "", r: x.r || "" });
   });
-  if (t.director) {
-    const dn = pnorm(t.director);
-    if (!c.some((x) => pnorm(x.n) === dn)) {
-      const m = Object.values(window.PPL || {}).filter((p) => pnorm(p.name) === dn);
-      c.unshift(m.length === 1 ? { id: m[0].id, n: m[0].name, l: m[0].label || "", p: m[0].photo_url || "", r: "Director" } : { id: 0, n: t.director.trim(), l: "", p: "", r: "Director" });
-    }
-  }
   return c;
 };
 const pkey = (x) => x.id ? String(x.id) : "n:" + pnorm(x.n);
@@ -2447,10 +2458,12 @@ async function personSheet(key) {
   d.setAttribute("aria-modal", "true");
   d.__re = () => personSheet(key);
   const render = (avg2, mine, tot) => {
-    d.innerHTML = '<div class="mbox"><div class="mbody"><button class="x" aria-label="Close" style="position:absolute;top:10px;right:10px">\u2715</button><div class="psh"><div class="lba" style="width:92px;height:92px;color:#fff;'.concat(e.p ? "background-image:url('".concat(esc(e.p), "')") : "", '">').concat(e.p ? "" : esc(e.n.charAt(0).toUpperCase()), '</div><h3 style="margin:.4rem 0 .1rem">').concat(esc(e.n), "</h3>").concat(e.l ? '<p style="margin:0;opacity:.6;font-size:.78rem">'.concat(esc(e.l), "</p>") : "", '<p style="margin:.1rem 0 0;opacity:.7;font-size:.85rem">').concat(esc([...e.roles].slice(0, 4).join(" \xB7 ")), "</p>").concat(tot ? '<p class="lbr" style="margin:.5rem 0 0;font-size:1.05rem">\u2605 '.concat((+tot.avg_stars).toFixed(1), " <em>overall \xB7 ").concat(tot.votes, " vote").concat(tot.votes == 1 ? "" : "s", "</em></p>") : "", '</div><h4 style="margin:1rem 0 .4rem">').concat(e.films.length, " film").concat(e.films.length == 1 ? "" : "s", "</h4>").concat(e.films.map((f) => {
+    d.innerHTML = '<div class="mbox"><div class="mbody"><button class="x" aria-label="Close" style="position:absolute;top:10px;right:10px">\u2715</button><div class="psh"><div class="lba" style="width:92px;height:92px;color:#fff;'.concat(e.p ? "background-image:url('".concat(esc(e.p), "')") : "", '">').concat(e.p ? "" : esc(e.n.charAt(0).toUpperCase()), '</div><h3 style="margin:.4rem 0 .1rem">').concat(esc(e.n), "</h3>").concat(e.l ? '<p style="margin:0;opacity:.6;font-size:.78rem">'.concat(esc(e.l), "</p>") : "", '<p style="margin:.1rem 0 0;opacity:.7;font-size:.85rem">').concat(esc([...e.roles].slice(0, 4).join(" \xB7 ")), "</p>").concat(bioHTML(e)).concat(tot ? '<p class="lbr" style="margin:.5rem 0 0;font-size:1.05rem">\u2605 '.concat((+tot.avg_stars).toFixed(1), " <em>overall \xB7 ").concat(tot.votes, " vote").concat(tot.votes == 1 ? "" : "s", "</em></p>") : "", '</div><h4 style="margin:1rem 0 .4rem">').concat(e.films.length, " film").concat(e.films.length == 1 ? "" : "s", "</h4>").concat(e.films.map((f) => {
       const po = pick(f.t, "poster").src, a = avg2[f.t.id], mn = mine[f.t.id];
       return '<div class="pfm"><button class="pfo" data-f="'.concat(f.t.id, '"><i style="').concat(po ? "background-image:url('".concat(esc(po), "')") : "", '"></i><span><b>').concat(esc(f.t.title), "</b><small>").concat(esc([f.r, f.t.year].filter(Boolean).join(" \xB7 ")), "</small></span></button>").concat(S.set.noCr || !e.id ? "" : '<button class="pfr" data-r="'.concat(f.t.id, '" data-ro="').concat(esc(f.r), '">').concat(mn ? "\u2605 " + mn : "\u2605 Rate").concat(a ? "<em>".concat((+a.avg_stars).toFixed(1), " \xB7 ").concat(a.votes, "</em>") : "", "</button>"), "</div>");
-    }).join(""), '<div class="acts" style="justify-content:center"><button class="btn ghost" id="psc">Close</button></div></div></div>');
+    }).join(""), '<div class="acts" style="justify-content:center">').concat(claimBtn(e), '<button class="btn ghost" id="psc">Close</button></div><div class="ok" id="pcm" role="status"></div></div></div>');
+    const cb = d.querySelector("#pclaim");
+    if (cb) cb.onclick = () => claimProfile(e, d);
     d.querySelector(".x").onclick = d.querySelector("#psc").onclick = () => d.remove();
     d.querySelectorAll("[data-f]").forEach((b) => b.onclick = () => {
       document.querySelectorAll(".mod").forEach((m) => m.remove());
@@ -2529,6 +2542,90 @@ async function lbInit() {
     }, 30);
   }
 }
+const linksOf = (e) => {
+  let l = e && e.links;
+  if (!Array.isArray(l)) return [];
+  return l.map((x) => x && x.u).filter((u) => /^https?:\/\//i.test(u || "")).slice(0, 5);
+};
+const hostOf = (u) => {
+  try {
+    return new URL(u).hostname.replace(/^www\./, "");
+  } catch (e) {
+    return u;
+  }
+};
+const bioHTML = (e) => {
+  const p = e.id && window.PPL && window.PPL[e.id] || {};
+  const b = p.bio, l = linksOf(p);
+  return (b ? '<p style="margin:.6rem 0 0;font-size:.88rem;line-height:1.5;opacity:.85;text-align:left;white-space:pre-wrap">'.concat(esc(b), "</p>") : "") + (l.length ? '<p style="margin:.5rem 0 0;font-size:.82rem">'.concat(l.map((u) => '<a href="'.concat(esc(u), '" target="_blank" rel="noopener nofollow" style="color:var(--acc,#e50914);margin:0 .4rem">').concat(esc(hostOf(u)), "</a>")).join(""), "</p>") : "");
+};
+const claimBtn = (e) => S.user && !S.isAdmin && !S.me && e.id && !(window.PPL[e.id] && window.PPL[e.id].taken) ? '<button class="btn" id="pclaim">This is me \u2013 claim profile</button>' : "";
+async function claimProfile(e, d) {
+  const m = d.querySelector("#pcm"), b = d.querySelector("#pclaim");
+  if (!confirm("Request to claim the profile \u201C".concat(e.n, "\u201D? The ATMAX team will check it is really you and approve."))) return;
+  b.disabled = true;
+  const r = await sb.from("person_claims").insert({ person_id: e.id, email: S.user.email, status: "pending" });
+  m.textContent = r.error ? /duplicate|unique/i.test(r.error.message) ? "You already asked to claim this profile. We will get back to you." : r.error.message : "Request sent. The ATMAX team will review it and your account will become a creator account once approved.";
+  if (r.error && !/duplicate|unique/i.test(r.error.message)) b.disabled = false;
+}
+async function creatorSheet() {
+  if (!S.me) return;
+  const me = S.me, d = document.createElement("div");
+  d.className = "mod";
+  d.style.zIndex = 1e5;
+  d.setAttribute("role", "dialog");
+  d.setAttribute("aria-modal", "true");
+  document.body.appendChild(d);
+  d.onclick = (ev) => {
+    if (ev.target === d) d.remove();
+  };
+  d.innerHTML = '<div class="mbox"><div class="mbody"><button class="x" aria-label="Close" style="position:absolute;top:10px;right:10px">\u2715</button><p class="empty">Loading your numbers\u2026</p></div></div>';
+  d.querySelector(".x").onclick = () => d.remove();
+  const r = await sb.rpc("creator_stats"), st = r.data || { films: [], ratings: [], trend: [], overall: {}, views: [] };
+  const T = (id) => S.T.find((x) => x.id == id), rt = {}, vw = {};
+  (st.ratings || []).forEach((x) => rt[x.title_id] = x);
+  (st.views || []).forEach((x) => vw[x.title_id] = x);
+  const ov = st.overall || {}, tv = (st.views || []).reduce((a, x) => a + x.total, 0), tu = (st.views || []).reduce((a, x) => a + x.uniq, 0);
+  const tr = st.trend || [], mx = 5;
+  const draw2 = () => {
+    d.innerHTML = '<div class="mbox"><div class="mbody"><button class="x" aria-label="Close" style="position:absolute;top:10px;right:10px">\u2715</button>\n <div class="psh"><div class="lba" style="width:80px;height:80px;color:#fff;'.concat(me.photo_url ? "background-image:url('".concat(esc(me.photo_url), "')") : "", '">').concat(me.photo_url ? "" : esc(me.name.charAt(0).toUpperCase()), '</div><h3 style="margin:.4rem 0 .1rem">').concat(esc(me.name), '</h3><p style="margin:0;opacity:.6;font-size:.8rem">Creator account</p></div>\n <div class="cst"><div><b>').concat(ov.avg ? (+ov.avg).toFixed(1) : "\u2013", "</b><small>\u2605 average</small></div><div><b>").concat(ov.votes || 0, "</b><small>ratings</small></div><div><b>").concat(tv, "</b><small>views</small></div><div><b>").concat(tu, '</b><small>viewers</small></div></div>\n <h4 style="margin:1rem 0 .4rem">Ratings over the last 12 months</h4>').concat(tr.length ? '<div class="ctr">'.concat(tr.map((x) => '<span title="'.concat(esc(x.m), ": ").concat(x.avg, "\u2605 (").concat(x.votes, ')"><i style="height:').concat(Math.max(6, x.avg / mx * 100), '%"></i><small>').concat(esc(x.m.slice(5)), "</small></span>")).join(""), "</div>") : '<p class="empty" style="margin:.3rem 0">No ratings yet.</p>', '\n <h4 style="margin:1rem 0 .4rem">Your films</h4>').concat((st.films || []).map(T).filter(Boolean).map((t) => {
+      const a = rt[t.id], v = vw[t.id];
+      return '<div class="pfm"><span class="pfo" style="cursor:default"><span><b>'.concat(esc(t.title), "</b><small>").concat(a ? "\u2605 ".concat((+a.avg).toFixed(1), " \xB7 ").concat(a.votes, " rating").concat(a.votes == 1 ? "" : "s") : "No ratings yet", " \xB7 ").concat(v ? v.total : 0, " views \xB7 ").concat(v ? v.uniq : 0, " viewers</small></span></span></div>");
+    }).join("") || '<p class="empty">No published films yet.</p>', '\n <p style="font-size:.78rem;opacity:.6;margin:.8rem 0 0">Earnings from your films will appear here once the ATMAX team switches on creator payouts.</p>\n <h4 style="margin:1.2rem 0 .4rem">Edit your public profile</h4>\n <form id="cpf"><div style="display:flex;align-items:center;margin:.4rem 0"><div class="crp" style="width:70px;height:70px;margin-right:.8rem;background-image:').concat(me.photo_url ? "url('".concat(esc(me.photo_url), "')") : "none", '">').concat(me.photo_url ? "" : "+", '<input type="file" name="photo" accept="image/jpeg,image/png,image/webp"></div><small style="opacity:.7">Tap the circle to change your photo (JPG, PNG or WebP).</small></div>\n <label>About you (max 1,200 characters)<textarea name="bio" rows="5" maxlength="1200">').concat(esc(me.bio || ""), '</textarea></label>\n <label>Links, one per line (website, Instagram, IMDb\u2026)<textarea name="links" rows="3" placeholder="https://">').concat(esc(linksOf(me).join("\n")), '</textarea></label>\n <div class="acts"><button class="btn">Save profile</button><button type="button" class="btn ghost" id="cpc">Close</button></div><div class="ok" id="cpm" role="status"></div></form></div></div>');
+    d.querySelector(".x").onclick = d.querySelector("#cpc").onclick = () => d.remove();
+    const f = d.querySelector("#cpf"), m = d.querySelector("#cpm");
+    f.onsubmit = async (ev) => {
+      ev.preventDefault();
+      const v = Object.fromEntries(new FormData(f)), b = f.querySelector("button");
+      b.disabled = true;
+      m.textContent = "Saving\u2026";
+      try {
+        let photo = me.photo_url || "";
+        if (v.photo && v.photo.size) {
+          if (v.photo.size > 5e6) throw new Error("Photo is too big (max 5 MB).");
+          const ext = (v.photo.name.split(".").pop() || "jpg").toLowerCase(), path = "creators/".concat(S.user.id, "/").concat(Date.now(), ".").concat(ext);
+          const u = await sb.storage.from("films").upload(path, v.photo, { cacheControl: "3600", contentType: v.photo.type });
+          if (u.error) throw u.error;
+          photo = sb.storage.from("films").getPublicUrl(path).data.publicUrl;
+        }
+        const ls = (v.links || "").split(/\n+/).map((x) => x.trim()).filter(Boolean);
+        if (ls.some((u) => !/^https?:\/\/[^\s]+$/i.test(u))) throw new Error("Each link must start with https://");
+        const links = ls.slice(0, 5).map((u) => ({ u })), bio = (v.bio || "").trim();
+        const q = await sb.rpc("update_my_profile", { p_bio: bio, p_photo: photo, p_links: links.length ? links : null });
+        if (q.error) throw q.error;
+        Object.assign(me, { bio: bio || null, photo_url: photo || null, links: links.length ? links : null });
+        if (window.PPL[me.id]) Object.assign(window.PPL[me.id], { bio: me.bio, photo_url: me.photo_url, links: me.links });
+        m.textContent = "Saved. Your public profile is updated.";
+        draw2();
+        d.querySelector("#cpm").textContent = "Saved. Your public profile is updated.";
+      } catch (er) {
+        m.textContent = er.message || "Something went wrong.";
+        b.disabled = false;
+      }
+    };
+  };
+  draw2();
+}
 const SFS = [["all", "All"], ["films", "Films"], ["cast", "Cast"], ["crew", "Crew"], ["genre", "Genres"]];
 function searchHTML(q) {
   const f = S.sf || "all", chips = '<div class="sfc">'.concat(SFS.map(([k, l]) => '<button data-sf="'.concat(k, '" class="').concat(f == k ? "on" : "", '">').concat(l, "</button>")).join(""), "</div>");
@@ -2595,7 +2692,7 @@ const rail = (n, a, min) => {
 };
 function draw() {
   document.body.classList.add("dk");
-  app.innerHTML = "<nav>".concat(brand(), '<div class="tabs"><button data-v="home" class="').concat(S.view == "home" ? "on" : "", '">Home</button><button data-v="list" class="').concat(S.view == "list" ? "on" : "", '">My list (').concat(S.L.length, ')</button><button data-v="history" class="').concat(S.view == "history" ? "on" : "", '">Watched</button></div>\n <input id="q" type="search" placeholder="Search titles" aria-label="Search titles" value="').concat(esc(S.q), '"><button class="btn ghost" id="sw" style="padding:.4rem .8rem">').concat(esc(S.sub.name), "</button>").concat(S.isAdmin ? '<button class="btn ghost" id="toadm" style="padding:.4rem .8rem">Admin panel</button>' : "", '<button class="btn ghost" id="out" style="padding:.4rem .8rem">Sign out</button></nav>').concat(S.view === "home" ? homeMark() : "").concat(S.DX && (S.DX.re || S.DX.te || !S.T.length) ? '<div class="ann" style="background:#5a1a1a;color:#fff" role="alert">No films loaded. Rows found: '.concat(S.DX.rn, ", films found: ").concat(S.DX.tn, ", shown: ").concat(S.T.length, ". ").concat(esc(S.DX.te || S.DX.re || (S.DX.tn ? "All films are hidden (draft, future publish date, or row switched off)." : "Database returned no films for this visitor (check Row Level Security policy on titles).")), "</div>") : "").concat(S.set.announceOn && S.set.announce ? '<div class="ann" role="status">'.concat(esc(S.set.announce), "</div>") : "", '<div id="body"></div>');
+  app.innerHTML = "<nav>".concat(brand(), '<div class="tabs"><button data-v="home" class="').concat(S.view == "home" ? "on" : "", '">Home</button><button data-v="list" class="').concat(S.view == "list" ? "on" : "", '">My list (').concat(S.L.length, ')</button><button data-v="history" class="').concat(S.view == "history" ? "on" : "", '">Watched</button></div>\n <input id="q" type="search" placeholder="Search titles" aria-label="Search titles" value="').concat(esc(S.q), '"><button class="btn ghost" id="sw" style="padding:.4rem .8rem">').concat(esc(S.sub.name), "</button>").concat(S.me ? '<button class="btn ghost" id="tocr" style="padding:.4rem .8rem">Creator</button>' : "").concat(S.isAdmin ? '<button class="btn ghost" id="toadm" style="padding:.4rem .8rem">Admin panel</button>' : "", '<button class="btn ghost" id="out" style="padding:.4rem .8rem">Sign out</button></nav>').concat(S.view === "home" ? homeMark() : "").concat(S.DX && (S.DX.re || S.DX.te || !S.T.length) ? '<div class="ann" style="background:#5a1a1a;color:#fff" role="alert">No films loaded. Rows found: '.concat(S.DX.rn, ", films found: ").concat(S.DX.tn, ", shown: ").concat(S.T.length, ". ").concat(esc(S.DX.te || S.DX.re || (S.DX.tn ? "All films are hidden (draft, future publish date, or row switched off)." : "Database returned no films for this visitor (check Row Level Security policy on titles).")), "</div>") : "").concat(S.set.announceOn && S.set.announce ? '<div class="ann" role="status">'.concat(esc(S.set.announce), "</div>") : "", '<div id="body"></div>');
   document.querySelectorAll("[data-v]").forEach((b) => b.onclick = () => {
     S.view = b.dataset.v;
     S.q = "";
@@ -2632,6 +2729,8 @@ function draw() {
     picker();
   };
   $("#out").onclick = out;
+  const tc = $("#tocr");
+  if (tc) tc.onclick = creatorSheet;
   const ta = $("#toadm");
   if (ta) ta.onclick = () => {
     S.preview = false;
@@ -2643,6 +2742,17 @@ function draw() {
     body();
   };
   body();
+  if (window.DEEP) {
+    const dd = window.DEEP;
+    window.DEEP = null;
+    setTimeout(() => {
+      try {
+        if (dd.f && S.T.find((x) => x.id == dd.f)) detail(+dd.f);
+        else if (dd.p && window.PPL[dd.p]) personSheet(String(dd.p));
+      } catch (e) {
+      }
+    }, 300);
+  }
 }
 const bn = (f) => pick(f, isPhone() ? "phone" : "pc");
 const heroHTML = (f) => '<section class="hero" style="background-image:linear-gradient(100deg,var(--hov,var(--bar)) 5%,transparent 90%),'.concat(bn(f).src ? "url('".concat(esc(bn(f).src.replace(/'/g, "%27")), "'),") : "", 'linear-gradient(100deg,var(--bar),var(--wine))" data-bp="').concat(bn(f).pos, '"><h2>').concat(esc(f.title), '</h2><p class="hm">').concat(heroMeta(f), "</p><p>").concat(esc(f.description), '</p><div class="b"><button class="btn" data-play="').concat(f.id, '">Play</button><button class="btn ghost" data-id="').concat(f.id, '">More info</button></div></section>');
@@ -3422,6 +3532,7 @@ const ADMIN = (() => {
     S2.POUT = pa.data || [];
     S2.FINOK = !fi.error;
     await loadPeople();
+    await loadPriv();
     const fm = {};
     (ff.data || []).forEach((x) => fm[x.title_id] = x.video_url);
     if (S2.FF) S2.T.forEach((t2) => {
@@ -3450,6 +3561,25 @@ const ADMIN = (() => {
   function backup() {
     return '<div class="panel"><h3>Backup</h3><p style="color:var(--mute)">Download your data as spreadsheet files.</p><div class="acts"><button class="btn" data-exp="films">Download films</button><button class="btn ghost" data-exp="users">Download users</button></div></div>';
   }
+  async function loadPriv() {
+    window.PRIV = {};
+    window.CLAIMS = [];
+    try {
+      const a = await sb.rpc("admin_people_private");
+      (a.data || []).forEach((x) => window.PRIV[x.id] = x);
+      const c = await sb.rpc("admin_claims");
+      window.CLAIMS = c.data || [];
+    } catch (e) {
+    }
+  }
+  function claimsHTML() {
+    const l = (window.CLAIMS || []).filter((c) => c.status == "pending");
+    if (!l.length) return "";
+    return '<div class="panel" style="margin-bottom:.8rem"><h3 style="margin:0 0 .4rem">Claim requests ('.concat(l.length, ')</h3><p style="color:var(--mute);font-size:.85rem;margin:0 0 .5rem">Someone says \u201Cthis profile is me\u201D. Check them (email, social media, a message) before you approve. Approving makes their account a creator account.</p>').concat(l.map((c) => {
+      const p = window.PPL[c.person_id];
+      return '<div style="display:flex;gap:.5rem;align-items:center;flex-wrap:wrap;padding:.4rem 0;border-top:1px solid var(--line,#8883)"><span style="flex:1"><b>'.concat(esc(p ? p.name : "(deleted)"), '</b><br><small style="color:var(--mute)">').concat(esc(c.email || ""), " \xB7 ").concat(esc(String(c.created_at || "").slice(0, 10)), '</small></span><button class="btn" data-ca="').concat(c.id, '">Approve</button> <button class="btn del" data-cr="').concat(c.id, '">Reject</button></div>');
+    }).join(""), "</div>");
+  }
   function peopleTab() {
     const all = Object.values(window.PPL || {}), e = S2.pedit, mg = S2.pmerge;
     const rolesOf = (pid) => {
@@ -3459,12 +3589,21 @@ const ADMIN = (() => {
       }));
       return [...o].slice(0, 3).join(" \xB7 ");
     };
-    const form = e ? '<div class="fov"><form id="pf" class="panel fwin"><div class="fhd"><h3>'.concat(e.id ? "Edit person" : "Add person", '</h3><button type="button" class="fclose" id="pcx" aria-label="Close">\xD7</button></div>\n <div style="display:flex;align-items:center;margin:.6rem 0"><div class="crp" style="width:90px;height:90px;margin-right:1rem;background-image:').concat(e.photo_url ? "url('".concat(esc(e.photo_url), "')") : "none", '">').concat(e.photo_url ? "" : "+", '<input type="file" name="photo" accept="image/*"></div><small style="color:var(--mute)">Tap the circle to ').concat(e.photo_url ? "replace" : "add", ' the photo. It updates everywhere this person appears.</small></div>\n <label>Name<input name="name" required value="').concat(esc(e.name), '"></label><label>Label to tell people with the same name apart (optional)<input name="label" value="').concat(esc(e.label), '"></label><div class="acts"><button class="btn">Save</button><button type="button" class="btn ghost" id="pcx2">Cancel</button></div>').concat(note(), "</form></div>") : "";
+    const form = e ? '<div class="fov"><form id="pf" class="panel fwin"><div class="fhd"><h3>'.concat(e.id ? "Edit person" : "Add person", '</h3><button type="button" class="fclose" id="pcx" aria-label="Close">\xD7</button></div>\n <div style="display:flex;align-items:center;margin:.6rem 0"><div class="crp" style="width:90px;height:90px;margin-right:1rem;background-image:').concat(e.photo_url ? "url('".concat(esc(e.photo_url), "')") : "none", '">').concat(e.photo_url ? "" : "+", '<input type="file" name="photo" accept="image/*"></div><small style="color:var(--mute)">Tap the circle to ').concat(e.photo_url ? "replace" : "add", ' the photo. It updates everywhere this person appears.</small></div>\n <label>Name<input name="name" required value="').concat(esc(e.name), '"></label><label>Label to tell people with the same name apart (optional)<input name="label" value="').concat(esc(e.label), '"></label><label>Creator login email (optional). When this person signs up or signs in with this email they get a creator account<input name="lemail" type="email" value="').concat(esc(e.id && window.PRIV[e.id] ? window.PRIV[e.id].link_email : ""), '"></label><label>About (public bio, optional)<textarea name="bio" rows="4" maxlength="1200">').concat(esc(e.bio || ""), '</textarea></label><div class="acts"><button class="btn">Save</button><button type="button" class="btn ghost" id="pcx2">Cancel</button></div>').concat(note(), "</form></div>") : "";
     const mgf = mg ? '<div class="fov"><div class="panel fwin"><div class="fhd"><h3>Merge \u201C'.concat(esc(mg.name), '\u201D</h3><button type="button" class="fclose" id="pmx" aria-label="Close">\xD7</button></div><p>Pick the person to keep. All of \u201C').concat(esc(mg.name), "\u201D's films and ratings move to them, then \u201C").concat(esc(mg.name), '\u201D is removed. This cannot be undone.</p><label>Keep this person<select id="pmk"><option value="">Choose\u2026</option>').concat(all.filter((p) => p.id != mg.id).map((p) => '<option value="'.concat(p.id, '">').concat(esc(p.name)).concat(p.label ? " (" + esc(p.label) + ")" : "", " \xB7 ").concat(filmsOf(p.id), " films</option>")).join(""), '</select></label><div class="acts"><button class="btn del" id="pmgo">Merge</button><button class="btn ghost" id="pmx2">Cancel</button></div>').concat(note(), "</div></div>") : "";
-    return form + mgf + '<div class="panel scroll"><div style="display:flex;gap:.6rem;align-items:center;flex-wrap:wrap;margin-bottom:.6rem"><h3 style="margin:0;flex:1">People ('.concat(all.length, ')</h3><button class="btn" id="padd">+ Add person</button></div><p style="color:var(--mute);margin:.2rem 0 .6rem;font-size:.85rem">Everyone listed in Cast &amp; crew. Each person exists once, so their photo and ratings follow them across all films.</p><input id="pq" type="search" placeholder="Search people\u2026" autocomplete="off"><table id="pt"><tr><th></th><th>Name</th><th>Roles</th><th>Films</th><th></th></tr>').concat(all.map((p) => '<tr data-q="'.concat(esc(pnorm(p.name + " " + (p.label || ""))), '"><td><span class="crp" style="width:38px;height:38px;margin:0;display:inline-flex;font-size:1rem;background-image:').concat(p.photo_url ? "url('".concat(esc(p.photo_url), "')") : "none", '">').concat(p.photo_url ? "" : esc(p.name.charAt(0).toUpperCase()), "</span></td><td>").concat(esc(p.name)).concat(p.label ? '<br><small style="color:var(--mute)">'.concat(esc(p.label), "</small>") : "", "</td><td>").concat(esc(rolesOf(p.id)), "</td><td>").concat(filmsOf(p.id), '</td><td><button class="btn ghost" data-pe="').concat(p.id, '">Edit</button> <button class="btn ghost" data-pm="').concat(p.id, '">Merge\u2026</button> <button class="btn del" data-pd="').concat(p.id, '">Delete</button></td></tr>')).join(""), "</table></div>");
+    return form + mgf + claimsHTML() + '<div class="panel scroll"><div style="display:flex;gap:.6rem;align-items:center;flex-wrap:wrap;margin-bottom:.6rem"><h3 style="margin:0;flex:1">People ('.concat(all.length, ')</h3><button class="btn" id="padd">+ Add person</button></div><p style="color:var(--mute);margin:.2rem 0 .6rem;font-size:.85rem">Everyone listed in Cast &amp; crew. Each person exists once, so their photo and ratings follow them across all films.</p><input id="pq" type="search" placeholder="Search people\u2026" autocomplete="off"><table id="pt"><tr><th></th><th>Name</th><th>Roles</th><th>Films</th><th></th></tr>').concat(all.map((p) => '<tr data-q="'.concat(esc(pnorm(p.name + " " + (p.label || ""))), '"><td><span class="crp" style="width:38px;height:38px;margin:0;display:inline-flex;font-size:1rem;background-image:').concat(p.photo_url ? "url('".concat(esc(p.photo_url), "')") : "none", '">').concat(p.photo_url ? "" : esc(p.name.charAt(0).toUpperCase()), "</span></td><td>").concat(esc(p.name)).concat(p.label ? '<br><small style="color:var(--mute)">'.concat(esc(p.label), "</small>") : "", "</td><td>").concat(esc(rolesOf(p.id))).concat(window.PRIV[p.id] && window.PRIV[p.id].user_id ? '<br><small style="color:var(--mute)">Creator \u2713 '.concat(esc(window.PRIV[p.id].user_email || ""), "</small>") : window.PRIV[p.id] && window.PRIV[p.id].link_email ? '<br><small style="color:var(--mute)">Invited: '.concat(esc(window.PRIV[p.id].link_email), "</small>") : "", "</td><td>").concat(filmsOf(p.id), '</td><td><button class="btn ghost" data-pe="').concat(p.id, '">Edit</button> <button class="btn ghost" data-pm="').concat(p.id, '">Merge\u2026</button> <button class="btn del" data-pd="').concat(p.id, '">Delete</button></td></tr>')).join(""), "</table></div>");
   }
   function peopleBind() {
     const go2 = () => shell();
+    document.querySelectorAll("[data-ca]").forEach((b) => b.onclick = async () => {
+      if (!confirm("Approve this claim? This person becomes the owner of the profile and gets a creator account.")) return;
+      const r = await sb.rpc("approve_claim", { cid: +b.dataset.ca });
+      done(r.error ? r.error.message : "Approved.");
+    });
+    document.querySelectorAll("[data-cr]").forEach((b) => b.onclick = async () => {
+      const r = await sb.from("person_claims").update({ status: "rejected" }).eq("id", +b.dataset.cr);
+      done(r.error ? r.error.message : "Rejected.");
+    });
     const a = $("#padd");
     if (a) a.onclick = () => {
       S2.pedit = {};
@@ -3514,7 +3653,9 @@ const ADMIN = (() => {
           ok.textContent = "Uploading photo\u2026";
           photo = await upload(v.photo, "people");
         }
-        const row = { name: n, label: l, photo_url: photo }, r = S2.pedit.id ? await sb.from("people").update(row).eq("id", S2.pedit.id) : await sb.from("people").insert(row);
+        const le = (v.lemail || "").trim().toLowerCase() || null, old = S2.pedit.id && window.PRIV[S2.pedit.id] ? window.PRIV[S2.pedit.id].link_email : null, row = { name: n, label: l, photo_url: photo, bio: (v.bio || "").trim() || null, link_email: le };
+        if (S2.pedit.id && (le || null) !== (old || null)) row.user_id = null;
+        const r = S2.pedit.id ? await sb.from("people").update(row).eq("id", S2.pedit.id) : await sb.from("people").insert(row);
         if (r.error) throw new Error(r.error.message);
         S2.pedit = null;
         done("Saved.");
@@ -3757,6 +3898,21 @@ const ADMIN = (() => {
       if (b) b.closest(".crw").remove();
     };
   }
+  async function withDirector(f, dir, list) {
+    dir = (dir || "").trim();
+    if (!dir) return list;
+    const same = Object.values(window.PPL || {}).filter((p2) => pnorm(p2.name) === pnorm(dir));
+    if (list.some((x) => same.some((p2) => p2.id === x.pid) && /director/i.test(x.r || ""))) return list;
+    let p = same.length === 1 ? same[0] : null;
+    if (!p && !same.length) {
+      const q = await sb.from("people").insert({ name: dir }).select("id,name,label,photo_url").single();
+      if (q.error) throw new Error(q.error.message);
+      window.PPL[q.data.id] = q.data;
+      p = q.data;
+    }
+    if (!p) return list;
+    return list.some((x) => x.pid === p.id) ? list : [{ pid: p.id, r: "Director" }, ...list];
+  }
   async function crewCollect(f) {
     const out2 = [], seen = /* @__PURE__ */ new Set();
     for (const row of f.querySelectorAll(".crw")) {
@@ -3812,7 +3968,7 @@ const ADMIN = (() => {
   }
   function films() {
     const e = S2.edit || {}, opts2 = S2.R.map((r) => '<option value="'.concat(r.id, '" ').concat(e.row_id == r.id ? "selected" : "", ">").concat(esc(r.name), "</option>")).join("");
-    const form = '<div class="fov"><form id="f" class="panel fwin"><div class="fhd"><h3>'.concat(e.id ? "Edit film" : "Add film", '</h3><button type="button" class="fclose" id="cancel" aria-label="Close">\xD7</button></div>\n <label>Title<input name="title" required value="').concat(esc(e.title), '"></label><label>Year<input name="year" type="number" value="').concat(esc(e.year), '"></label><label>Genre<input name="genre" value="').concat(esc(e.genre), '"></label><label>Director (optional)<input name="director" value="').concat(esc(e.director), '"></label><label>Series name (optional, same spelling on every episode)<input name="series_name" value="').concat(esc(e.series_name), '"></label><label>Episode number (optional)<input name="episode_no" type="number" min="1" value="').concat(esc(e.episode_no), '"></label><label>Subtitles link (.vtt or .srt, optional; uploaded films only)<input name="subtitles_url" value="').concat(esc(e.subtitles_url), '"></label><label>\u2026or upload a subtitles file<input type="file" name="subtitles_file" accept=".vtt,.srt,text/vtt"></label>\n <label>Description<textarea name="description" rows="3">').concat(esc(e.description), "</textarea></label>\n ").concat(SLOTS.map(([k, l, ar, sz, un, fn]) => '<fieldset class="slot"><legend>'.concat(l, " \xB7 ").concat(ar, " (").concat(sz, ')</legend><label>Paste a picture link<input name="').concat(un, '" value="').concat(esc(e[un]), '"></label><label>\u2026or upload a picture file (saved inside your Supabase storage)<input type="file" name="').concat(fn, '" accept="image/*"></label>').concat(/\/object\/public\/films\//.test(e[un] || "") ? '<div class="stored">\u2713 Stored in your Supabase storage. The link above is just this picture\'s address and is kept automatically.</div>' : "", '<input type="hidden" name="fx_').concat(k, '" value="').concat(esc(((e.focus || {})[k] || [50, 50]).join(" ")), '"><div class="fp" data-slot="').concat(k, '" style="aspect-ratio:').concat(ar.replace(":", "/"), ";max-width:").concat(k == "phone" ? "200px" : k == "poster" ? "150px" : "320px", '" title="Click to set the focus point"><i></i></div><small style="color:var(--mute)">Click the picture to choose which part stays in view when it is cropped.</small></fieldset>')).join(""), '<div class="hint">Empty slots fall back to the PC banner, then the tile poster. Google Drive picture links are converted automatically. Links must be open: no password, no sign-in.</div>\n <label class="chk"><input type="radio" name="source" value="link" checked> Video: paste a link</label><label class="chk"><input type="radio" name="source" value="upload"> Video: upload a file</label>\n <label id="vl">Video link (Google Drive, YouTube, Vimeo or .mp4)<input name="video_url" value="').concat(esc(e.video_url), '"></label><label id="vf" style="display:none">Video file<input type="file" name="video_file" accept="video/*"></label>\n <div style="font-size:.82rem;color:var(--mute)">Google Drive: open the file, click Share, set General access to "Anyone with the link", then paste the link. Uploads are limited by your Supabase plan\'s per-file size; use a link for full-length films.</div>\n').concat(crewEditor(e)).concat(poEditor(e)).concat(finEditor(e), '\n <label>Trailer link (open link, no password)<input name="trailer_url" value="').concat(esc(e.trailer_url), '"></label><label>\u2026or upload a trailer<input type="file" name="trailer_file" accept="video/*"></label><label class="chk"><input type="checkbox" name="allow_rate" ').concat(e.allow_rate !== false ? "checked" : "", '> Allow ratings</label><label class="chk"><input type="checkbox" name="allow_comment" ').concat(e.allow_comment !== false ? "checked" : "", '> Allow comments</label><label>Status<select name="status"><option value="published" ').concat(e.status !== "draft" ? "selected" : "", '>Published</option><option value="soon" ').concat(e.status === "soon" ? "selected" : "", '>Coming soon (trailer only)</option><option value="draft" ').concat(e.status === "draft" ? "selected" : "", '>Draft (hidden from viewers)</option></select></label><label>Release date and time (Ghana time, optional). For a "Coming soon" film this shows a live countdown and it opens by itself at that time. For a Published film it stays hidden until then<input type="datetime-local" name="publish_at" value="').concat(e.publish_at ? esc(String(e.publish_at).slice(0, 16)) : "", '"></label><label>Row<select name="row_id"><option value="">None</option>').concat(opts2, '</select></label>\n <label class="chk"><input type="checkbox" name="featured" ').concat(e.featured ? "checked" : "", '> Feature in the rotating banner on Home</label>\n <h3>Preview</h3><div class="acts" style="margin-top:0"><button type="button" class="btn ghost" data-pv="pc">PC</button><button type="button" class="btn ghost" data-pv="ph">Phone</button></div><div id="pv"></div><div class="acts"><button class="btn">').concat(e.id ? "Save changes" : "Add film", '</button><button type="button" class="btn ghost" id="cancel2">Cancel</button></div>').concat(note(), "</form></div>");
+    const form = '<div class="fov"><form id="f" class="panel fwin"><div class="fhd"><h3>'.concat(e.id ? "Edit film" : "Add film", '</h3><button type="button" class="fclose" id="cancel" aria-label="Close">\xD7</button></div>\n <label>Title<input name="title" required value="').concat(esc(e.title), '"></label><label>Year<input name="year" type="number" value="').concat(esc(e.year), '"></label><label>Genre<input name="genre" value="').concat(esc(e.genre), '"></label><label>Series name (optional, same spelling on every episode)<input name="series_name" value="').concat(esc(e.series_name), '"></label><label>Episode number (optional)<input name="episode_no" type="number" min="1" value="').concat(esc(e.episode_no), '"></label><label>Subtitles link (.vtt or .srt, optional; uploaded films only)<input name="subtitles_url" value="').concat(esc(e.subtitles_url), '"></label><label>\u2026or upload a subtitles file<input type="file" name="subtitles_file" accept=".vtt,.srt,text/vtt"></label>\n <label>Description<textarea name="description" rows="3">').concat(esc(e.description), "</textarea></label>\n ").concat(SLOTS.map(([k, l, ar, sz, un, fn]) => '<fieldset class="slot"><legend>'.concat(l, " \xB7 ").concat(ar, " (").concat(sz, ')</legend><label>Paste a picture link<input name="').concat(un, '" value="').concat(esc(e[un]), '"></label><label>\u2026or upload a picture file (saved inside your Supabase storage)<input type="file" name="').concat(fn, '" accept="image/*"></label>').concat(/\/object\/public\/films\//.test(e[un] || "") ? '<div class="stored">\u2713 Stored in your Supabase storage. The link above is just this picture\'s address and is kept automatically.</div>' : "", '<input type="hidden" name="fx_').concat(k, '" value="').concat(esc(((e.focus || {})[k] || [50, 50]).join(" ")), '"><div class="fp" data-slot="').concat(k, '" style="aspect-ratio:').concat(ar.replace(":", "/"), ";max-width:").concat(k == "phone" ? "200px" : k == "poster" ? "150px" : "320px", '" title="Click to set the focus point"><i></i></div><small style="color:var(--mute)">Click the picture to choose which part stays in view when it is cropped.</small></fieldset>')).join(""), '<div class="hint">Empty slots fall back to the PC banner, then the tile poster. Google Drive picture links are converted automatically. Links must be open: no password, no sign-in.</div>\n <label class="chk"><input type="radio" name="source" value="link" checked> Video: paste a link</label><label class="chk"><input type="radio" name="source" value="upload"> Video: upload a file</label>\n <label id="vl">Video link (Google Drive, YouTube, Vimeo or .mp4)<input name="video_url" value="').concat(esc(e.video_url), '"></label><label id="vf" style="display:none">Video file<input type="file" name="video_file" accept="video/*"></label>\n <div style="font-size:.82rem;color:var(--mute)">Google Drive: open the file, click Share, set General access to "Anyone with the link", then paste the link. Uploads are limited by your Supabase plan\'s per-file size; use a link for full-length films.</div>\n').concat(crewEditor(e)).concat(poEditor(e)).concat(finEditor(e), '\n <label>Trailer link (open link, no password)<input name="trailer_url" value="').concat(esc(e.trailer_url), '"></label><label>\u2026or upload a trailer<input type="file" name="trailer_file" accept="video/*"></label><label class="chk"><input type="checkbox" name="allow_rate" ').concat(e.allow_rate !== false ? "checked" : "", '> Allow ratings</label><label class="chk"><input type="checkbox" name="allow_comment" ').concat(e.allow_comment !== false ? "checked" : "", '> Allow comments</label><label>Status<select name="status"><option value="published" ').concat(e.status !== "draft" ? "selected" : "", '>Published</option><option value="soon" ').concat(e.status === "soon" ? "selected" : "", '>Coming soon (trailer only)</option><option value="draft" ').concat(e.status === "draft" ? "selected" : "", '>Draft (hidden from viewers)</option></select></label><label>Release date and time (Ghana time, optional). For a "Coming soon" film this shows a live countdown and it opens by itself at that time. For a Published film it stays hidden until then<input type="datetime-local" name="publish_at" value="').concat(e.publish_at ? esc(String(e.publish_at).slice(0, 16)) : "", '"></label><label>Row<select name="row_id"><option value="">None</option>').concat(opts2, '</select></label>\n <label class="chk"><input type="checkbox" name="featured" ').concat(e.featured ? "checked" : "", '> Feature in the rotating banner on Home</label>\n <h3>Preview</h3><div class="acts" style="margin-top:0"><button type="button" class="btn ghost" data-pv="pc">PC</button><button type="button" class="btn ghost" data-pv="ph">Phone</button></div><div id="pv"></div><div class="acts"><button class="btn">').concat(e.id ? "Save changes" : "Add film", '</button><button type="button" class="btn ghost" id="cancel2">Cancel</button></div>').concat(note(), "</form></div>");
     return (S2.fopen ? form : "") + '<div class="panel scroll"><div style="display:flex;gap:.6rem;align-items:center;flex-wrap:wrap;margin-bottom:.6rem"><h3 style="margin:0;flex:1">All films ('.concat(S2.T.length, ')</h3><button class="btn" id="fadd">+ Add film</button></div><input id="fq" type="search" placeholder="Search films by title, genre, year or row\u2026" autocomplete="off"><table id="ft"><tr><th>Title</th><th>Row</th><th>Price</th><th>Plays</th><th></th></tr>').concat(S2.T.map((t) => {
       var _a;
       return '<tr data-q="'.concat(esc([t.title, t.genre, t.year, t.director, t.series_name, (S2.R.find((r) => r.id == t.row_id) || {}).name].join(" ").toLowerCase()), '"><td>').concat(esc(t.title)).concat(t.featured ? " \u2605" : "").concat(t.status === "draft" ? " (draft)" : "", "</td><td>").concat(esc(((_a = S2.R.find((r) => r.id == t.row_id)) == null ? void 0 : _a.name) || "\u2014"), "</td><td>").concat(priceSum(t.id), "</td><td>").concat(t.plays || 0, '</td><td><button class="btn ghost" data-rev="').concat(t.id, '">\u{1F4CA} Dashboard</button> <button class="btn ghost" data-edit="').concat(t.id, '">Edit</button> <button class="btn del" data-del="').concat(t.id, '">Delete</button></td></tr>');
@@ -4113,7 +4269,9 @@ const ADMIN = (() => {
         let rt = S2.edit && S2.edit.video_url === video ? S2.edit.runtime : null;
         if (v.source === "upload" && v.video_file && v.video_file.size) rt = await dur(URL.createObjectURL(v.video_file));
         else if (/\.(mp4|webm|mov|m4v)(\?|$)/i.test(video)) rt = await dur(video);
-        const row = { trailer_url: trailer || null, allow_rate: !!v.allow_rate, allow_comment: !!v.allow_comment, runtime: rt, title: v.title.trim(), year: v.year ? +v.year : null, genre: v.genre || null, director: (v.director || "").trim() || null, series_name: (v.series_name || "").trim() || null, episode_no: v.episode_no ? +v.episode_no : null, subtitles_url: subs || null, credits: await crewCollect(f), description: v.description || null, poster_url: poster || null, video_url: S2.FF ? null : video || null, row_id: v.row_id ? +v.row_id : null, featured: !!v.featured, status: v.status || "published", banner_pc: imgs.pc, banner_phone: imgs.phone, header_img: imgs.head, focus, publish_at: v.publish_at ? (/* @__PURE__ */ new Date(v.publish_at + ":00Z")).toISOString() : null };
+        const cr = await crewCollect(f);
+        const dp = cr.find((x) => /^director$/i.test(x.r || ""));
+        const row = { trailer_url: trailer || null, allow_rate: !!v.allow_rate, allow_comment: !!v.allow_comment, runtime: rt, title: v.title.trim(), year: v.year ? +v.year : null, genre: v.genre || null, director: dp && window.PPL[dp.pid] ? window.PPL[dp.pid].name : null, series_name: (v.series_name || "").trim() || null, episode_no: v.episode_no ? +v.episode_no : null, subtitles_url: subs || null, credits: cr, description: v.description || null, poster_url: poster || null, video_url: S2.FF ? null : video || null, row_id: v.row_id ? +v.row_id : null, featured: !!v.featured, status: v.status || "published", banner_pc: imgs.pc, banner_phone: imgs.phone, header_img: imgs.head, focus, publish_at: v.publish_at ? (/* @__PURE__ */ new Date(v.publish_at + ":00Z")).toISOString() : null };
         let tid;
         if (S2.edit) {
           r = await sb.from("titles").update(row).eq("id", S2.edit.id);

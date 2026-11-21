@@ -1,0 +1,26 @@
+name: Update Google pages
+on:
+  schedule:
+    - cron: "17 */6 * * *"   # every 6 hours
+  workflow_dispatch: {}       # lets you press "Run workflow" by hand
+permissions:
+  contents: write
+concurrency:
+  group: seo
+  cancel-in-progress: false
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Build film and people pages
+        run: node seo/build_seo.js
+      - name: Save changes
+        run: |
+          git config user.name "atmax-bot"
+          git config user.email "atmax-bot@users.noreply.github.com"
+          git add films people sitemap.xml robots.txt
+          if git diff --cached --quiet; then echo "No changes"; else git commit -m "Update film and people pages" && git push; fi

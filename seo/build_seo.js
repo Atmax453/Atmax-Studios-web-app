@@ -1,0 +1,69 @@
+/* ATMAX STUDIOS - builds the public pages Google can read.
+   Usage:  node build_seo.js            (reads live data from Supabase with the public key)
+           node build_seo.js data.json  (reads a saved copy of the data)
+   Writes: films/, people/, sitemap.xml, robots.txt  (next to this file's parent: run it from the repo root) */
+const fs=require("fs"),path=require("path");
+const SITE="https://atmaxstudios.com",BRAND="ATMAX STUDIOS";
+const SB="https://xzeahvkmvrdpxcfsgwqh.supabase.co",KEY="sb_publishable_LCRngOPZzgc6E-QwT6jjZQ_hb0qqLjY";
+const esc=s=>String(s==null?"":s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const slug=s=>String(s||"").normalize("NFKD").replace(/[\u0300-\u036f]/g,"").toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-+|-+$/g,"").slice(0,60)||"item";
+const cap=s=>String(s||"").replace(/\b\w/g,c=>c.toUpperCase());
+const short=(s,n)=>{s=String(s||"").replace(/\s+/g," ").trim();return s.length>n?s.slice(0,n-1).replace(/\s+\S*$/,"")+"…":s};
+async function get(p,rpc){const r=await fetch(SB+"/rest/v1/"+p,{method:rpc?"POST":"GET",headers:{apikey:KEY,Authorization:"Bearer "+KEY,"content-type":"application/json"},body:rpc?"{\"period\":\"all\"}":undefined});if(!r.ok)throw new Error(p+" "+r.status);return r.json()}
+async function load(){
+  if(process.argv[2])return JSON.parse(fs.readFileSync(process.argv[2],"utf8"));
+  const [titles,rows,people,board]=await Promise.all([
+    get("titles?select=id,title,year,genre,description,poster_url,runtime,series_name,episode_no,publish_at,status,credits,row_id&status=neq.draft&order=id"),
+    get("rows?select=id,active"),get("people?select=id,name,label,photo_url,bio,links&order=id"),get("rpc/char_board",true).catch(()=>[])]);
+  return {titles,rows,people,board}}
+const CSS=`:root{--bg:#0b0b0e;--fg:#f2f2f5;--mut:#a3a3ad;--card:#16161c;--acc:#e50914;--line:#2a2a33}@media(prefers-color-scheme:light){:root{--bg:#fafafa;--fg:#17171c;--mut:#5c5c68;--card:#fff;--acc:#b8070f;--line:#dcdce3}}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.6 system-ui,-apple-system,Segoe UI,Roboto,sans-serif}a{color:var(--acc)}header,main,footer{max-width:900px;margin:0 auto;padding:1rem 16px}header{display:flex;gap:.5rem 1rem;flex-wrap:wrap;justify-content:space-between;align-items:center;border-bottom:1px solid var(--line)}header b{letter-spacing:.2em;font-size:.95rem}header a{text-decoration:none;color:var(--fg)}
+h1{font-size:1.8rem;line-height:1.2;margin:.2rem 0}h2{font-size:1.15rem;margin:1.6rem 0 .6rem}.mut{color:var(--mut)}.hero{display:flex;gap:1.2rem;flex-wrap:wrap;margin-top:1rem}.hero img{width:200px;max-width:100%;border-radius:12px;aspect-ratio:2/3;object-fit:cover;background:var(--card)}.hero .t{flex:1;min-width:240px}
+.btn{display:inline-block;background:var(--acc);color:#fff;text-decoration:none;padding:.7rem 1.3rem;border-radius:10px;font-weight:600;margin:.8rem .5rem .4rem 0}.btn.g{background:transparent;color:var(--fg);border:1px solid var(--line)}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:12px;list-style:none;padding:0;margin:0}.grid a{display:block;text-decoration:none;color:var(--fg);background:var(--card);border:1px solid var(--line);border-radius:12px;overflow:hidden;font-size:.9rem}.grid img,.grid .ph{width:100%;aspect-ratio:2/3;object-fit:cover;background:var(--line);display:flex;align-items:center;justify-content:center;font-size:2rem}.grid span{display:block;padding:.5rem .6rem}.grid small{display:block;color:var(--mut)}
+.av{width:140px;height:140px;border-radius:50%;object-fit:cover;background:var(--card);display:flex;align-items:center;justify-content:center;font-size:3rem}footer{border-top:1px solid var(--line);margin-top:2rem;color:var(--mut);font-size:.85rem}footer a{margin-right:1rem}p.bio{white-space:pre-wrap}`;
+function page({title,desc,url,img,type,ld,body}){
+  return `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${esc(title)}</title><meta name="description" content="${esc(desc)}"><link rel="canonical" href="${url}"><meta name="robots" content="index,follow,max-image-preview:large">
+<meta property="og:site_name" content="${BRAND}"><meta property="og:title" content="${esc(title)}"><meta property="og:description" content="${esc(desc)}"><meta property="og:url" content="${url}"><meta property="og:type" content="${type}">${img?`<meta property="og:image" content="${esc(img)}"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:image" content="${esc(img)}">`:'<meta name="twitter:card" content="summary">'}
+<script type="application/ld+json">${JSON.stringify(ld).replace(/</g,"\\u003c")}</script><style>${CSS}</style></head><body><header><a href="/"><b>${BRAND}</b></a><nav><a href="/films/">Films</a> &nbsp; <a href="/people/">Directors &amp; actors</a></nav></header><main>${body}</main><footer><a href="/">Home</a><a href="/films/">Films</a><a href="/people/">Cast &amp; crew</a><a href="/about.html">About</a><a href="/privacy.html">Privacy</a><a href="/terms.html">Terms</a><p>© ${new Date().getFullYear()} ${BRAND}. Made in Ghana.</p></footer></body></html>`}
+const tiles=(items)=>`<ul class="grid">${items.join("")}</ul>`;
+(async()=>{
+  const D=await load(),now=Date.now(),off=new Set((D.rows||[]).filter(r=>r.active===false).map(r=>r.id));
+  const films=(D.titles||[]).filter(t=>t.status!=="draft"&&t.status!=="soon"&&!off.has(t.row_id)&&(!t.publish_at||new Date(t.publish_at)<=now));
+  const P={};(D.people||[]).forEach(p=>P[p.id]=p);
+  const rate={};(D.board||[]).forEach(b=>rate[b.person_id]={avg:+b.avg_stars,votes:+b.votes});
+  const fUrl=t=>`/films/${slug(t.title)}-${t.id}.html`,pUrl=p=>`/people/${slug(p.name)}-${p.id}.html`;
+  const credOf=t=>(Array.isArray(t.credits)?t.credits:[]).filter(c=>c&&c.pid&&P[c.pid]);
+  const byP={};films.forEach(t=>credOf(t).forEach(c=>(byP[c.pid]=byP[c.pid]||[]).push({t,r:c.r||""})));
+  for(const d of ["films","people"]){fs.rmSync(d,{recursive:true,force:true});fs.mkdirSync(d,{recursive:true})}
+  const urls=[["/",1],["/films/",.8],["/people/",.8],["/about.html",.3]];
+  const filmTile=t=>`<li><a href="${fUrl(t)}">${t.poster_url?`<img src="${esc(t.poster_url)}" alt="${esc(t.title)} poster" loading="lazy">`:`<div class="ph">🎬</div>`}<span>${esc(t.title)}<small>${esc([t.year,cap(t.genre)].filter(Boolean).join(" · "))}</small></span></a></li>`;
+  const personTile=(p,sub)=>`<li><a href="${pUrl(p)}">${p.photo_url?`<img src="${esc(p.photo_url)}" alt="${esc(p.name)}" loading="lazy">`:`<div class="ph">${esc(p.name.charAt(0).toUpperCase())}</div>`}<span>${esc(p.name)}<small>${esc(sub||"")}</small></span></a></li>`;
+  /* films */
+  for(const t of films){
+    const cr=credOf(t),dir=cr.filter(c=>/^director$/i.test(c.r)).map(c=>P[c.pid]),act=cr.filter(c=>!/^director$/i.test(c.r));
+    const kind=t.series_name?"TV series episode":"film",title=`${t.title}${t.year?` (${t.year})`:""} – ${cap(t.genre||"Ghanaian")} ${kind}${dir.length?` directed by ${dir[0].name}`:""} | ${BRAND}`;
+    const desc=short(t.description||`Watch ${t.title} on ${BRAND}.`,155),url=SITE+fUrl(t);
+    const ld=[{"@context":"https://schema.org","@type":"Movie",name:t.title,url,description:t.description||undefined,image:t.poster_url||undefined,dateCreated:t.year?String(t.year):undefined,genre:t.genre?cap(t.genre):undefined,director:dir.map(p=>({"@type":"Person",name:p.name,url:SITE+pUrl(p)})),actor:act.slice(0,12).map(c=>({"@type":"Person",name:P[c.pid].name,url:SITE+pUrl(P[c.pid])})),duration:t.runtime?`PT${+t.runtime}M`:undefined,productionCompany:{"@type":"Organization",name:BRAND},potentialAction:{"@type":"WatchAction",target:`${SITE}/?film=${t.id}`}},
+      {"@context":"https://schema.org","@type":"BreadcrumbList",itemListElement:[{"@type":"ListItem",position:1,name:"Home",item:SITE+"/"},{"@type":"ListItem",position:2,name:"Films",item:SITE+"/films/"},{"@type":"ListItem",position:3,name:t.title,item:url}]}];
+    const body=`<p class="mut"><a href="/films/">Films</a> › ${esc(t.title)}</p><div class="hero">${t.poster_url?`<img src="${esc(t.poster_url)}" alt="${esc(t.title)} poster">`:""}<div class="t"><h1>${esc(t.title)}${t.year?` <span class="mut">(${t.year})</span>`:""}</h1><p class="mut">${esc([cap(t.genre),t.runtime?t.runtime+" min":"",t.series_name?`${t.series_name}${t.episode_no?" · Episode "+t.episode_no:""}`:""].filter(Boolean).join(" · "))}</p>${dir.length?`<p>Directed by ${dir.map(p=>`<a href="${pUrl(p)}">${esc(p.name)}</a>`).join(", ")}</p>`:""}<p>${esc(t.description||"")}</p><a class="btn" href="/?film=${t.id}">▶ Watch on ${BRAND}</a></div></div>${cr.length?`<h2>Cast &amp; crew</h2>${tiles(cr.map(c=>personTile(P[c.pid],c.r)))}`:""}`;
+    fs.writeFileSync("."+fUrl(t),page({title,desc,url,img:t.poster_url,type:"video.movie",ld,body}));urls.push([fUrl(t),.9])}
+  /* people (only those with at least one published film) */
+  const ppl=Object.values(P).filter(p=>byP[p.id]).sort((a,b)=>a.name.localeCompare(b.name));
+  for(const p of ppl){
+    const fl=byP[p.id],roles=[...new Set(fl.map(x=>x.r).filter(Boolean))],rt=rate[p.id],url=SITE+pUrl(p);
+    const jt=roles.slice(0,3).join(", "),title=`${p.name}${jt?` – ${jt}`:""}${rt?` · ★ ${rt.avg.toFixed(1)}`:""} | ${BRAND}`;
+    const desc=short(p.bio||`${p.name}${jt?`, ${jt.toLowerCase()}`:""} in ${fl.map(x=>x.t.title).slice(0,3).join(", ")}. Ratings and films on ${BRAND}.`,155);
+    const links=(Array.isArray(p.links)?p.links:[]).map(x=>x&&x.u).filter(u=>/^https?:\/\//i.test(u||"")).slice(0,5);
+    const ld=[{"@context":"https://schema.org","@type":"Person",name:p.name,url,image:p.photo_url||undefined,description:p.bio||undefined,jobTitle:jt||undefined,sameAs:links.length?links:undefined,nationality:undefined,subjectOf:fl.slice(0,12).map(x=>({"@type":"Movie",name:x.t.title,url:SITE+fUrl(x.t)}))},
+      {"@context":"https://schema.org","@type":"BreadcrumbList",itemListElement:[{"@type":"ListItem",position:1,name:"Home",item:SITE+"/"},{"@type":"ListItem",position:2,name:"Cast & crew",item:SITE+"/people/"},{"@type":"ListItem",position:3,name:p.name,item:url}]}];
+    const body=`<p class="mut"><a href="/people/">Cast &amp; crew</a> › ${esc(p.name)}</p><div class="hero">${p.photo_url?`<img class="av" src="${esc(p.photo_url)}" alt="${esc(p.name)}">`:`<div class="av">${esc(p.name.charAt(0).toUpperCase())}</div>`}<div class="t"><h1>${esc(p.name)}</h1>${p.label?`<p class="mut">${esc(p.label)}</p>`:""}<p class="mut">${esc(roles.join(" · "))}</p>${rt?`<p><b>★ ${rt.avg.toFixed(1)}</b> <span class="mut">from ${rt.votes} viewer rating${rt.votes==1?"":"s"} on ${BRAND}</span></p>`:""}${p.bio?`<p class="bio">${esc(p.bio)}</p>`:""}${links.length?`<p>${links.map(u=>`<a href="${esc(u)}" rel="nofollow ugc noopener" target="_blank">${esc(u.replace(/^https?:\/\/(www\.)?/,"").replace(/\/$/,""))}</a>`).join(" · ")}</p>`:""}<a class="btn" href="/?person=${p.id}">★ See &amp; give a rating</a></div></div><h2>Films</h2>${tiles(fl.map(x=>filmTile(x.t).replace("</small>",` · ${esc(x.r)}</small>`)))}`;
+    fs.writeFileSync("."+pUrl(p),page({title,desc,url,img:p.photo_url,type:"profile",ld,body}));urls.push([pUrl(p),.7])}
+  /* hubs */
+  const hub=(dir,h,desc,items,name)=>{const url=SITE+"/"+dir+"/";fs.writeFileSync(`${dir}/index.html`,page({title:`${h} | ${BRAND}`,desc,url,img:null,type:"website",ld:{"@context":"https://schema.org","@type":"CollectionPage",name:h,url,description:desc,mainEntity:{"@type":"ItemList",itemListElement:items.slice(0,100).map((u,i)=>({"@type":"ListItem",position:i+1,url:SITE+u}))}},body:`<h1>${esc(h)}</h1><p class="mut">${esc(desc)}</p>${tiles(items.map(u=>name[u]))}`}))};
+  const fn={},pn={};films.forEach(t=>fn[fUrl(t)]=filmTile(t));ppl.forEach(p=>pn[pUrl(p)]=personTile(p,[...new Set(byP[p.id].map(x=>x.r))].slice(0,2).join(" · ")));
+  hub("films","Ghanaian films & series on ATMAX STUDIOS","Watch Ghanaian films and series online. Browse every title on ATMAX STUDIOS.",Object.keys(fn),fn);
+  hub("people","Directors, actors & crew on ATMAX STUDIOS","Meet the directors, actors and crew behind Ghanaian films, with their films and viewer ratings.",Object.keys(pn),pn);
+  fs.writeFileSync("sitemap.xml",`<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urls.map(([u,p])=>`<url><loc>${SITE}${u}</loc><lastmod>${new Date().toISOString().slice(0,10)}</lastmod><priority>${p}</priority></url>`).join("\n")}\n</urlset>\n`);
+  fs.writeFileSync("robots.txt",`User-agent: *\nAllow: /\nSitemap: ${SITE}/sitemap.xml\n`);
+  console.log(`films ${films.length}, people ${ppl.length}, urls ${urls.length}`)})().catch(e=>{console.error(e);process.exit(1)});
