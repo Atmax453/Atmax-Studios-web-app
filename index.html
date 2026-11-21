@@ -2180,6 +2180,7 @@ async function out() {
   await sb.auth.signOut();
   S.user = null;
   S.me = null;
+  S.mh = null;
   S.sub = null;
   S.isAdmin = false;
   S.preview = false;
@@ -2227,10 +2228,16 @@ async function browse() {
   });
   await loadPeople();
   S.me = null;
+  S.mh = null;
   if (S.user && !S.isAdmin) {
     try {
       const mr = await sb.rpc("my_person");
       S.me = mr.data && mr.data[0] || null;
+    } catch (e) {
+    }
+    try {
+      const hr = await sb.rpc("my_house");
+      S.mh = hr.data && hr.data[0] || null;
     } catch (e) {
     }
   }
@@ -2581,16 +2588,75 @@ function houseSheet(id) {
   d.innerHTML = '<div class="mbox"><div class="mbody"><button class="x" aria-label="Close" style="position:absolute;top:10px;right:10px">\u2715</button><div class="psh"><div class="hsl big" style="'.concat(h.logo_url ? "background-image:url('".concat(esc(h.logo_url), "')") : "", '">').concat(h.logo_url ? "" : esc(h.name.charAt(0).toUpperCase()), '</div><h3 style="margin:.5rem 0 .1rem">').concat(esc(h.name), '</h3><p style="margin:0;opacity:.6;font-size:.8rem">Production house</p>').concat(h.about ? '<p style="margin:.6rem 0 0;font-size:.88rem;line-height:1.5;opacity:.85;text-align:left;white-space:pre-wrap">'.concat(esc(h.about), "</p>") : "").concat(l.length ? '<p style="margin:.5rem 0 0;font-size:.82rem">'.concat(l.map((u) => '<a href="'.concat(esc(u), '" target="_blank" rel="noopener nofollow" style="color:var(--acc,#e50914);margin:0 .4rem">').concat(esc(hostOf(u)), "</a>")).join(""), "</p>") : "", '</div>\n <h4 style="margin:1rem 0 .4rem">').concat(fl.length, " film").concat(fl.length == 1 ? "" : "s", "</h4>").concat(fl.map((t) => {
     const po = pick(t, "poster").src;
     return '<div class="pfm"><button class="pfo" data-f="'.concat(t.id, '"><i style="').concat(po ? "background-image:url('".concat(esc(po), "')") : "", '"></i><span><b>').concat(esc(t.title), "</b><small>").concat(esc([t.year, t.genre].filter(Boolean).join(" \xB7 ")), "</small></span></button></div>");
-  }).join("") || '<p class="empty">No films yet.</p>', '<div class="acts" style="justify-content:center"><button class="btn ghost" id="hsx">Close</button></div></div></div>');
+  }).join("") || '<p class="empty">No films yet.</p>', '<div class="acts" style="justify-content:center">').concat(S.user && !S.isAdmin && !S.mh ? '<button class="btn" id="hclaim">This is our production house \u2013 claim it</button>' : "", '<button class="btn ghost" id="hsx">Close</button></div><div class="ok" id="hcm" role="status"></div></div></div>');
   document.body.appendChild(d);
   d.onclick = (ev) => {
     if (ev.target === d) d.remove();
   };
   d.querySelector(".x").onclick = d.querySelector("#hsx").onclick = () => d.remove();
+  const hc = d.querySelector("#hclaim");
+  if (hc) hc.onclick = async () => {
+    if (!confirm("Request to claim \u201C".concat(h.name, "\u201D? The ATMAX team will check that you really represent it before approving."))) return;
+    hc.disabled = true;
+    const r = await sb.from("house_claims").insert({ house_id: +id, email: S.user.email, status: "pending" }), m = d.querySelector("#hcm");
+    m.textContent = r.error ? /duplicate|unique/i.test(r.error.message) ? "You already asked to claim this production house. We will get back to you." : r.error.message : "Request sent. The ATMAX team will review it, then your account becomes the production house account.";
+    if (r.error && !/duplicate|unique/i.test(r.error.message)) hc.disabled = false;
+  };
   d.querySelectorAll("[data-f]").forEach((b) => b.onclick = () => {
     document.querySelectorAll(".mod").forEach((m) => m.remove());
     detail(+b.dataset.f);
   });
+}
+function houseDash() {
+  const h = S.mh;
+  if (!h) return;
+  const d = document.createElement("div");
+  d.className = "mod";
+  d.style.zIndex = 1e5;
+  d.setAttribute("role", "dialog");
+  d.setAttribute("aria-modal", "true");
+  document.body.appendChild(d);
+  d.onclick = (ev) => {
+    if (ev.target === d) d.remove();
+  };
+  const draw2 = () => {
+    const fl = S.T.filter((t) => ((window.TH || {})[t.id] || []).includes(+h.id));
+    d.innerHTML = '<div class="mbox"><div class="mbody"><button class="x" aria-label="Close" style="position:absolute;top:10px;right:10px">\u2715</button><div class="psh"><div class="hsl big" style="'.concat(h.logo_url ? "background-image:url('".concat(esc(h.logo_url), "')") : "", '">').concat(h.logo_url ? "" : esc(h.name.charAt(0).toUpperCase()), '</div><h3 style="margin:.5rem 0 .1rem">').concat(esc(h.name), '</h3><p style="margin:0;opacity:.6;font-size:.8rem">Production house account</p></div>\n <h4 style="margin:1rem 0 .4rem">Your films (').concat(fl.length, ")</h4>").concat(fl.map((t) => {
+      const po = pick(t, "poster").src;
+      return '<div class="pfm"><span class="pfo" style="cursor:default"><i style="'.concat(po ? "background-image:url('".concat(esc(po), "')") : "", '"></i><span><b>').concat(esc(t.title), "</b><small>").concat(esc([t.year, t.genre].filter(Boolean).join(" \xB7 ")), "</small></span></span></div>");
+    }).join("") || '<p class="empty">No films linked to your house yet. The ATMAX team adds them.</p>', '\n <h4 style="margin:1.2rem 0 .4rem">Edit your public page</h4><form id="hpf"><div style="display:flex;align-items:center;margin:.4rem 0"><div class="crp" style="width:70px;height:70px;border-radius:14px;margin-right:.8rem;background-image:').concat(h.logo_url ? "url('".concat(esc(h.logo_url), "')") : "none", '">').concat(h.logo_url ? "" : "+", '<input type="file" name="logo" accept="image/jpeg,image/png,image/webp"></div><small style="opacity:.7">Tap the square to change your logo (JPG, PNG or WebP).</small></div>\n <label>About (max 1,500 characters)<textarea name="about" rows="5" maxlength="1500">').concat(esc(h.about || ""), '</textarea></label><label>Links, one per line<textarea name="links" rows="3" placeholder="https://">').concat(esc(linksOf(h).join("\n")), '</textarea></label>\n <div class="acts"><button class="btn">Save</button><button type="button" class="btn ghost" id="hpc">Close</button></div><div class="ok" id="hpm" role="status"></div></form></div></div>');
+    d.querySelector(".x").onclick = d.querySelector("#hpc").onclick = () => d.remove();
+    const f = d.querySelector("#hpf"), m = d.querySelector("#hpm");
+    f.onsubmit = async (ev) => {
+      ev.preventDefault();
+      const v = Object.fromEntries(new FormData(f)), b = f.querySelector("button");
+      b.disabled = true;
+      m.textContent = "Saving\u2026";
+      try {
+        let logo = h.logo_url || "";
+        if (v.logo && v.logo.size) {
+          if (v.logo.size > 5e6) throw new Error("Logo is too big (max 5 MB).");
+          const ext = (v.logo.name.split(".").pop() || "png").toLowerCase(), path = "houses-own/".concat(S.user.id, "/").concat(Date.now(), ".").concat(ext);
+          const u = await sb.storage.from("films").upload(path, v.logo, { cacheControl: "3600", contentType: v.logo.type });
+          if (u.error) throw u.error;
+          logo = sb.storage.from("films").getPublicUrl(path).data.publicUrl;
+        }
+        const ls = (v.links || "").split(/\n+/).map((x) => x.trim()).filter(Boolean);
+        if (ls.some((u) => !/^https?:\/\/[^\s]+$/i.test(u))) throw new Error("Each link must start with https://");
+        const links = ls.slice(0, 5).map((u) => ({ u })), about = (v.about || "").trim();
+        const q = await sb.rpc("update_my_house", { p_about: about, p_logo: logo, p_links: links.length ? links : null });
+        if (q.error) throw q.error;
+        Object.assign(h, { about: about || null, logo_url: logo || null, links: links.length ? links : null });
+        if (window.HS[h.id]) Object.assign(window.HS[h.id], { about: h.about, logo_url: h.logo_url, links: h.links });
+        draw2();
+        d.querySelector("#hpm").textContent = "Saved. Your public page is updated.";
+      } catch (er) {
+        m.textContent = er.message || "Something went wrong.";
+        b.disabled = false;
+      }
+    };
+  };
+  draw2();
 }
 const linksOf = (e) => {
   let l = e && e.links;
@@ -2742,7 +2808,7 @@ const rail = (n, a, min) => {
 };
 function draw() {
   document.body.classList.add("dk");
-  app.innerHTML = "<nav>".concat(brand(), '<div class="tabs"><button data-v="home" class="').concat(S.view == "home" ? "on" : "", '">Home</button><button data-v="list" class="').concat(S.view == "list" ? "on" : "", '">My list (').concat(S.L.length, ')</button><button data-v="history" class="').concat(S.view == "history" ? "on" : "", '">Watched</button></div>\n <input id="q" type="search" placeholder="Search titles" aria-label="Search titles" value="').concat(esc(S.q), '"><button class="btn ghost" id="sw" style="padding:.4rem .8rem">').concat(esc(S.sub.name), "</button>").concat(S.me ? '<button class="btn ghost" id="tocr" style="padding:.4rem .8rem">Creator</button>' : "").concat(S.isAdmin ? '<button class="btn ghost" id="toadm" style="padding:.4rem .8rem">Admin panel</button>' : "", '<button class="btn ghost" id="out" style="padding:.4rem .8rem">Sign out</button></nav>').concat(S.view === "home" ? homeMark() : "").concat(S.DX && (S.DX.re || S.DX.te || !S.T.length) ? '<div class="ann" style="background:#5a1a1a;color:#fff" role="alert">No films loaded. Rows found: '.concat(S.DX.rn, ", films found: ").concat(S.DX.tn, ", shown: ").concat(S.T.length, ". ").concat(esc(S.DX.te || S.DX.re || (S.DX.tn ? "All films are hidden (draft, future publish date, or row switched off)." : "Database returned no films for this visitor (check Row Level Security policy on titles).")), "</div>") : "").concat(S.set.announceOn && S.set.announce ? '<div class="ann" role="status">'.concat(esc(S.set.announce), "</div>") : "", '<div id="body"></div>');
+  app.innerHTML = "<nav>".concat(brand(), '<div class="tabs"><button data-v="home" class="').concat(S.view == "home" ? "on" : "", '">Home</button><button data-v="list" class="').concat(S.view == "list" ? "on" : "", '">My list (').concat(S.L.length, ')</button><button data-v="history" class="').concat(S.view == "history" ? "on" : "", '">Watched</button></div>\n <input id="q" type="search" placeholder="Search titles" aria-label="Search titles" value="').concat(esc(S.q), '"><button class="btn ghost" id="sw" style="padding:.4rem .8rem">').concat(esc(S.sub.name), "</button>").concat(S.mh ? '<button class="btn ghost" id="tohs" style="padding:.4rem .8rem">Production house</button>' : "").concat(S.me ? '<button class="btn ghost" id="tocr" style="padding:.4rem .8rem">Creator</button>' : "").concat(S.isAdmin ? '<button class="btn ghost" id="toadm" style="padding:.4rem .8rem">Admin panel</button>' : "", '<button class="btn ghost" id="out" style="padding:.4rem .8rem">Sign out</button></nav>').concat(S.view === "home" ? homeMark() : "").concat(S.DX && (S.DX.re || S.DX.te || !S.T.length) ? '<div class="ann" style="background:#5a1a1a;color:#fff" role="alert">No films loaded. Rows found: '.concat(S.DX.rn, ", films found: ").concat(S.DX.tn, ", shown: ").concat(S.T.length, ". ").concat(esc(S.DX.te || S.DX.re || (S.DX.tn ? "All films are hidden (draft, future publish date, or row switched off)." : "Database returned no films for this visitor (check Row Level Security policy on titles).")), "</div>") : "").concat(S.set.announceOn && S.set.announce ? '<div class="ann" role="status">'.concat(esc(S.set.announce), "</div>") : "", '<div id="body"></div>');
   document.querySelectorAll("[data-v]").forEach((b) => b.onclick = () => {
     S.view = b.dataset.v;
     S.q = "";
@@ -2779,6 +2845,8 @@ function draw() {
     picker();
   };
   $("#out").onclick = out;
+  const th2 = $("#tohs");
+  if (th2) th2.onclick = houseDash;
   const tc = $("#tocr");
   if (tc) tc.onclick = creatorSheet;
   const ta = $("#toadm");
@@ -3605,7 +3673,7 @@ const ADMIN = (() => {
   }
   function site() {
     const d = S2.set;
-    return '<form id="sf" class="panel"><h3>Site rules</h3><label class="chk"><input type="checkbox" name="ph" '.concat(d.ph !== false ? "checked" : "", '> Show "Coming soon" tiles in rows with few films</label><label class="chk"><input type="checkbox" name="maint" ').concat(d.maint ? "checked" : "", '> Maintenance mode (viewers see a "back soon" page, admins still get in)</label><label class="chk"><input type="checkbox" name="norate" ').concat(d.noRate ? "checked" : "", '> Turn off ratings everywhere</label><label class="chk"><input type="checkbox" name="nocr" ').concat(d.noCr ? "checked" : "", '> Turn off rating of cast performances</label><label class="chk"><input type="checkbox" name="nolb" ').concat(d.noLb ? "checked" : "", '> Hide the "Top Performances" board on Home</label><label class="chk"><input type="checkbox" name="nocom" ').concat(d.noCom ? "checked" : "", '> Turn off comments everywhere</label><label>Profiles allowed per account<input type="number" name="maxp" min="1" max="10" value="').concat(d.maxp || 5, '"></label><div class="acts"><button class="btn">Save site rules</button></div>').concat(note(), "</form>");
+    return '<form id="sf" class="panel"><h3>Site rules</h3><label class="chk"><input type="checkbox" name="ph" '.concat(d.ph !== false ? "checked" : "", '> Show "Coming soon" tiles in rows with few films</label><label class="chk"><input type="checkbox" name="maint" ').concat(d.maint ? "checked" : "", '> Maintenance mode (viewers see a "back soon" page, admins still get in)</label><label class="chk"><input type="checkbox" name="norate" ').concat(d.noRate ? "checked" : "", '> Turn off ratings everywhere</label><label class="chk"><input type="checkbox" name="nocr" ').concat(d.noCr ? "checked" : "", '> Turn off rating of cast performances</label><label class="chk"><input type="checkbox" name="nolb" ').concat(d.noLb ? "checked" : "", '> Hide the "Top Performances" board on Home</label><label class="chk"><input type="checkbox" name="nocom" ').concat(d.noCom ? "checked" : "", '> Turn off comments everywhere</label><label>Verified badge: films a person must work on<input type="number" name="verfilms" min="1" max="100" value="').concat(d.verFilms || 5, '"></label><label>Verified badge: different production houses they must work with<input type="number" name="verhouses" min="1" max="100" value="').concat(d.verHouses || 5, '"></label><label>Profiles allowed per account<input type="number" name="maxp" min="1" max="10" value="').concat(d.maxp || 5, '"></label><div class="acts"><button class="btn">Save site rules</button></div>').concat(note(), "</form>");
   }
   function ann() {
     const d = S2.set;
@@ -3623,7 +3691,12 @@ const ADMIN = (() => {
     window.CLAIMS = [];
     window.HPRIV = {};
     window.PROG = {};
+    window.HCLAIMS = [];
     try {
+      {
+        const hc = await sb.rpc("admin_house_claims");
+        window.HCLAIMS = hc.data || [];
+      }
       const pg = await sb.rpc("person_progress");
       (pg.data || []).forEach((x) => window.PROG[x.person_id] = x);
       const hp = await sb.rpc("admin_houses_private");
@@ -3654,7 +3727,7 @@ const ADMIN = (() => {
     };
     const form = e ? '<div class="fov"><form id="pf" class="panel fwin"><div class="fhd"><h3>'.concat(e.id ? "Edit person" : "Add person", '</h3><button type="button" class="fclose" id="pcx" aria-label="Close">\xD7</button></div>\n <div style="display:flex;align-items:center;margin:.6rem 0"><div class="crp" style="width:90px;height:90px;margin-right:1rem;background-image:').concat(e.photo_url ? "url('".concat(esc(e.photo_url), "')") : "none", '">').concat(e.photo_url ? "" : "+", '<input type="file" name="photo" accept="image/*"></div><small style="color:var(--mute)">Tap the circle to ').concat(e.photo_url ? "replace" : "add", ' the photo. It updates everywhere this person appears.</small></div>\n <label>Name<input name="name" required value="').concat(esc(e.name), '"></label><label>Label to tell people with the same name apart (optional)<input name="label" value="').concat(esc(e.label), '"></label><label>Creator login email (optional). When this person signs up or signs in with this email they get a creator account<input name="lemail" type="email" value="').concat(esc(e.id && window.PRIV[e.id] ? window.PRIV[e.id].link_email : ""), '"></label><label>About (public bio, optional)<textarea name="bio" rows="4" maxlength="1200">').concat(esc(e.bio || ""), '</textarea></label><div class="acts"><button class="btn">Save</button><button type="button" class="btn ghost" id="pcx2">Cancel</button></div>').concat(note(), "</form></div>") : "";
     const mgf = mg ? '<div class="fov"><div class="panel fwin"><div class="fhd"><h3>Merge \u201C'.concat(esc(mg.name), '\u201D</h3><button type="button" class="fclose" id="pmx" aria-label="Close">\xD7</button></div><p>Pick the person to keep. All of \u201C').concat(esc(mg.name), "\u201D's films and ratings move to them, then \u201C").concat(esc(mg.name), '\u201D is removed. This cannot be undone.</p><label>Keep this person<select id="pmk"><option value="">Choose\u2026</option>').concat(all.filter((p) => p.id != mg.id).map((p) => '<option value="'.concat(p.id, '">').concat(esc(p.name)).concat(p.label ? " (" + esc(p.label) + ")" : "", " \xB7 ").concat(filmsOf(p.id), " films</option>")).join(""), '</select></label><div class="acts"><button class="btn del" id="pmgo">Merge</button><button class="btn ghost" id="pmx2">Cancel</button></div>').concat(note(), "</div></div>") : "";
-    return form + mgf + claimsHTML() + '<div class="panel scroll"><div style="display:flex;gap:.6rem;align-items:center;flex-wrap:wrap;margin-bottom:.6rem"><h3 style="margin:0;flex:1">People ('.concat(all.length, ')</h3><button class="btn" id="padd">+ Add person</button></div><p style="color:var(--mute);margin:.2rem 0 .6rem;font-size:.85rem">A person gets the blue verified badge automatically after working on 5 films with 5 different production houses, or you can verify or remove it by hand. Everyone listed in Cast &amp; crew. Each person exists once, so their photo and ratings follow them across all films.</p><input id="pq" type="search" placeholder="Search people\u2026" autocomplete="off"><table id="pt"><tr><th></th><th>Name</th><th>Roles</th><th>Films</th><th></th></tr>').concat(all.map((p) => '<tr data-q="'.concat(esc(pnorm(p.name + " " + (p.label || ""))), '"><td><span class="crp" style="width:38px;height:38px;margin:0;display:inline-flex;font-size:1rem;background-image:').concat(p.photo_url ? "url('".concat(esc(p.photo_url), "')") : "none", '">').concat(p.photo_url ? "" : esc(p.name.charAt(0).toUpperCase()), "</span></td><td>").concat(esc(p.name)).concat(vb(p.id)).concat(p.label ? '<br><small style="color:var(--mute)">'.concat(esc(p.label), "</small>") : "", "</td><td>").concat(esc(rolesOf(p.id)), '<br><small style="color:var(--mute)">').concat(window.VER[p.id] ? window.VER[p.id] == "admin" ? "Verified by admin" : "Verified automatically" : p.unverified ? "Badge removed by admin" : "Not verified", " \xB7 ").concat((window.PROG[p.id] || {}).films || 0, "/5 films \xB7 ").concat((window.PROG[p.id] || {}).houses || 0, "/5 houses</small>").concat(window.PRIV[p.id] && window.PRIV[p.id].user_id ? '<br><small style="color:var(--mute)">Creator \u2713 '.concat(esc(window.PRIV[p.id].user_email || ""), "</small>") : window.PRIV[p.id] && window.PRIV[p.id].link_email ? '<br><small style="color:var(--mute)">Invited: '.concat(esc(window.PRIV[p.id].link_email), "</small>") : "", "</td><td>").concat(filmsOf(p.id), '</td><td><button class="btn ghost" data-pv="').concat(p.id, '">').concat(window.VER[p.id] ? "Remove badge" : "Verify", '</button> <button class="btn ghost" data-pe="').concat(p.id, '">Edit</button> <button class="btn ghost" data-pm="').concat(p.id, '">Merge\u2026</button> <button class="btn del" data-pd="').concat(p.id, '">Delete</button></td></tr>')).join(""), "</table></div>");
+    return form + mgf + claimsHTML() + '<div class="panel scroll"><div style="display:flex;gap:.6rem;align-items:center;flex-wrap:wrap;margin-bottom:.6rem"><h3 style="margin:0;flex:1">People ('.concat(all.length, ')</h3><button class="btn" id="padd">+ Add person</button></div><p style="color:var(--mute);margin:.2rem 0 .6rem;font-size:.85rem">A person gets the blue verified badge automatically after working on ').concat(S2.set.verFilms || 5, " films with ").concat(S2.set.verHouses || 5, ' different production houses (change these numbers in Site rules), or you can verify or remove it by hand. Everyone listed in Cast &amp; crew. Each person exists once, so their photo and ratings follow them across all films.</p><input id="pq" type="search" placeholder="Search people\u2026" autocomplete="off"><table id="pt"><tr><th></th><th>Name</th><th>Roles</th><th>Films</th><th></th></tr>').concat(all.map((p) => '<tr data-q="'.concat(esc(pnorm(p.name + " " + (p.label || ""))), '"><td><span class="crp" style="width:38px;height:38px;margin:0;display:inline-flex;font-size:1rem;background-image:').concat(p.photo_url ? "url('".concat(esc(p.photo_url), "')") : "none", '">').concat(p.photo_url ? "" : esc(p.name.charAt(0).toUpperCase()), "</span></td><td>").concat(esc(p.name)).concat(vb(p.id)).concat(p.label ? '<br><small style="color:var(--mute)">'.concat(esc(p.label), "</small>") : "", "</td><td>").concat(esc(rolesOf(p.id)), '<br><small style="color:var(--mute)">').concat(window.VER[p.id] ? window.VER[p.id] == "admin" ? "Verified by admin" : "Verified automatically" : p.unverified ? "Badge removed by admin" : "Not verified", " \xB7 ").concat((window.PROG[p.id] || {}).films || 0, "/").concat(S2.set.verFilms || 5, " films \xB7 ").concat((window.PROG[p.id] || {}).houses || 0, "/").concat(S2.set.verHouses || 5, " houses</small>").concat(window.PRIV[p.id] && window.PRIV[p.id].user_id ? '<br><small style="color:var(--mute)">Creator \u2713 '.concat(esc(window.PRIV[p.id].user_email || ""), "</small>") : window.PRIV[p.id] && window.PRIV[p.id].link_email ? '<br><small style="color:var(--mute)">Invited: '.concat(esc(window.PRIV[p.id].link_email), "</small>") : "", "</td><td>").concat(filmsOf(p.id), '</td><td><button class="btn ghost" data-pv="').concat(p.id, '">').concat(window.VER[p.id] ? "Remove badge" : "Verify", '</button> <button class="btn ghost" data-pe="').concat(p.id, '">Edit</button> <button class="btn ghost" data-pm="').concat(p.id, '">Merge\u2026</button> <button class="btn del" data-pd="').concat(p.id, '">Delete</button></td></tr>')).join(""), "</table></div>");
   }
   function peopleBind() {
     const go2 = () => shell();
@@ -4261,13 +4334,30 @@ const ADMIN = (() => {
       after((d.results || []).map((x) => (x.title || "Film") + ": " + (x.ok ? x.status == "otp" ? "sent, but Paystack needs your approval (see your Paystack dashboard)" : x.status == "success" ? "paid " + gh2(x.amount) : "on its way " + gh2(x.amount) : x.error)).join(" \xB7 "));
     };
   }
+  function hclaimsHTML() {
+    const l = (window.HCLAIMS || []).filter((c) => c.status == "pending");
+    if (!l.length) return "";
+    return '<div class="panel" style="margin-bottom:.8rem"><h3 style="margin:0 0 .4rem">Production house claim requests ('.concat(l.length, ')</h3><p style="color:var(--mute);font-size:.85rem;margin:0 0 .5rem">Someone says \u201Cthis is our production house\u201D. Check them (email, website, a call) before you approve. Approving gives their account the Production house screen.</p>').concat(l.map((c) => {
+      const h = window.HS[c.house_id];
+      return '<div style="display:flex;gap:.5rem;align-items:center;flex-wrap:wrap;padding:.4rem 0;border-top:1px solid var(--line,#8883)"><span style="flex:1"><b>'.concat(esc(h ? h.name : "(deleted)"), '</b><br><small style="color:var(--mute)">').concat(esc(c.email || ""), " \xB7 ").concat(esc(String(c.created_at || "").slice(0, 10)), '</small></span><button class="btn" data-hca="').concat(c.id, '">Approve</button> <button class="btn del" data-hcr="').concat(c.id, '">Reject</button></div>');
+    }).join(""), "</div>");
+  }
   function housesTab() {
     const all = Object.values(window.HS || {}).sort((a, b) => a.name.localeCompare(b.name)), e = S2.hedit, nf = (id) => Object.keys(window.TH).filter((t) => window.TH[t].includes(+id)).length;
     const form = e ? '<div class="fov"><form id="hf" class="panel fwin"><div class="fhd"><h3>'.concat(e.id ? "Edit production house" : "Add production house", '</h3><button type="button" class="fclose" id="hcx" aria-label="Close">\xD7</button></div>\n <div style="display:flex;align-items:center;margin:.6rem 0"><div class="crp" style="width:90px;height:90px;border-radius:18px;margin-right:1rem;background-image:').concat(e.logo_url ? "url('".concat(esc(e.logo_url), "')") : "none", '">').concat(e.logo_url ? "" : "+", '<input type="file" name="logo" accept="image/*"></div><small style="color:var(--mute)">Tap the square to ').concat(e.logo_url ? "replace" : "add", ' the logo. It shows on every film this house worked on.</small></div>\n <label>Name<input name="name" required maxlength="120" value="').concat(esc(e.name), '"></label>\n <label>About (optional)<textarea name="about" rows="4" maxlength="1500">').concat(esc(e.about || ""), '</textarea></label>\n <label>Links, one per line (website, Instagram\u2026)<textarea name="links" rows="3" placeholder="https://">').concat(esc(linksOf(e).join("\n")), '</textarea></label>\n <label>House login email (optional, used when the house claims its profile)<input name="lemail" type="email" value="').concat(esc(e.id && window.HPRIV[e.id] ? window.HPRIV[e.id].link_email || "" : ""), '"></label>\n <div class="acts"><button class="btn">Save</button><button type="button" class="btn ghost" id="hcx2">Cancel</button></div>').concat(note(), "</form></div>") : "";
-    return form + '<div class="panel scroll"><div style="display:flex;gap:.6rem;align-items:center;flex-wrap:wrap;margin-bottom:.6rem"><h3 style="margin:0;flex:1">Production houses ('.concat(all.length, ')</h3><button class="btn" id="hadd">+ Add production house</button></div><p style="color:var(--mute);margin:.2rem 0 .6rem;font-size:.85rem">Companies that made or co-produced films. A film can have more than one. Tick them inside each film\'s form.</p>').concat(all.length ? "<table><tr><th></th><th>Name</th><th>Films</th><th></th></tr>".concat(all.map((h) => '<tr><td><span class="crp" style="width:38px;height:38px;margin:0;border-radius:8px;display:inline-flex;font-size:1rem;background-image:'.concat(h.logo_url ? "url('".concat(esc(h.logo_url), "')") : "none", '">').concat(h.logo_url ? "" : esc(h.name.charAt(0).toUpperCase()), "</span></td><td>").concat(esc(h.name)).concat(window.HPRIV[h.id] && window.HPRIV[h.id].user_id ? '<br><small style="color:var(--mute)">Account linked \u2713 '.concat(esc(window.HPRIV[h.id].user_email || ""), "</small>") : window.HPRIV[h.id] && window.HPRIV[h.id].link_email ? '<br><small style="color:var(--mute)">Invited: '.concat(esc(window.HPRIV[h.id].link_email), "</small>") : "", "</td><td>").concat(nf(h.id), '</td><td><button class="btn ghost" data-he="').concat(h.id, '">Edit</button> <button class="btn del" data-hd="').concat(h.id, '">Delete</button></td></tr>')).join(""), "</table>") : '<p class="empty">No production houses yet. Tap \u201C+ Add production house\u201D.</p>', "</div>");
+    return form + hclaimsHTML() + '<div class="panel scroll"><div style="display:flex;gap:.6rem;align-items:center;flex-wrap:wrap;margin-bottom:.6rem"><h3 style="margin:0;flex:1">Production houses ('.concat(all.length, ')</h3><button class="btn" id="hadd">+ Add production house</button></div><p style="color:var(--mute);margin:.2rem 0 .6rem;font-size:.85rem">Companies that made or co-produced films. A film can have more than one. Tick them inside each film\'s form.</p>').concat(all.length ? "<table><tr><th></th><th>Name</th><th>Films</th><th></th></tr>".concat(all.map((h) => '<tr><td><span class="crp" style="width:38px;height:38px;margin:0;border-radius:8px;display:inline-flex;font-size:1rem;background-image:'.concat(h.logo_url ? "url('".concat(esc(h.logo_url), "')") : "none", '">').concat(h.logo_url ? "" : esc(h.name.charAt(0).toUpperCase()), "</span></td><td>").concat(esc(h.name)).concat(window.HPRIV[h.id] && window.HPRIV[h.id].user_id ? '<br><small style="color:var(--mute)">Account linked \u2713 '.concat(esc(window.HPRIV[h.id].user_email || ""), "</small>") : window.HPRIV[h.id] && window.HPRIV[h.id].link_email ? '<br><small style="color:var(--mute)">Invited: '.concat(esc(window.HPRIV[h.id].link_email), "</small>") : "", "</td><td>").concat(nf(h.id), '</td><td><button class="btn ghost" data-he="').concat(h.id, '">Edit</button> <button class="btn del" data-hd="').concat(h.id, '">Delete</button></td></tr>')).join(""), "</table>") : '<p class="empty">No production houses yet. Tap \u201C+ Add production house\u201D.</p>', "</div>");
   }
   function housesBind() {
     const go2 = () => shell();
+    document.querySelectorAll("[data-hca]").forEach((b) => b.onclick = async () => {
+      if (!confirm("Approve this claim? This account becomes the owner of the production house.")) return;
+      const r = await sb.rpc("approve_house_claim", { cid: +b.dataset.hca });
+      done(r.error ? r.error.message : "Approved.");
+    });
+    document.querySelectorAll("[data-hcr]").forEach((b) => b.onclick = async () => {
+      const r = await sb.from("house_claims").update({ status: "rejected" }).eq("id", +b.dataset.hcr);
+      done(r.error ? r.error.message : "Rejected.");
+    });
     const a = $("#hadd");
     if (a) a.onclick = () => {
       S2.hedit = {};
@@ -4621,7 +4711,7 @@ const ADMIN = (() => {
         done(r.error ? r.error.message : m);
       };
     };
-    sv("#sf", (v) => ({ ph: !!v.get("ph"), maint: !!v.get("maint"), maxp: Math.min(10, Math.max(1, +v.get("maxp") || 5)), noRate: !!v.get("norate"), noCr: !!v.get("nocr"), noLb: !!v.get("nolb"), noCom: !!v.get("nocom") }), "Saved.");
+    sv("#sf", (v) => ({ ph: !!v.get("ph"), maint: !!v.get("maint"), maxp: Math.min(10, Math.max(1, +v.get("maxp") || 5)), noRate: !!v.get("norate"), noCr: !!v.get("nocr"), noLb: !!v.get("nolb"), noCom: !!v.get("nocom"), verFilms: Math.min(100, Math.max(1, +v.get("verfilms") || 5)), verHouses: Math.min(100, Math.max(1, +v.get("verhouses") || 5)) }), "Saved.");
     sv("#af", (v) => ({ announce: v.get("announce") || "", announceOn: !!v.get("on") }), "Saved.");
     document.querySelectorAll("[data-exp]").forEach((b) => b.onclick = () => {
       const k = b.dataset.exp, rows2 = k == "films" ? S2.T.map((t) => [t.title, t.year, t.genre, t.status, t.video_url]) : S2.U.map((u) => [u.email, u.role, u.blocked, u.created_at]), head = k == "films" ? ["title", "year", "genre", "status", "video"] : ["email", "role", "blocked", "joined"], q = (c) => '"'.concat(String(c != null ? c : "").replace(/"/g, '""'), '"'), a2 = document.createElement("a");
