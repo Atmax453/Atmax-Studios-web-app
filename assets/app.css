@@ -273,3 +273,13 @@ body.tv .gl,body.tv .rt,body.tv.dk nav{backdrop-filter:none!important;-webkit-ba
 .mod.sheetp .acts .btn,.mod.sheetp .acts .ghost{flex:1 1 auto}
 .mod.sheetp .mchips em{font-size:.78rem;padding:.2rem .7rem}
 @media(prefers-reduced-motion:reduce){.mod.sheetp .mbox{animation:none}}
+.don{background:#16a34a;color:#fff;border:0;border-radius:10px;padding:.7rem 1.3rem;font-weight:700;animation:donB 2.6s ease-in-out infinite;box-shadow:0 0 0 0 rgba(22,163,74,.55)}
+.don:hover{background:#15913f}
+@keyframes donB{0%,100%{transform:scale(1);box-shadow:0 0 0 0 rgba(22,163,74,.5)}50%{transform:scale(1.045);box-shadow:0 0 0 12px rgba(22,163,74,0)}}
+.fundc{position:absolute;left:8px;right:8px;top:8px;z-index:3;display:block;background:#16a34a;color:#fff;border-radius:8px;padding:.3rem .5rem;font-size:.78rem;font-weight:800;text-align:center;animation:donB 2.6s ease-in-out infinite;cursor:pointer}
+.fbox{background:rgba(22,163,74,.12);border:1.5px solid #16a34a;border-radius:14px;padding:.9rem 1rem;margin:.9rem 0}.fbox p{margin:.3rem 0 .7rem;font-size:.92rem}.fbox .don{width:100%;font-size:1.02rem}
+.fprog{height:8px;border-radius:6px;background:rgba(128,128,128,.3);overflow:hidden;margin:.4rem 0}.fprog i{display:block;height:100%;background:#16a34a}
+.dq{display:flex;flex-wrap:wrap;gap:.5rem;margin:.6rem 0}.dq button{border:1.5px solid #16a34a;background:none;color:inherit;border-radius:999px;padding:.4rem .9rem;font-weight:700}.dq button.on{background:#16a34a;color:#fff}
+.dam{display:flex;align-items:center;gap:.4rem;border:1.5px solid currentColor;border-radius:10px;padding:.2rem .8rem;margin:.4rem 0}.dam b{font-size:1.2rem}.dam input{flex:1;border:0;background:none;color:inherit;font-size:1.4rem;font-weight:700;min-width:0;padding:.4rem 0;outline:0}
+.donend{position:absolute;left:0;right:0;bottom:0;top:0;z-index:6;background:rgba(0,0,0,.82);display:grid;place-items:center;padding:1rem;text-align:center}.donend>div{max-width:420px}.donend .btn{margin:.3rem}
+@media(prefers-reduced-motion:reduce){.don,.fundc{animation:none}}

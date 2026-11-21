@@ -172,6 +172,14 @@ async function init() {
   S.set = (data == null ? void 0 : data.data) || {};
   applyAnim(S.set);
   theme();
+  try {
+    const m0 = location.search.match(/[?&](?:reference|trxref)=([\w-]+)/);
+    if (m0) {
+      sessionStorage.setItem("atmax_ref", m0[1]);
+      history.replaceState(null, "", location.pathname);
+    }
+  } catch (e) {
+  }
   const { data: { session } } = await sb.auth.getSession();
   S.user = (session == null ? void 0 : session.user) || null;
   S.sub = S.user ? loadSub(S.user.id) : null;
@@ -338,7 +346,7 @@ async function picker() {
   $("#out").onclick = out;
 }
 async function browse() {
-  const g = !S.user, E = { data: [] }, C = "id,title,year,genre,description,poster_url,trailer_url,row_id,featured,status,runtime,allow_rate,allow_comment,publish_at,banner_pc,banner_phone,header_img,focus,plays,director,series_name,episode_no,subtitles_url,credits,synopsis,behind";
+  const g = !S.user, E = { data: [] }, C = "id,title,year,genre,description,poster_url,trailer_url,row_id,featured,status,runtime,allow_rate,allow_comment,publish_at,banner_pc,banner_phone,header_img,focus,plays,director,series_name,episode_no,subtitles_url,credits,synopsis,behind,donate_on,in_production,fund_goal";
   let [r, t, m, h, ra, co] = await Promise.all([sb.from("rows").select("*").order("position"), sb.from("titles").select(g ? C : "*").order("id"), g ? E : sb.from("my_list").select("title_id").eq("sub_id", S.sub.id), g ? E : sb.from("watch_history").select("*").eq("sub_id", S.sub.id), sb.from("ratings").select("title_id,user_id,stars"), sb.from("comments").select("*").order("created_at", { ascending: false })]);
   let tt = t;
   if (t.error) {
@@ -383,14 +391,18 @@ async function browse() {
     S.PU = [];
   }
   draw();
-  const rm = location.search.match(/[?&](?:reference|trxref)=([\w-]+)/);
-  if (rm && S.user && !S.payChecked) {
+  let rf = null;
+  try {
+    rf = sessionStorage.getItem("atmax_ref");
+  } catch (e) {
+  }
+  if (rf && S.user && !S.payChecked) {
     S.payChecked = 1;
     try {
-      history.replaceState(null, "", location.pathname);
+      sessionStorage.removeItem("atmax_ref");
     } catch (e) {
     }
-    verifyPay(rm[1]);
+    verifyPay(rf);
   }
 }
 const GH = (n) => "GH\u20B5" + (+n % 1 ? (+n).toFixed(2) : (+n).toFixed(0));
@@ -463,11 +475,12 @@ function buy(id) {
 async function verifyPay(ref) {
   ptoast("Confirming your payment\u2026");
   const d = await payfn({ action: "verify", reference: ref });
-  if (d.ok) {
+  if (d.ok && d.kind === "donation") {
+    thanks("don", d.title_id);
+  } else if (d.ok) {
     await loadPay();
     draw();
-    ptoast("Payment received. Enjoy the film!");
-    detail(d.title_id);
+    thanks("buy", d.title_id);
   } else ptoast(d.status && d.status !== "success" ? "Payment not completed (" + d.status + "). You were not charged." : d.error || "We could not confirm the payment yet. Reload this page in a minute.");
 }
 const dimg = (u) => {
@@ -1018,7 +1031,7 @@ function cdTick() {
   if (flip) draw();
 }
 if (!window.__cdT) window.__cdT = setInterval(cdTick, 1e3);
-const tile = (t) => '<button class="tile" data-id="'.concat(t.id, '" style="background-image:').concat(artf(t), ";background-position:").concat(pick(t, "poster").pos, '"><div class="gl"><b>').concat(esc(t.title), "</b><small>").concat(esc([t.year, t.genre, t.plays > 0 ? "\u{1F441} " + t.plays : ""].filter(Boolean).join(" \xB7 ")), "</small><em>").concat(t.status === "soon" ? "Coming soon" : "\u25B6 View details", "</em></div>").concat(cdHTML(t)).concat(chip(t)).concat(pbadge(t)).concat(bar(t), "</button>");
+const tile = (t) => '<button class="tile" data-id="'.concat(t.id, '" style="background-image:').concat(artf(t), ";background-position:").concat(pick(t, "poster").pos, '"><div class="gl"><b>').concat(esc(t.title), "</b><small>").concat(esc([t.year, t.genre, t.plays > 0 ? "\u{1F441} " + t.plays : ""].filter(Boolean).join(" \xB7 ")), "</small><em>").concat(t.status === "soon" ? "Coming soon" : "\u25B6 View details", "</em></div>").concat(cdHTML(t)).concat(chip(t)).concat(pbadge(t)).concat(bar(t)).concat(t.in_production && donOn(t) ? '<span class="fundc" role="button" tabindex="0" data-fund="'.concat(t.id, '">Fund this film</span>') : "", "</button>");
 const ph = (n) => '<div class="tile ph" aria-hidden="true"><div class="gl"><b>Coming soon</b><small>'.concat(esc(n), "</small></div></div>");
 const rail = (n, a, min) => {
   const k = S.set.ph === false ? 0 : Math.max(0, (min || 0) - a.length);
@@ -1173,6 +1186,95 @@ function guest() {
   S.sub = { id: 0, name: "Guest" };
   browse();
 }
+const DON_MIN = () => Math.max(1, +S.set.donMin || 5);
+const donOn = (t) => S.set.donate !== false && (!t || t.donate_on !== false && t.status !== "draft");
+const donBtn = (t) => donOn(t) ? '<button class="don" data-don="'.concat(t.id, '">').concat(t.in_production ? "Fund this film" : "Donate", "</button>") : "";
+const fundBox = (t) => {
+  if (!t.in_production || !donOn(t)) return "";
+  return '<div class="fbox" id="fbox"><b>This film is still being made</b><div id="fprog"></div><p>Your gift helps pay for the shoot and the people working on it. Give any amount you like. It is a gift, not a purchase. Pay safely with Mobile Money or card.</p><button class="don" data-don="'.concat(t.id, '">Fund this film</button></div>');
+};
+async function fundLoad(t) {
+  const el = document.getElementById("fprog");
+  if (!el) return;
+  try {
+    const r = await sb.rpc("film_funding", { p_title: t.id });
+    const d = r.data || {}, raised = +d.raised || 0, goal = +t.fund_goal || 0;
+    if (goal > 0) el.innerHTML = '<div class="fprog"><i style="width:'.concat(Math.min(100, Math.round(raised / goal * 100)), '%"></i></div><small>').concat(GH(raised), " raised of ").concat(GH(goal), " goal").concat(d.donors ? " \xB7 " + d.donors + " supporter" + (d.donors == 1 ? "" : "s") : "", "</small>");
+    else if (raised > 0) el.innerHTML = "<small>".concat(GH(raised), " raised from ").concat(d.donors, " supporter").concat(d.donors == 1 ? "" : "s", "</small>");
+  } catch (e) {
+  }
+}
+function donate(id) {
+  if (!S.user) return gate("donate");
+  const t = id ? S.T.find((x) => x.id == id) : null;
+  if (S.set.donate === false || t && !donOn(t)) return ptoast("Donations are switched off right now.");
+  const min = DON_MIN(), prod = t && t.in_production, m = document.createElement("div");
+  m.className = "mod sheetp";
+  m.setAttribute("role", "dialog");
+  m.setAttribute("aria-modal", "true");
+  const q = [5, 10, 20, 50, 100].filter((x) => x >= min);
+  m.innerHTML = '<div class="mbox"><div class="mbody"><h3>'.concat(prod ? "Fund" : "Donate to", " ").concat(t ? esc(t.title) : esc(S.set.brand || "ATMAX STUDIOS"), "</h3><p>").concat(prod ? "This film is still being made. Your gift helps pay for the shoot and the people working on it." : t ? "Your donation supports this film and the people who made it." : "Your donation supports Ghanaian film-makers on ATMAX STUDIOS.", ' It is a gift, not a purchase, and it does not unlock any film. You choose the amount and pay safely with Mobile Money or card through Paystack.</p><div class="dq">').concat(q.map((x) => '<button type="button" data-q="'.concat(x, '">').concat(GH(x), "</button>")).join(""), '</div><label class="dam"><b>GH\u20B5</b><input id="damt" type="number" inputmode="decimal" min="').concat(min, '" step="1" placeholder="Other amount" aria-label="Donation amount in cedis"></label><small>Smallest donation: ').concat(GH(min), '</small><div class="err" id="derr" role="alert"></div><div class="acts"><button class="don" id="dgo">Donate</button><button class="btn ghost" id="dc">Cancel</button></div></div></div>');
+  document.body.appendChild(m);
+  const close = () => m.remove();
+  m.onclick = (e) => {
+    if (e.target === m) close();
+  };
+  m.querySelector("#dc").onclick = close;
+  const inp = m.querySelector("#damt");
+  m.querySelectorAll("[data-q]").forEach((b) => b.onclick = () => {
+    inp.value = b.dataset.q;
+    m.querySelectorAll("[data-q]").forEach((x) => x.classList.toggle("on", x === b));
+  });
+  inp.oninput = () => m.querySelectorAll("[data-q]").forEach((x) => x.classList.toggle("on", x.dataset.q === inp.value));
+  inp.focus();
+  const go2 = m.querySelector("#dgo"), er = m.querySelector("#derr");
+  go2.onclick = async () => {
+    const a = Math.round(parseFloat(inp.value) * 100) / 100;
+    if (!isFinite(a) || a < min) {
+      er.textContent = "Enter an amount of " + GH(min) + " or more.";
+      return;
+    }
+    go2.disabled = true;
+    er.textContent = "Opening Paystack\u2026";
+    const d = await payfn({ action: "donate", title_id: id || null, amount: a });
+    if (d.url) {
+      location.href = d.url;
+    } else {
+      er.textContent = d.error || "Could not start the payment. Try again.";
+      go2.disabled = false;
+    }
+  };
+}
+function thanks(kind, id) {
+  const t = S.T.find((x) => x.id == id), m = document.createElement("div");
+  m.className = "mod sheetp";
+  m.setAttribute("role", "dialog");
+  m.setAttribute("aria-modal", "true");
+  m.innerHTML = '<div class="mbox"><div class="mbody"><h3>'.concat(kind === "don" ? "Thank you for your support" : "Payment received", "</h3><p>").concat(kind === "don" ? "Your donation" + (t ? " to " + esc(t.title) : "") + " went through. You are helping Ghanaian film-makers make more films." : "Enjoy " + (t ? esc(t.title) : "the film") + "!", '</p><div class="acts">').concat(kind === "buy" && t ? '<button class="btn" id="tw">Watch now</button>' : "").concat(kind === "buy" && t && donOn(t) ? '<button class="don" id="td">Donate to support it</button>' : "", '<button class="btn ghost" id="tx">Close</button></div></div></div>');
+  document.body.appendChild(m);
+  const close = () => m.remove();
+  m.onclick = (e) => {
+    if (e.target === m) close();
+  };
+  m.querySelector("#tx").onclick = close;
+  const w = m.querySelector("#tw");
+  if (w) w.onclick = () => {
+    close();
+    play(id);
+  };
+  const d = m.querySelector("#td");
+  if (d) d.onclick = () => {
+    close();
+    donate(id);
+  };
+}
+document.addEventListener("click", (e) => {
+  const f = e.target.closest && e.target.closest("[data-fund],[data-don]");
+  if (!f) return;
+  e.preventDefault();
+  e.stopPropagation();
+  donate(+(f.dataset.fund || f.dataset.don) || null);
+}, true);
 function gate(m, soon) {
   const d = document.createElement("div");
   d.className = "mod";
@@ -1210,9 +1312,10 @@ function detail(id) {
   m.className = "mod sheetp";
   m.setAttribute("role", "dialog");
   m.setAttribute("aria-modal", "true");
-  m.innerHTML = '<div class="mbox"><div class="mart" style="background-image:'.concat(artf(t, "head"), ";background-position:").concat(pick(t, "head").pos, '"><button class="x" aria-label="Close">\u2715</button><h3>').concat(esc(t.title), '</h3></div><div class="mbody"><div class="mchips" style="margin:.1rem 0 .9rem">').concat([t.year, t.genre, t.runtime ? Math.floor(t.runtime / 3600) + "h " + Math.round(t.runtime % 3600 / 60) + "m" : ""].filter(Boolean).map((x) => "<em>".concat(esc(x), "</em>")).join(""), "</div>").concat(cdHTML(t, 1), "<p>").concat(esc(t.description), "</p>").concat(t.synopsis ? '<p style="white-space:pre-wrap;opacity:.88;font-size:.92rem">'.concat(esc(t.synopsis), "</p>") : "").concat(t.behind ? '<details style="margin:.4rem 0 .8rem"><summary style="cursor:pointer;font-weight:700">Behind the film</summary><p style="white-space:pre-wrap;opacity:.88;font-size:.92rem">'.concat(esc(t.behind), "</p></details>") : "").concat(houseHTML(t)).concat(crewHTML(t)).concat(pricePanel(t), '<div class="acts"><button class="btn" id="pl">').concat(isPaid(t.id) && !access(t.id) && t.status !== "soon" ? "Pay to watch" : "Play", '</button><button class="btn ghost" id="ls">').concat(has ? "Remove from list" : "Add to list", "</button>").concat(t.trailer_url ? '<button class="btn ghost" id="tr">Watch trailer</button>' : "", "</div>").concat(rc(t), "</div></div>");
+  m.innerHTML = '<div class="mbox"><div class="mart" style="background-image:'.concat(artf(t, "head"), ";background-position:").concat(pick(t, "head").pos, '"><button class="x" aria-label="Close">\u2715</button><h3>').concat(esc(t.title), '</h3></div><div class="mbody"><div class="mchips" style="margin:.1rem 0 .9rem">').concat([t.year, t.genre, t.runtime ? Math.floor(t.runtime / 3600) + "h " + Math.round(t.runtime % 3600 / 60) + "m" : ""].filter(Boolean).map((x) => "<em>".concat(esc(x), "</em>")).join(""), "</div>").concat(cdHTML(t, 1), "<p>").concat(esc(t.description), "</p>").concat(t.synopsis ? '<p style="white-space:pre-wrap;opacity:.88;font-size:.92rem">'.concat(esc(t.synopsis), "</p>") : "").concat(t.behind ? '<details style="margin:.4rem 0 .8rem"><summary style="cursor:pointer;font-weight:700">Behind the film</summary><p style="white-space:pre-wrap;opacity:.88;font-size:.92rem">'.concat(esc(t.behind), "</p></details>") : "").concat(houseHTML(t)).concat(crewHTML(t)).concat(pricePanel(t)).concat(fundBox(t), '<div class="acts"><button class="btn" id="pl">').concat(isPaid(t.id) && !access(t.id) && t.status !== "soon" ? "Pay to watch" : "Play", '</button><button class="btn ghost" id="ls">').concat(has ? "Remove from list" : "Add to list", "</button>").concat(t.trailer_url ? '<button class="btn ghost" id="tr">Watch trailer</button>' : "").concat(t.in_production ? "" : donBtn(t), "</div>").concat(rc(t), "</div></div>");
   document.body.appendChild(m);
   const close = () => m.remove();
+  fundLoad(t);
   m.onclick = (e) => {
     if (e.target === m) close();
   };
@@ -1795,6 +1898,32 @@ function _play(id, tr, url) {
     p.remove();
     body();
   };
+  const endCard = () => {
+    if (tr || id < 0 || !donOn(t0) || p.querySelector(".donend")) return;
+    const c = document.createElement("div");
+    c.className = "donend";
+    c.innerHTML = "<div><h3>Enjoyed ".concat(esc(t0.title), '?</h3><p>Donate any amount to support the film and the people who made it. It is a gift and does not change your access.</p><button class="don" id="de1">Donate</button><button class="btn ghost" id="de2">Not now</button></div>');
+    p.appendChild(c);
+    c.querySelector("#de1").onclick = () => {
+      closeFn();
+      donate(id);
+    };
+    c.querySelector("#de2").onclick = () => c.remove();
+  };
+  if (v) v.addEventListener("ended", endCard);
+  if (yt && !tr) {
+    const yi = setInterval(() => {
+      if (!document.body.contains(p)) {
+        clearInterval(yi);
+        return;
+      }
+      const a = p.__ya;
+      if (a && a.d() > 60 && a.t() >= a.d() - 2) {
+        clearInterval(yi);
+        endCard();
+      }
+    }, 1500);
+  }
   $("#cl").onclick = closeFn;
   if (own) {
     const A = v ? { t: () => v.currentTime, d: () => v.duration || 0, playing: () => !v.paused && !v.ended, play: () => {
