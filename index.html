@@ -1783,7 +1783,7 @@ main{animation:fi .7s ease both}.hero{animation:fi .9s ease both;box-shadow:inse
 .gl{margin:.6rem;padding:.6rem .7rem;border-radius:9px;background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.28);backdrop-filter:blur(10px) saturate(140%);-webkit-backdrop-filter:blur(10px) saturate(140%);display:flex;flex-direction:column;gap:.1rem}
 .sfc{display:flex;flex-wrap:wrap;margin:0 4% .8rem;padding-top:.9rem}.sfc button,.sfg button{border:1px solid rgba(255,255,255,.25);background:rgba(255,255,255,.08);color:#fff;border-radius:20px;padding:.38rem .95rem;margin:0 .45rem .45rem 0;font-size:.82rem;cursor:pointer}.sfc button.on{background:var(--wine);border-color:transparent}.sfg{display:flex;flex-wrap:wrap;margin:0 4% .6rem}
 .lbc.ppc{padding-top:1rem}.lbh .lbk{width:100%;margin:.5rem 0 .3rem}.lbh .lbk button{margin-left:0;margin-right:.4rem}
-.psh{text-align:center}.psh .lbr em{color:#141012;opacity:.6}.pfm{display:flex;align-items:center;margin:.45rem 0}.pfo{flex:1;display:flex;align-items:center;text-align:left;border:0;background:none;padding:0;cursor:pointer;color:inherit;font:inherit;min-width:0}.pfo i{flex:none;width:40px;height:58px;border-radius:5px;background:#ccc center/cover;margin-right:.7rem}.pfo b{display:block;font-size:.9rem}.pfo small{opacity:.65;font-size:.74rem}
+.psh{text-align:center}.psh .lbr em{color:#141012;opacity:.6}.pfm{display:flex;align-items:center;margin:.45rem 0}.pfo{flex:1;display:flex;align-items:center;text-align:left;border:0;background:none;padding:0;cursor:pointer;color:inherit;font:inherit;min-width:0}.pfo i:not(.vfy){flex:none;width:40px;height:58px;border-radius:5px;background:#ccc center/cover;margin-right:.7rem}.pfo b{display:block;font-size:.9rem}.pfo small{opacity:.65;font-size:.74rem}
 .pfr{flex:none;margin-left:.5rem;border:1.5px solid var(--wine);background:none;color:var(--wine);border-radius:20px;padding:.35rem .7rem;font-weight:700;font-size:.8rem;cursor:pointer}.pfr em{font-style:normal;font-weight:500;opacity:.8;margin-left:.35rem;font-size:.7rem}
 .lb{margin-top:.4rem}.lbh{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;margin:0 4%}.lbtabs{display:flex}.lbtabs button{border:1px solid rgba(255,255,255,.25);background:rgba(255,255,255,.08);color:#fff;border-radius:20px;padding:.3rem .8rem;margin-left:.4rem;font-size:.78rem;cursor:pointer}.lbtabs button.on{background:var(--wine);border-color:transparent}
 .lbs{display:flex;overflow-x:auto;padding:.8rem 4% 1rem;-webkit-overflow-scrolling:touch;scrollbar-width:none}.lbs::-webkit-scrollbar{display:none}
@@ -1933,7 +1933,55 @@ body.tv .gl,body.tv .rt,body.tv.dk nav{backdrop-filter:none!important;-webkit-ba
 .cst{display:grid;grid-template-columns:repeat(4,1fr);gap:.4rem;margin:.8rem 0;text-align:center}.cst div{background:rgba(127,127,127,.14);border-radius:12px;padding:.6rem .2rem}.cst b{display:block;font-size:1.25rem}.cst small{opacity:.65;font-size:.68rem}.ctr{display:flex;justify-content:center;align-items:flex-end;gap:4px;height:90px}.ctr span{flex:1;max-width:34px;height:100%;display:flex;flex-direction:column;justify-content:flex-end;align-items:center}.ctr i{width:100%;background:var(--acc,#e50914);border-radius:4px 4px 0 0;display:block}.ctr small{font-size:.6rem;opacity:.6}
 #cpf label{display:block;font-size:.8rem;margin:.6rem 0;opacity:.85}#cpf textarea{display:block;width:100%;box-sizing:border-box;margin-top:.25rem;padding:.6rem;border-radius:10px;font:inherit}
 .hsr{display:flex;gap:.5rem;flex-wrap:wrap}.hsc{display:flex;align-items:center;gap:.5rem;background:rgba(127,127,127,.14);border:0;border-radius:999px;padding:.3rem .8rem .3rem .3rem;color:inherit;cursor:pointer;font:inherit}.hsl{width:36px;height:36px;border-radius:50%;background:#8884 center/cover;display:inline-flex;align-items:center;justify-content:center;font-weight:700;flex:none}.hsl.big{width:96px;height:96px;font-size:2rem;margin:0 auto;border-radius:18px}
-.vfy{display:inline-flex;align-items:center;justify-content:center;width:1.05em;height:1.05em;margin-left:.3em;border-radius:50%;background:#1d9bf0;color:#fff;font-style:normal;font-size:.62em;font-weight:700;vertical-align:middle;line-height:1}
+
+/* profile cards */
+.vfy{display:inline-flex;align-items:center;justify-content:center;flex:none;width:1.15em;height:1.15em;margin-left:.3em;border-radius:50%;background:linear-gradient(145deg,#ffe58f,#d4981b);color:#2b1c02;vertical-align:-.15em;box-shadow:0 0 0 1px rgba(255,215,120,.55);font-style:normal}.vfy svg{width:66%;height:66%}
+.mod.sheet{place-items:end center;padding:0}
+.mod.sheet .mbox{position:relative;max-width:560px;border-radius:24px 24px 0 0;max-height:94vh;max-height:94dvh;overscroll-behavior:contain;animation:shUp .28s cubic-bezier(.2,.8,.2,1)}
+@keyframes shUp{from{transform:translateY(36px);opacity:0}to{transform:none;opacity:1}}
+@media(min-width:700px){.mod.sheet{place-items:center;padding:1rem}.mod.sheet .mbox{border-radius:22px}}
+.mod.sheet .mbody{padding:0 1.1rem calc(1.4rem + env(safe-area-inset-bottom,0px))}
+.mod.sheet .x{position:sticky;top:.7rem;display:block;margin:.7rem 0 -2.7rem auto;z-index:6;width:36px;height:36px;background:rgba(0,0,0,.5);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);font-size:1rem}
+.tch{position:relative;overflow:hidden;isolation:isolate;text-align:center;padding:2.8rem 1.1rem 1.2rem;margin:0 -1.1rem;color:#fff;background:linear-gradient(160deg,var(--wine),#1a1013)}
+.tcb{position:absolute;inset:-24px;background:center/cover;filter:blur(24px) saturate(1.25);opacity:.6;transform:scale(1.15);z-index:-2}
+.tch::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,.08),rgba(0,0,0,.6));z-index:-1}
+.tca{position:relative;isolation:isolate;width:108px;height:108px;margin:0 auto .7rem;border-radius:50%;background:#4a4146 center/cover;display:flex;align-items:center;justify-content:center;font:800 2.5rem system-ui,sans-serif;border:3px solid rgba(255,255,255,.92);box-shadow:0 10px 28px rgba(0,0,0,.5)}
+.tca.sq{border-radius:26px}
+.tcn{margin:0;font-size:1.45rem;line-height:1.15;color:#fff}
+.tcs{margin:.3rem 0 0;font-size:.82rem;opacity:.85;color:#fff}
+.tcc{display:flex;flex-wrap:wrap;gap:.35rem;justify-content:center;margin-top:.65rem}.tcc span{background:rgba(255,255,255,.16);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);border:1px solid rgba(255,255,255,.22);border-radius:999px;padding:.2rem .7rem;font-size:.72rem}
+.tcr{margin-top:.7rem;font:800 1.1rem system-ui,sans-serif;color:#ffd36a}.tcr em{font-style:normal;font-weight:500;font-size:.72rem;color:#fff;opacity:.8;margin-left:.35rem}
+.vpill{display:inline-flex;align-items:center;gap:.35rem;margin-top:.55rem;padding:.28rem .85rem .28rem .55rem;border-radius:999px;background:linear-gradient(135deg,#ffe58f,#d4981b);color:#2b1c02;font-weight:800;font-size:.76rem;box-shadow:0 4px 14px rgba(212,152,27,.45)}
+.tch.ver{box-shadow:inset 0 -3px 0 #e7b94a}
+.tch.ver .tca{border:3px solid #1c1306}
+.tch.ver .tca::before{content:"";position:absolute;inset:-8px;border-radius:50%;background:conic-gradient(from 0deg,#ffe58f,#b97c12,#ffe58f,#b97c12,#ffe58f);-webkit-mask:radial-gradient(farthest-side,transparent calc(100% - 5px),#000 calc(100% - 4px));mask:radial-gradient(farthest-side,transparent calc(100% - 5px),#000 calc(100% - 4px));animation:vspin 7s linear infinite}
+.tch.ver::before{content:"";position:absolute;top:0;bottom:0;width:38%;left:-60%;background:linear-gradient(100deg,transparent,rgba(255,226,140,.38),transparent);transform:skewX(-18deg);animation:vsheen 1.5s .4s ease-out 1 both;z-index:3;pointer-events:none}
+@keyframes vspin{to{transform:rotate(360deg)}}@keyframes vsheen{to{left:135%}}
+@media(prefers-reduced-motion:reduce){.tch.ver::before{display:none}.tch.ver .tca::before{animation:none}.mod.sheet .mbox{animation:none}}
+.lbc.vv .lba,.cri.vv .cra{box-shadow:0 0 0 2px #1a1013,0 0 0 4px #e7b94a,0 4px 14px rgba(0,0,0,.4)}
+.cst{display:grid;grid-template-columns:repeat(auto-fit,minmax(76px,1fr));gap:.5rem;margin:1rem 0;text-align:center}
+.cst div{position:relative;overflow:hidden;background:linear-gradient(180deg,rgba(127,127,127,.15),rgba(127,127,127,.05));border:1px solid rgba(127,127,127,.2);border-radius:14px;padding:.8rem .3rem .6rem}
+.cst div::before{content:"";position:absolute;left:0;right:0;top:0;height:3px;background:var(--wine)}
+.cst b{display:block;font-size:1.4rem;font-weight:800;line-height:1.15}.cst small{display:block;margin-top:.15rem;opacity:.7;font-size:.7rem}
+.mod.sheet h4{font-size:1rem;margin:1.3rem 0 .5rem!important}
+.ctr{height:120px;gap:6px}.ctr span{max-width:42px;align-items:stretch;justify-content:flex-end}.ctr span b{text-align:center;font-size:.66rem;opacity:.8;margin-bottom:2px}.ctb{flex:1;display:flex;align-items:flex-end}.ctr i{background:linear-gradient(180deg,var(--wine),#3a0f1c);border-radius:7px 7px 2px 2px}.ctr small{text-align:center}
+.mod.sheet .pfm{background:rgba(127,127,127,.08);border:1px solid rgba(127,127,127,.16);border-radius:14px;padding:.55rem .65rem;margin:.5rem 0}
+.mod.sheet .pfo i:not(.vfy){width:48px;height:70px;border-radius:8px;margin-right:.7rem}
+.mod.sheet .pfo b{display:block;line-height:1.2}.mod.sheet .pfo small{display:block;opacity:.7;font-size:.74rem;margin-top:.15rem}
+.mchips{display:flex;flex-wrap:wrap;gap:.3rem;margin-top:.35rem}.mchips em{font-style:normal;font-size:.7rem;background:rgba(127,127,127,.18);border-radius:999px;padding:.12rem .55rem}
+.mod.sheet form label{display:block;font-size:.8rem;margin:.75rem 0}
+.mod.sheet form input:not([type=file]):not([type=checkbox]),.mod.sheet form textarea{display:block;width:100%;box-sizing:border-box;margin-top:.3rem;padding:.65rem .8rem;border:1px solid rgba(127,127,127,.4);border-radius:12px;background:rgba(127,127,127,.08);color:inherit;font:inherit;font-size:16px}
+.mod.sheet .acts{margin-top:1rem}.mod.sheet .acts .btn,.mod.sheet .acts .ghost{flex:1 1 auto}
+.mod.sheet .pfr{white-space:nowrap}
+@media(max-width:420px){.tca{width:96px;height:96px}.tcn{font-size:1.3rem}.cst b{font-size:1.25rem}}
+.mod.sheetp{place-items:end center;padding:0}
+.mod.sheetp .mbox{max-width:620px;border-radius:24px 24px 0 0;max-height:94vh;max-height:94dvh;overscroll-behavior:contain;animation:shUp .28s cubic-bezier(.2,.8,.2,1)}
+@media(min-width:700px){.mod.sheetp{place-items:center;padding:1rem}.mod.sheetp .mbox{border-radius:22px}}
+.mod.sheetp .mbody{padding:1.1rem 1.1rem calc(1.4rem + env(safe-area-inset-bottom,0px))}
+.mod.sheetp .mart{min-height:200px}
+.mod.sheetp .acts .btn,.mod.sheetp .acts .ghost{flex:1 1 auto}
+.mod.sheetp .mchips em{font-size:.78rem;padding:.2rem .7rem}
+@media(prefers-reduced-motion:reduce){.mod.sheetp .mbox{animation:none}}
 </style></head>
 <body><div id="app"></div><noscript><h1>ATMAX STUDIOS</h1><p>Watch Ghanaian films and series online.</p><p><a href="films/">Browse films</a> · <a href="people/">Directors, actors and crew</a> · <a href="about.html">About</a></p></noscript>
 <script>
@@ -2389,7 +2437,10 @@ async function loadHouses() {
   } catch (e) {
   }
 }
-const vb = (id) => id && window.VER && window.VER[id] ? '<i class="vfy" title="Verified" aria-label="Verified">\u2713</i>' : "";
+const CHK = '<svg viewBox="0 0 12 12" width="12" height="12" aria-hidden="true"><path d="M2.4 6.4l2.2 2.2 5-5.2" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+const vb = (id) => id && window.VER && window.VER[id] ? '<i class="vfy" title="Verified" aria-label="Verified">'.concat(CHK, "</i>") : "";
+const vcl = (id) => id && window.VER && window.VER[id] ? " vv" : "";
+const tcHero = (o) => '<div class="tch'.concat(o.v ? " ver" : "", '"><div class="tcb" style="').concat(o.img ? "background-image:url('".concat(esc(o.img), "')") : "", '"></div><div class="tca').concat(o.sq ? " sq" : "", '" style="').concat(o.img ? "background-image:url('".concat(esc(o.img), "')") : "", '">').concat(o.img ? "" : esc(o.name.charAt(0).toUpperCase()), '</div><h3 class="tcn">').concat(esc(o.name), "</h3>").concat(o.v ? '<span class="vpill">'.concat(CHK, " ").concat(o.vt || "Verified", "</span>") : "").concat(o.sub ? '<p class="tcs">'.concat(esc(o.sub), "</p>") : "").concat(o.chips && o.chips.length ? '<div class="tcc">'.concat(o.chips.map((c) => "<span>".concat(esc(c), "</span>")).join(""), "</div>") : "").concat(o.rt || "", "</div>");
 async function loadPeople() {
   await loadHouses();
   window.VER = {};
@@ -2417,7 +2468,7 @@ const pkey = (x) => x.id ? String(x.id) : "n:" + pnorm(x.n);
 const crewHTML = (t) => {
   const c = creds(t);
   if (!c.length) return "";
-  return '<div class="crew"><h4>Cast &amp; crew</h4><div class="crs">'.concat(c.map((x) => '<div class="cri crt" data-k="'.concat(esc(pkey(x)), '" data-id="').concat(x.id, '"><div class="cra" style="').concat(x.p ? "background-image:url('".concat(esc(x.p), "')") : "", '">').concat(x.p ? "" : esc(x.n.trim().charAt(0).toUpperCase()), "</div><b>").concat(esc(x.n)).concat(vb(x.id), "</b><small>").concat(esc(x.r || ""), "</small>").concat(S.set.noCr || !x.id ? "" : '<em class="rtb">\u2605 Rate</em>', "</div>")).join(""), "</div></div>");
+  return '<div class="crew"><h4>Cast &amp; crew</h4><div class="crs">'.concat(c.map((x) => '<div class="cri crt'.concat(vcl(x.id), '" data-k="').concat(esc(pkey(x)), '" data-id="').concat(x.id, '"><div class="cra" style="').concat(x.p ? "background-image:url('".concat(esc(x.p), "')") : "", '">').concat(x.p ? "" : esc(x.n.trim().charAt(0).toUpperCase()), "</div><b>").concat(esc(x.n)).concat(vb(x.id), "</b><small>").concat(esc(x.r || ""), "</small>").concat(S.set.noCr || !x.id ? "" : '<em class="rtb">\u2605 Rate</em>', "</div>")).join(""), "</div></div>");
 };
 S.LB = S.LB || {};
 async function crewWire(m, t) {
@@ -2480,13 +2531,13 @@ async function personSheet(key) {
   const e = peopleIdx().get(String(key));
   if (!e) return;
   const d = document.createElement("div");
-  d.className = "mod";
+  d.className = "mod sheet";
   d.style.zIndex = 1e5;
   d.setAttribute("role", "dialog");
   d.setAttribute("aria-modal", "true");
   d.__re = () => personSheet(key);
   const render = (avg2, mine, tot) => {
-    d.innerHTML = '<div class="mbox"><div class="mbody"><button class="x" aria-label="Close" style="position:absolute;top:10px;right:10px">\u2715</button><div class="psh"><div class="lba" style="width:92px;height:92px;color:#fff;'.concat(e.p ? "background-image:url('".concat(esc(e.p), "')") : "", '">').concat(e.p ? "" : esc(e.n.charAt(0).toUpperCase()), '</div><h3 style="margin:.4rem 0 .1rem">').concat(esc(e.n)).concat(vb(e.id), "</h3>").concat(e.l ? '<p style="margin:0;opacity:.6;font-size:.78rem">'.concat(esc(e.l), "</p>") : "", '<p style="margin:.1rem 0 0;opacity:.7;font-size:.85rem">').concat(esc([...e.roles].slice(0, 4).join(" \xB7 ")), "</p>").concat(bioHTML(e)).concat(tot ? '<p class="lbr" style="margin:.5rem 0 0;font-size:1.05rem">\u2605 '.concat((+tot.avg_stars).toFixed(1), " <em>overall \xB7 ").concat(tot.votes, " vote").concat(tot.votes == 1 ? "" : "s", "</em></p>") : "", '</div><h4 style="margin:1rem 0 .4rem">').concat(e.films.length, " film").concat(e.films.length == 1 ? "" : "s", "</h4>").concat(e.films.map((f) => {
+    d.innerHTML = '<div class="mbox"><div class="mbody"><button class="x" aria-label="Close">\u2715</button>'.concat(tcHero({ img: e.p, name: e.n, v: window.VER && window.VER[e.id], vt: "Verified", sub: e.l, chips: [...e.roles].slice(0, 4), rt: tot ? '<div class="tcr">\u2605 '.concat((+tot.avg_stars).toFixed(1), "<em>overall \xB7 ").concat(tot.votes, " vote").concat(tot.votes == 1 ? "" : "s", "</em></div>") : "" })).concat(bioHTML(e), '<h4 style="margin:1rem 0 .4rem">').concat(e.films.length, " film").concat(e.films.length == 1 ? "" : "s", "</h4>").concat(e.films.map((f) => {
       const po = pick(f.t, "poster").src, a = avg2[f.t.id], mn = mine[f.t.id];
       return '<div class="pfm"><button class="pfo" data-f="'.concat(f.t.id, '"><i style="').concat(po ? "background-image:url('".concat(esc(po), "')") : "", '"></i><span><b>').concat(esc(f.t.title), "</b><small>").concat(esc([f.r, f.t.year].filter(Boolean).join(" \xB7 ")), "</small></span></button>").concat(S.set.noCr || !e.id ? "" : '<button class="pfr" data-r="'.concat(f.t.id, '" data-ro="').concat(esc(f.r), '">').concat(mn ? "\u2605 " + mn : "\u2605 Rate").concat(a ? "<em>".concat((+a.avg_stars).toFixed(1), " \xB7 ").concat(a.votes, "</em>") : "", "</button>"), "</div>");
     }).join(""), '<div class="acts" style="justify-content:center">').concat(claimBtn(e), '<button class="btn ghost" id="psc">Close</button></div><div class="ok" id="pcm" role="status"></div></div></div>');
@@ -2553,7 +2604,7 @@ async function lbInit() {
   }
   box2.innerHTML = rows.map(({ x, e }, i) => {
     const f0 = e.films[0].t, po = pick(f0, "poster").src;
-    return '<button class="lbc r'.concat(i < 3 ? i + 1 : 0, '" data-pn="').concat(esc(e.k), '"><span class="lbn">').concat(i + 1, '</span><span class="lba" style="').concat(e.p ? "background-image:url('".concat(esc(e.p), "')") : "", '">').concat(e.p ? "" : esc(e.n.charAt(0).toUpperCase()), "</span><b>").concat(esc(e.n)).concat(vb(e.id), "</b><small>").concat(esc([...e.roles].slice(0, 1).join("")), '</small><span class="lbf"><i style="').concat(po ? "background-image:url('".concat(esc(po), "')") : "", '"></i>').concat(esc(f0.title)).concat(e.films.length > 1 ? " +".concat(e.films.length - 1) : "", '</span><span class="lbr">\u2605 ').concat((+x.avg_stars).toFixed(1), " <em>\xB7 ").concat(x.votes, " vote").concat(x.votes == 1 ? "" : "s", "</em></span></button>");
+    return '<button class="lbc r'.concat(i < 3 ? i + 1 : 0).concat(vcl(e.id), '" data-pn="').concat(esc(e.k), '"><span class="lbn">').concat(i + 1, '</span><span class="lba" style="').concat(e.p ? "background-image:url('".concat(esc(e.p), "')") : "", '">').concat(e.p ? "" : esc(e.n.charAt(0).toUpperCase()), "</span><b>").concat(esc(e.n)).concat(vb(e.id), "</b><small>").concat(esc([...e.roles].slice(0, 1).join("")), '</small><span class="lbf"><i style="').concat(po ? "background-image:url('".concat(esc(po), "')") : "", '"></i>').concat(esc(f0.title)).concat(e.films.length > 1 ? " +".concat(e.films.length - 1) : "", '</span><span class="lbr">\u2605 ').concat((+x.avg_stars).toFixed(1), " <em>\xB7 ").concat(x.votes, " vote").concat(x.votes == 1 ? "" : "s", "</em></span></button>");
   }).join("");
   box2.querySelectorAll("[data-pn]").forEach((b) => b.onclick = () => personSheet(b.dataset.pn));
   clearInterval(S.lbT);
@@ -2581,11 +2632,11 @@ function houseSheet(id) {
   if (!h) return;
   const fl = S.T.filter((t) => ((window.TH || {})[t.id] || []).includes(+id)), l = linksOf(h);
   const d = document.createElement("div");
-  d.className = "mod";
+  d.className = "mod sheet";
   d.style.zIndex = 1e5;
   d.setAttribute("role", "dialog");
   d.setAttribute("aria-modal", "true");
-  d.innerHTML = '<div class="mbox"><div class="mbody"><button class="x" aria-label="Close" style="position:absolute;top:10px;right:10px">\u2715</button><div class="psh"><div class="hsl big" style="'.concat(h.logo_url ? "background-image:url('".concat(esc(h.logo_url), "')") : "", '">').concat(h.logo_url ? "" : esc(h.name.charAt(0).toUpperCase()), '</div><h3 style="margin:.5rem 0 .1rem">').concat(esc(h.name), '</h3><p style="margin:0;opacity:.6;font-size:.8rem">Production house</p>').concat(h.about ? '<p style="margin:.6rem 0 0;font-size:.88rem;line-height:1.5;opacity:.85;text-align:left;white-space:pre-wrap">'.concat(esc(h.about), "</p>") : "").concat(l.length ? '<p style="margin:.5rem 0 0;font-size:.82rem">'.concat(l.map((u) => '<a href="'.concat(esc(u), '" target="_blank" rel="noopener nofollow" style="color:var(--acc,#e50914);margin:0 .4rem">').concat(esc(hostOf(u)), "</a>")).join(""), "</p>") : "", '</div>\n <h4 style="margin:1rem 0 .4rem">').concat(fl.length, " film").concat(fl.length == 1 ? "" : "s", "</h4>").concat(fl.map((t) => {
+  d.innerHTML = '<div class="mbox"><div class="mbody"><button class="x" aria-label="Close">\u2715</button>'.concat(tcHero({ img: h.logo_url, name: h.name, sq: true, sub: "Production house", chips: [fl.length + " film" + (fl.length == 1 ? "" : "s")] })).concat(h.about ? '<p style="margin:.6rem 0 0;font-size:.88rem;line-height:1.5;opacity:.85;text-align:left;white-space:pre-wrap">'.concat(esc(h.about), "</p>") : "").concat(l.length ? '<p style="margin:.5rem 0 0;font-size:.82rem">'.concat(l.map((u) => '<a href="'.concat(esc(u), '" target="_blank" rel="noopener nofollow" style="color:var(--acc,#e50914);margin:0 .4rem">').concat(esc(hostOf(u)), "</a>")).join(""), "</p>") : "", '\n <h4 style="margin:1rem 0 .4rem">').concat(fl.length, " film").concat(fl.length == 1 ? "" : "s", "</h4>").concat(fl.map((t) => {
     const po = pick(t, "poster").src;
     return '<div class="pfm"><button class="pfo" data-f="'.concat(t.id, '"><i style="').concat(po ? "background-image:url('".concat(esc(po), "')") : "", '"></i><span><b>').concat(esc(t.title), "</b><small>").concat(esc([t.year, t.genre].filter(Boolean).join(" \xB7 ")), "</small></span></button></div>");
   }).join("") || '<p class="empty">No films yet.</p>', '<div class="acts" style="justify-content:center">').concat(S.user && !S.isAdmin && !S.mh ? '<button class="btn" id="hclaim">This is our production house \u2013 claim it</button>' : "", '<button class="btn ghost" id="hsx">Close</button></div><div class="ok" id="hcm" role="status"></div></div></div>');
@@ -2611,7 +2662,7 @@ async function houseDash() {
   const h = S.mh;
   if (!h) return;
   const d = document.createElement("div");
-  d.className = "mod";
+  d.className = "mod sheet";
   d.style.zIndex = 1e5;
   d.setAttribute("role", "dialog");
   d.setAttribute("aria-modal", "true");
@@ -2619,7 +2670,7 @@ async function houseDash() {
   d.onclick = (ev) => {
     if (ev.target === d) d.remove();
   };
-  d.innerHTML = '<div class="mbox"><div class="mbody"><button class="x" aria-label="Close" style="position:absolute;top:10px;right:10px">\u2715</button><p class="empty">Loading your numbers\u2026</p></div></div>';
+  d.innerHTML = '<div class="mbox"><div class="mbody"><button class="x" aria-label="Close">\u2715</button><p class="empty">Loading your numbers\u2026</p></div></div>';
   d.querySelector(".x").onclick = () => d.remove();
   const sr = await sb.rpc("house_stats"), st = sr.data || { films: [] }, us = (await sb.rpc("house_upload_status")).data || {}, subs = (await sb.from("film_submissions").select("id,title,status,admin_note,created_at").eq("house_id", h.id).order("created_at", { ascending: false })).data || [], sm = {};
   (st.films || []).forEach((x) => sm[x.title_id] = x);
@@ -2637,9 +2688,9 @@ async function houseDash() {
       if (x.r) e.roles.add(x.r);
       e.films++;
     }));
-    d.innerHTML = '<div class="mbox"><div class="mbody"><button class="x" aria-label="Close" style="position:absolute;top:10px;right:10px">\u2715</button><div class="psh"><div class="hsl big" style="'.concat(h.logo_url ? "background-image:url('".concat(esc(h.logo_url), "')") : "", '">').concat(h.logo_url ? "" : esc(h.name.charAt(0).toUpperCase()), '</div><h3 style="margin:.5rem 0 .1rem">').concat(esc(h.name), '</h3><p style="margin:0;opacity:.6;font-size:.8rem">Production house account</p></div>\n <div class="cst"><div><b>').concat(A("views"), "</b><small>views</small></div><div><b>").concat(A("uniq"), "</b><small>unique viewers</small></div><div><b>").concat(A("repeat"), "</b><small>watched again</small></div><div><b>").concat(A("buyers"), '</b><small>purchases</small></div></div>\n <div class="cst" style="grid-template-columns:1fr"><div><b>').concat(GH(A("share")), '</b><small>your share of the money made</small></div></div>\n <h4 style="margin:1rem 0 .4rem">Your films (').concat(fl.length, ")</h4>").concat(fl.map((t) => {
+    d.innerHTML = '<div class="mbox"><div class="mbody"><button class="x" aria-label="Close">\u2715</button>'.concat(tcHero({ img: h.logo_url, name: h.name, sq: true, sub: "Production house account", chips: [fl.length + " film" + (fl.length == 1 ? "" : "s")] }), '\n <div class="cst"><div><b>').concat(A("views"), "</b><small>views</small></div><div><b>").concat(A("uniq"), "</b><small>unique viewers</small></div><div><b>").concat(A("repeat"), "</b><small>watched again</small></div><div><b>").concat(A("buyers"), '</b><small>purchases</small></div></div>\n <div class="cst" style="grid-template-columns:1fr"><div><b>').concat(GH(A("share")), '</b><small>your share of the money made</small></div></div>\n <h4 style="margin:1rem 0 .4rem">Your films (').concat(fl.length, ")</h4>").concat(fl.map((t) => {
       const po = pick(t, "poster").src, x = sm[t.id] || {};
-      return '<div class="pfm"><span class="pfo" style="cursor:default"><i style="'.concat(po ? "background-image:url('".concat(esc(po), "')") : "", '"></i><span><b>').concat(esc(t.title), "</b><small>").concat(x.views || 0, " views \xB7 ").concat(x.uniq || 0, " viewers \xB7 ").concat(x.repeat || 0, " watched again \xB7 ").concat(GH(x.share || 0), " your share").concat(x.others ? " \xB7 co-produced with ".concat(x.others, " other house").concat(x.others == 1 ? "" : "s", ", figures are for the whole film") : "", "</small></span></span></div>");
+      return '<div class="pfm"><span class="pfo" style="cursor:default"><i style="'.concat(po ? "background-image:url('".concat(esc(po), "')") : "", '"></i><span><b>').concat(esc(t.title), '</b><span class="mchips"><em>').concat(x.views || 0, " views</em><em>").concat(x.uniq || 0, " viewers</em><em>").concat(x.repeat || 0, " watched again</em><em>").concat(GH(x.share || 0), " your share</em></span>").concat(x.others ? "<small>Co-produced with ".concat(x.others, " other house").concat(x.others == 1 ? "" : "s", ". Figures are for the whole film.</small>") : "", "</span></span></div>");
     }).join("") || '<p class="empty">No films linked to your house yet. The ATMAX team adds them.</p>', '\n <h4 style="margin:1.2rem 0 .4rem">Cast &amp; crew you worked with (').concat(team.size, ")</h4>").concat([...team.values()].sort((a, b) => b.films - a.films).map((e) => '<div class="pfm"><button class="pfo" data-pk="'.concat(esc(e.k), '"><span><b>').concat(esc(e.n)).concat(vb(e.id), "</b><small>").concat(esc([...e.roles].slice(0, 3).join(" \xB7 ")), " \xB7 ").concat(e.films, " film").concat(e.films == 1 ? "" : "s", "</small></span></button></div>")).join("") || '<p class="empty">Nobody listed yet.</p>', '\n <h4 style="margin:1.2rem 0 .4rem">Submit a film</h4>').concat(us.allowed ? us.pending >= 5 ? '<p class="empty">You have 5 films waiting for review. Wait until ATMAX reviews some before sending more.</p>' : '<form id="hsf"><label>Film title<input name="title" required maxlength="160"></label><label>Year<input name="year" type="number" min="1900" max="2100"></label><label>Genre<input name="genre" maxlength="60" placeholder="e.g. drama"></label><label>Description<textarea name="description" rows="4" maxlength="3000"></textarea></label><label>Poster picture (JPG, PNG or WebP)<input type="file" name="poster" accept="image/jpeg,image/png,image/webp"></label><label>Link to the film (YouTube, Vimeo or Google Drive, set to \u201Canyone with the link\u201D)<input name="video_link" type="url" required placeholder="https://"></label><label>Link to the trailer (optional)<input name="trailer_link" type="url" placeholder="https://"></label><label>Cast and crew: names and roles (we add them for you)<textarea name="cast_note" rows="4" maxlength="3000"></textarea></label><p style="font-size:.78rem;opacity:.65;margin:.4rem 0">Only upload films you own or have the rights to. ATMAX reviews every film before it goes live.</p><div class="acts"><button class="btn">Send for review</button></div><div class="ok" id="hsm" role="status"></div></form>' : '<p class="empty">Uploading unlocks when your house has '.concat(us.need || 3, " films on ATMAX (you have ").concat(us.films || 0, "), or when ATMAX unlocks it for you.</p>"), "\n ").concat(subs.length ? '<h4 style="margin:1rem 0 .4rem">Your submissions</h4>'.concat(subs.map((x) => '<div class="pfm"><span class="pfo" style="cursor:default"><span><b>'.concat(esc(x.title), "</b><small>").concat(x.status == "pending" ? "Waiting for review" : x.status == "approved" ? "Accepted. ATMAX is preparing it for release" : "Not accepted").concat(x.admin_note ? " \xB7 " + esc(x.admin_note) : "", " \xB7 ").concat(esc(String(x.created_at).slice(0, 10)), "</small></span></span></div>")).join("")) : "", '\n <h4 style="margin:1.2rem 0 .4rem">Edit your public page</h4><form id="hpf"><div style="display:flex;align-items:center;margin:.4rem 0"><div class="crp" style="width:70px;height:70px;border-radius:14px;margin-right:.8rem;background-image:').concat(h.logo_url ? "url('".concat(esc(h.logo_url), "')") : "none", '">').concat(h.logo_url ? "" : "+", '<input type="file" name="logo" accept="image/jpeg,image/png,image/webp"></div><small style="opacity:.7">Tap the square to change your logo (JPG, PNG or WebP).</small></div>\n <label>About (max 1,500 characters)<textarea name="about" rows="5" maxlength="1500">').concat(esc(h.about || ""), '</textarea></label><label>Links, one per line<textarea name="links" rows="3" placeholder="https://">').concat(esc(linksOf(h).join("\n")), '</textarea></label>\n <div class="acts"><button class="btn">Save</button><button type="button" class="btn ghost" id="hpc">Close</button></div><div class="ok" id="hpm" role="status"></div></form></div></div>');
     d.querySelector(".x").onclick = d.querySelector("#hpc").onclick = () => d.remove();
     d.querySelectorAll("[data-pk]").forEach((b) => b.onclick = () => personSheet(b.dataset.pk));
@@ -2729,7 +2780,7 @@ async function claimProfile(e, d) {
 async function creatorSheet() {
   if (!S.me) return;
   const me = S.me, d = document.createElement("div");
-  d.className = "mod";
+  d.className = "mod sheet";
   d.style.zIndex = 1e5;
   d.setAttribute("role", "dialog");
   d.setAttribute("aria-modal", "true");
@@ -2737,18 +2788,24 @@ async function creatorSheet() {
   d.onclick = (ev) => {
     if (ev.target === d) d.remove();
   };
-  d.innerHTML = '<div class="mbox"><div class="mbody"><button class="x" aria-label="Close" style="position:absolute;top:10px;right:10px">\u2715</button><p class="empty">Loading your numbers\u2026</p></div></div>';
+  d.innerHTML = '<div class="mbox"><div class="mbody"><button class="x" aria-label="Close">\u2715</button><p class="empty">Loading your numbers\u2026</p></div></div>';
   d.querySelector(".x").onclick = () => d.remove();
   const r = await sb.rpc("creator_stats"), st = r.data || { films: [], ratings: [], trend: [], overall: {}, views: [] };
   const T = (id) => S.T.find((x) => x.id == id), rt = {}, vw = {};
   (st.ratings || []).forEach((x) => rt[x.title_id] = x);
   (st.views || []).forEach((x) => vw[x.title_id] = x);
   const ov = st.overall || {}, tv = (st.views || []).reduce((a, x) => a + x.total, 0), tu = (st.views || []).reduce((a, x) => a + x.uniq, 0);
-  const tr = st.trend || [], mx = 5;
+  const tr = st.trend || [], mx = 5, myRoles = () => {
+    const o = /* @__PURE__ */ new Set();
+    S.T.forEach((t) => creds(t).forEach((x) => {
+      if (+x.id === +me.id && x.r) o.add(x.r);
+    }));
+    return [...o].slice(0, 4);
+  };
   const draw2 = () => {
-    d.innerHTML = '<div class="mbox"><div class="mbody"><button class="x" aria-label="Close" style="position:absolute;top:10px;right:10px">\u2715</button>\n <div class="psh"><div class="lba" style="width:80px;height:80px;color:#fff;'.concat(me.photo_url ? "background-image:url('".concat(esc(me.photo_url), "')") : "", '">').concat(me.photo_url ? "" : esc(me.name.charAt(0).toUpperCase()), '</div><h3 style="margin:.4rem 0 .1rem">').concat(esc(me.name)).concat(vb(me.id), '</h3><p style="margin:0;opacity:.6;font-size:.8rem">Creator account').concat(window.VER && window.VER[me.id] ? " \xB7 Verified" : "", '</p></div>\n <div class="cst"><div><b>').concat(ov.avg ? (+ov.avg).toFixed(1) : "\u2013", "</b><small>\u2605 average</small></div><div><b>").concat(ov.votes || 0, "</b><small>ratings</small></div><div><b>").concat(tv, "</b><small>views</small></div><div><b>").concat(tu, '</b><small>viewers</small></div></div>\n <h4 style="margin:1rem 0 .4rem">Ratings over the last 12 months</h4>').concat(tr.length ? '<div class="ctr">'.concat(tr.map((x) => '<span title="'.concat(esc(x.m), ": ").concat(x.avg, "\u2605 (").concat(x.votes, ')"><i style="height:').concat(Math.max(6, x.avg / mx * 100), '%"></i><small>').concat(esc(x.m.slice(5)), "</small></span>")).join(""), "</div>") : '<p class="empty" style="margin:.3rem 0">No ratings yet.</p>', '\n <h4 style="margin:1rem 0 .4rem">Your films</h4>').concat((st.films || []).map(T).filter(Boolean).map((t) => {
+    d.innerHTML = '<div class="mbox"><div class="mbody"><button class="x" aria-label="Close">\u2715</button>\n '.concat(tcHero({ img: me.photo_url, name: me.name, v: window.VER && window.VER[me.id], vt: "Verified creator", sub: "Creator account", chips: myRoles() }), '\n <div class="cst"><div><b>').concat(ov.avg ? (+ov.avg).toFixed(1) : "\u2013", "</b><small>\u2605 average</small></div><div><b>").concat(ov.votes || 0, "</b><small>ratings</small></div><div><b>").concat(tv, "</b><small>views</small></div><div><b>").concat(tu, '</b><small>viewers</small></div></div>\n <h4 style="margin:1rem 0 .4rem">Ratings over the last 12 months</h4>').concat(tr.length ? '<div class="ctr">'.concat(tr.map((x) => '<span title="'.concat(esc(x.m), ": ").concat(x.avg, "\u2605 (").concat(x.votes, ')"><b>').concat((+x.avg).toFixed(1), '</b><div class="ctb"><i style="height:').concat(Math.max(6, x.avg / mx * 100), '%"></i></div><small>').concat(esc(x.m.slice(5)), "</small></span>")).join(""), "</div>") : '<p class="empty" style="margin:.3rem 0">No ratings yet.</p>', '\n <h4 style="margin:1rem 0 .4rem">Your films</h4>').concat((st.films || []).map(T).filter(Boolean).map((t) => {
       const a = rt[t.id], v = vw[t.id];
-      return '<div class="pfm"><span class="pfo" style="cursor:default"><span><b>'.concat(esc(t.title), "</b><small>").concat(a ? "\u2605 ".concat((+a.avg).toFixed(1), " \xB7 ").concat(a.votes, " rating").concat(a.votes == 1 ? "" : "s") : "No ratings yet", " \xB7 ").concat(v ? v.total : 0, " views \xB7 ").concat(v ? v.uniq : 0, " viewers</small></span></span></div>");
+      return '<div class="pfm"><span class="pfo" style="cursor:default"><span><b>'.concat(esc(t.title), '</b><span class="mchips"><em>').concat(a ? "\u2605 ".concat((+a.avg).toFixed(1), " \xB7 ").concat(a.votes) : "No ratings yet", "</em><em>").concat(v ? v.total : 0, " views</em><em>").concat(v ? v.uniq : 0, " viewers</em></span></span></span></div>");
     }).join("") || '<p class="empty">No published films yet.</p>', '\n <h4 style="margin:1.2rem 0 .4rem">Edit your public profile</h4>\n <form id="cpf"><div style="display:flex;align-items:center;margin:.4rem 0"><div class="crp" style="width:70px;height:70px;margin-right:.8rem;background-image:').concat(me.photo_url ? "url('".concat(esc(me.photo_url), "')") : "none", '">').concat(me.photo_url ? "" : "+", '<input type="file" name="photo" accept="image/jpeg,image/png,image/webp"></div><small style="opacity:.7">Tap the circle to change your photo (JPG, PNG or WebP).</small></div>\n <label>About you (max 1,200 characters)<textarea name="bio" rows="5" maxlength="1200">').concat(esc(me.bio || ""), '</textarea></label>\n <label>Links, one per line (website, Instagram, IMDb\u2026)<textarea name="links" rows="3" placeholder="https://">').concat(esc(linksOf(me).join("\n")), '</textarea></label>\n <div class="acts"><button class="btn">Save profile</button><button type="button" class="btn ghost" id="cpc">Close</button></div><div class="ok" id="cpm" role="status"></div></form></div></div>');
     d.querySelector(".x").onclick = d.querySelector("#cpc").onclick = () => d.remove();
     const f = d.querySelector("#cpf"), m = d.querySelector("#cpm");
@@ -2794,7 +2851,7 @@ function searchHTML(q) {
   const ppl = [...peopleIdx().values()].filter((e) => (e.n.toLowerCase().includes(q) || has(e.l)) && (f == "all" || f == "cast" && e.cast || f == "crew" && [...e.roles].some((r) => !isCast(r))));
   if (f == "genre" && genres.length) h += '<div class="sfg">'.concat(genres.map((g) => '<button data-g="'.concat(esc(g), '">').concat(esc(g), "</button>")).join(""), "</div>");
   if ((f == "all" || f == "films" || f == "genre") && films.length) h += rail(f == "genre" ? "Films in this genre" : "Films", films);
-  if ((f == "all" || f == "cast" || f == "crew") && ppl.length) h += '<section class="rw"><h3 class="rowt">'.concat(f == "cast" ? "Cast" : f == "crew" ? "Crew" : "People", '</h3><div class="lbs">').concat(ppl.slice(0, 40).map((e) => '<button class="lbc r0 ppc" data-pp="'.concat(esc(e.k), '"><span class="lba" style="').concat(e.p ? "background-image:url('".concat(esc(e.p), "')") : "", '">').concat(e.p ? "" : esc(e.n.charAt(0).toUpperCase()), "</span><b>").concat(esc(e.n)).concat(vb(e.id), "</b><small>").concat(esc(e.l || [...e.roles].slice(0, 2).join(" \xB7 ")), '</small><span class="lbr" style="font-size:.7rem;color:#fff;opacity:.7">').concat(e.films.length, " film").concat(e.films.length == 1 ? "" : "s", "</span></button>")).join(""), "</div></section>");
+  if ((f == "all" || f == "cast" || f == "crew") && ppl.length) h += '<section class="rw"><h3 class="rowt">'.concat(f == "cast" ? "Cast" : f == "crew" ? "Crew" : "People", '</h3><div class="lbs">').concat(ppl.slice(0, 40).map((e) => '<button class="lbc r0 ppc'.concat(vcl(e.id), '" data-pp="').concat(esc(e.k), '"><span class="lba" style="').concat(e.p ? "background-image:url('".concat(esc(e.p), "')") : "", '">').concat(e.p ? "" : esc(e.n.charAt(0).toUpperCase()), "</span><b>").concat(esc(e.n)).concat(vb(e.id), "</b><small>").concat(esc(e.l || [...e.roles].slice(0, 2).join(" \xB7 ")), '</small><span class="lbr" style="font-size:.7rem;color:#fff;opacity:.7">').concat(e.films.length, " film").concat(e.films.length == 1 ? "" : "s", "</span></button>")).join(""), "</div></section>");
   if (h === chips || h.length === chips.length + (f == "genre" && genres.length ? 1 : 0) && 0) h += '<p class="empty">Nothing matches \u201C'.concat(esc(S.q), "\u201D. Try a film, a person or a genre.</p>");
   return h;
 }
@@ -3031,10 +3088,10 @@ function rc(t) {
 }
 function detail(id) {
   const t = S.T.find((x) => x.id == id), has = S.L.includes(id), m = document.createElement("div");
-  m.className = "mod";
+  m.className = "mod sheetp";
   m.setAttribute("role", "dialog");
   m.setAttribute("aria-modal", "true");
-  m.innerHTML = '<div class="mbox"><div class="mart" style="background-image:'.concat(artf(t, "head"), ";background-position:").concat(pick(t, "head").pos, '"><button class="x" aria-label="Close">\u2715</button><h3>').concat(esc(t.title), '</h3></div><div class="mbody"><p>').concat(esc([t.year, t.genre, t.runtime ? Math.floor(t.runtime / 3600) + "h " + Math.round(t.runtime % 3600 / 60) + "m" : ""].filter(Boolean).join(" \xB7 ")), "</p>").concat(cdHTML(t, 1), "<p>").concat(esc(t.description), "</p>").concat(houseHTML(t)).concat(crewHTML(t)).concat(pricePanel(t), '<div class="acts"><button class="btn" id="pl">').concat(isPaid(t.id) && !access(t.id) && t.status !== "soon" ? "Pay to watch" : "Play", '</button><button class="btn ghost" id="ls">').concat(has ? "Remove from list" : "Add to list", "</button>").concat(t.trailer_url ? '<button class="btn ghost" id="tr">Watch trailer</button>' : "", "</div>").concat(rc(t), "</div></div>");
+  m.innerHTML = '<div class="mbox"><div class="mart" style="background-image:'.concat(artf(t, "head"), ";background-position:").concat(pick(t, "head").pos, '"><button class="x" aria-label="Close">\u2715</button><h3>').concat(esc(t.title), '</h3></div><div class="mbody"><div class="mchips" style="margin:.1rem 0 .9rem">').concat([t.year, t.genre, t.runtime ? Math.floor(t.runtime / 3600) + "h " + Math.round(t.runtime % 3600 / 60) + "m" : ""].filter(Boolean).map((x) => "<em>".concat(esc(x), "</em>")).join(""), "</div>").concat(cdHTML(t, 1), "<p>").concat(esc(t.description), "</p>").concat(houseHTML(t)).concat(crewHTML(t)).concat(pricePanel(t), '<div class="acts"><button class="btn" id="pl">').concat(isPaid(t.id) && !access(t.id) && t.status !== "soon" ? "Pay to watch" : "Play", '</button><button class="btn ghost" id="ls">').concat(has ? "Remove from list" : "Add to list", "</button>").concat(t.trailer_url ? '<button class="btn ghost" id="tr">Watch trailer</button>' : "", "</div>").concat(rc(t), "</div></div>");
   document.body.appendChild(m);
   const close = () => m.remove();
   m.onclick = (e) => {
