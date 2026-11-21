@@ -85,7 +85,7 @@
       HEAD.appendChild(s);
     }
     // your own copy first (fast, works offline); the public copy only if it is missing
-    load('gsap.min.js', function () { load('https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js'); });
+    load('/gsap.min.js', function () { load('https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js'); });
   });
 
   function wait(ms) { return new Promise(function (r) { setTimeout(r, ms); }); }
