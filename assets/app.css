@@ -339,6 +339,8 @@ body.fr .mbody.pyl{background:rgba(255,255,255,.12);border:1px solid rgba(255,25
 .mbody.pyl{max-width:860px;margin:0 auto;padding:1.4rem 1.2rem calc(2rem + env(safe-area-inset-bottom,0px))}
 @media(min-width:760px){.pyc{padding:0 3rem 1.4rem}.pyr{padding:0 3rem 2rem}.pyp{width:84px;height:122px}.pyh{background-image:var(--bd);background-position:var(--pd,center)}.mod.py .x{right:24px;top:20px}}
 @media(prefers-reduced-motion:reduce){.pyp{transition:none}}
+/* big studio logo/name on home: hidden everywhere */
+body .hb,body.tv .hb{display:none!important}
 /* phone nav: one row of round icons */
 @media(max-width:700px){
  body nav{flex-wrap:nowrap;gap:.5rem;align-items:center}
@@ -356,7 +358,6 @@ body.fr .mbody.pyl{background:rgba(255,255,255,.12);border:1px solid rgba(255,25
  body nav .tabs .on{background:rgba(255,255,255,.28)}
  body nav #q{display:none}
  body nav.sq #q{display:block;order:10;flex:1 1 100%;width:100%;box-sizing:border-box;font-size:16px}
- body .hb{display:none}
  body nav .npan{display:none}
  body nav.open .npan{display:flex;flex-direction:column;gap:.3rem;position:absolute;top:calc(100% + .4rem);right:0;min-width:210px;padding:.5rem;border-radius:18px;background:rgba(18,12,14,.94);border:1px solid rgba(255,255,255,.2);box-shadow:0 14px 34px rgba(0,0,0,.45);z-index:9}
  body nav .npan button{display:block;width:100%;text-align:left;border:0!important;border-radius:12px;background:none;color:#fff;padding:.7rem .9rem!important;font:inherit;font-size:.95rem;cursor:pointer}
