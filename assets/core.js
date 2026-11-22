@@ -589,7 +589,7 @@ async function loadHouses() {
 const CHK = '<svg viewBox="0 0 12 12" width="12" height="12" aria-hidden="true"><path d="M2.4 6.4l2.2 2.2 5-5.2" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
 const vb = (id) => id && window.VER && window.VER[id] ? '<i class="vfy" title="Verified" aria-label="Verified">'.concat(CHK, "</i>") : "";
 const slugOf = (x) => String(x || "").normalize("NFKD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 60) || "item";
-const pageUrl = (kind, id, name) => "https://atmaxstudios.com/".concat(kind, "/").concat(slugOf(name), "-").concat(id, ".html");
+const pageUrl = (kind, id, name) => "https://atmaxstudios.com/".concat(kind, "/").concat(slugOf(name), "-").concat(id, "/");
 async function shareLink(url, title, msgEl) {
   try {
     if (navigator.share) {
@@ -1623,7 +1623,7 @@ function detail(id) {
   m.className = "mod sheetp";
   m.setAttribute("role", "dialog");
   m.setAttribute("aria-modal", "true");
-  m.innerHTML = '<div class="mbox"><div class="mart" style="background-image:'.concat(artf(t, "head"), ";background-position:").concat(pick(t, "head").pos, '"><button class="x" aria-label="Close">\u2715</button><h3>').concat(esc(t.title), '</h3></div><div class="mbody"><div class="mchips" style="margin:.1rem 0 .9rem">').concat([t.year, t.genre, t.runtime ? Math.floor(t.runtime / 3600) + "h " + Math.round(t.runtime % 3600 / 60) + "m" : ""].filter(Boolean).map((x) => "<em>".concat(esc(x), "</em>")).join(""), "</div>").concat(cdHTML(t, 1), "<p>").concat(esc(t.description), "</p>").concat(t.synopsis ? '<p style="white-space:pre-wrap;opacity:.88;font-size:.92rem">'.concat(esc(t.synopsis), "</p>") : "").concat(t.behind ? '<details style="margin:.4rem 0 .8rem"><summary style="cursor:pointer;font-weight:700">Behind the film</summary><p style="white-space:pre-wrap;opacity:.88;font-size:.92rem">'.concat(esc(t.behind), "</p></details>") : "").concat(houseHTML(t)).concat(crewHTML(t)).concat(pricePanel(t)).concat(fundBox(t), '<div class="acts"><button class="btn" id="pl">').concat(isPaid(t.id) && !access(t.id) && t.status !== "soon" ? "Pay to watch" : "Play", '</button><button class="btn ghost" id="ls">').concat(has ? "Remove from list" : "Add to list", "</button>").concat(t.trailer_url ? '<button class="btn ghost" id="tr">Watch trailer</button>' : "").concat(t.in_production ? "" : donBtn(t), "</div>").concat(rc(t), "</div></div>");
+  m.innerHTML = '<div class="mbox"><div class="mart" style="background-image:'.concat(artf(t, "head"), ";background-position:").concat(pick(t, "head").pos, '"><button class="x" aria-label="Close">\u2715</button><h3>').concat(esc(t.title), '</h3></div><div class="mbody"><div class="mchips" style="margin:.1rem 0 .9rem">').concat([t.year, t.genre, t.runtime ? Math.floor(t.runtime / 3600) + "h " + Math.round(t.runtime % 3600 / 60) + "m" : ""].filter(Boolean).map((x) => "<em>".concat(esc(x), "</em>")).join(""), "</div>").concat(cdHTML(t, 1), "<p>").concat(esc(t.description), "</p>").concat(t.synopsis ? '<p style="white-space:pre-wrap;opacity:.88;font-size:.92rem">'.concat(esc(t.synopsis), "</p>") : "").concat(t.behind ? '<details style="margin:.4rem 0 .8rem"><summary style="cursor:pointer;font-weight:700">Behind the film</summary><p style="white-space:pre-wrap;opacity:.88;font-size:.92rem">'.concat(esc(t.behind), "</p></details>") : "").concat(houseHTML(t)).concat(crewHTML(t)).concat(pricePanel(t)).concat(fundBox(t), '<div class="acts"><button class="btn" id="pl">').concat(isPaid(t.id) && !access(t.id) && t.status !== "soon" ? "Pay to watch" : "Play", '</button><button class="btn ghost" id="ls">').concat(has ? "Remove from list" : "Add to list", '</button><button class="btn ghost" id="fsh">Share</button>').concat(t.trailer_url ? '<button class="btn ghost" id="tr">Watch trailer</button>' : "").concat(t.in_production ? "" : donBtn(t), "</div>").concat(rc(t), "</div></div>");
   document.body.appendChild(m);
   const close = () => m.remove();
   fundLoad(t);
@@ -1677,6 +1677,17 @@ function detail(id) {
     re(sb.from("comments").insert({ title_id: id, name: (S.user.email || "user").split("@")[0], body: b }));
   };
   m.querySelectorAll("[data-dc]").forEach((b) => b.onclick = () => re(sb.from("comments").delete().eq("id", b.dataset.dc)));
+  m.querySelector("#fsh").onclick = async () => {
+    const b = m.querySelector("#fsh"), tmp = document.createElement("span");
+    await shareLink(pageUrl("films", t.id, t.title), t.title + " on ATMAX STUDIOS", tmp);
+    if (tmp.textContent) {
+      const o = b.textContent;
+      b.textContent = /^http/.test(tmp.textContent) ? "Copy failed" : "Link copied";
+      setTimeout(() => {
+        b.textContent = o;
+      }, 2e3);
+    }
+  };
   m.querySelector("#ls").onclick = async () => {
     if (!S.user) return gate("save films to your list");
     if (has) await sb.from("my_list").delete().eq("sub_id", S.sub.id).eq("title_id", id);
