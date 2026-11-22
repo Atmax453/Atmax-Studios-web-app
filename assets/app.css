@@ -339,6 +339,28 @@ body.fr .mbody.pyl{background:rgba(255,255,255,.12);border:1px solid rgba(255,25
 .mbody.pyl{max-width:860px;margin:0 auto;padding:1.4rem 1.2rem calc(2rem + env(safe-area-inset-bottom,0px))}
 @media(min-width:760px){.pyc{padding:0 3rem 1.4rem}.pyr{padding:0 3rem 2rem}.pyp{width:84px;height:122px}.pyh{background-image:var(--bd);background-position:var(--pd,center)}.mod.py .x{right:24px;top:20px}}
 @media(prefers-reduced-motion:reduce){.pyp{transition:none}}
+/* phone nav: one row of round icons */
+@media(max-width:700px){
+ body nav{flex-wrap:nowrap;gap:.5rem;align-items:center}
+ body nav.sq{flex-wrap:wrap}
+ body nav .logo{flex:1 1 auto;min-width:0;overflow:hidden}
+ body nav .tabs{flex:0 0 auto;gap:.4rem}
+ body nav .tabs button[data-v="home"],body nav .nic,body nav.g #out,body nav.g #sup{width:40px;height:40px;min-width:40px;border-radius:50%;padding:0!important;margin:0;font-size:0;display:grid;place-items:center;flex:0 0 auto;background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.3);color:#fff;cursor:pointer;line-height:1}
+ body nav .tabs button[data-v="home"]::before,body nav .nic::before,body nav.g #out::before,body nav.g #sup::before{font-size:1.15rem;line-height:1}
+ body nav .tabs button[data-v="home"]::before{content:"\2302"}
+ body nav #nsr::before{content:"\2315";font-size:1.5rem}
+ body nav #nmo::before{content:"\2630"}
+ body nav.g #out::before{content:"\1F464"}
+ body nav.g #sup::before{content:"\FF0B";font-weight:800}
+ body nav .tabs .on{background:rgba(255,255,255,.28)}
+ body nav #q{display:none}
+ body nav.sq #q{display:block;order:10;flex:1 1 100%;width:100%;box-sizing:border-box;font-size:16px}
+ body nav .npan{display:none}
+ body nav.open .npan{display:flex;flex-direction:column;gap:.3rem;position:absolute;top:calc(100% + .4rem);right:0;min-width:210px;padding:.5rem;border-radius:18px;background:rgba(18,12,14,.94);border:1px solid rgba(255,255,255,.2);box-shadow:0 14px 34px rgba(0,0,0,.45);z-index:9}
+ body nav .npan button{display:block;width:100%;text-align:left;border:0!important;border-radius:12px;background:none;color:#fff;padding:.7rem .9rem!important;font:inherit;font-size:.95rem;cursor:pointer}
+ body nav .npan button:active,body nav .npan button:hover{background:rgba(255,255,255,.14)}
+ body nav .npan #out{color:#ffb3bd}
+}
 .mod.sheetp .mart{min-height:200px}
 .mod.sheetp .acts .btn,.mod.sheetp .acts .ghost{flex:1 1 auto}
 .mod.sheetp .mchips em{font-size:.78rem;padding:.2rem .7rem}

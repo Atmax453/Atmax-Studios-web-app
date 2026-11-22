@@ -1260,6 +1260,51 @@ function runDeep() {
     setTimeout(go2, 300);
   }
 }
+function navPhone() {
+  const nv = document.querySelector("nav");
+  if (!nv || !isPhone()) return;
+  const tabs = nv.querySelector(".tabs"), q = nv.querySelector("#q");
+  const sr = document.createElement("button");
+  sr.className = "nic";
+  sr.id = "nsr";
+  sr.setAttribute("aria-label", "Search");
+  sr.title = "Search";
+  tabs.after(sr);
+  sr.onclick = () => {
+    nv.classList.toggle("sq");
+    nv.classList.remove("open");
+    if (nv.classList.contains("sq")) q.focus();
+  };
+  if (!S.user) return;
+  const pan = document.createElement("div");
+  pan.className = "npan";
+  ["list", "history"].forEach((v) => {
+    const b = tabs.querySelector('[data-v="' + v + '"]');
+    if (b) pan.appendChild(b);
+  });
+  ["#sw", "#tohs", "#tocr", "#toadm", "#out"].forEach((i) => {
+    const b = nv.querySelector(i);
+    if (b) pan.appendChild(b);
+  });
+  const mo = document.createElement("button");
+  mo.className = "nic";
+  mo.id = "nmo";
+  mo.setAttribute("aria-label", "Menu");
+  mo.title = "Menu";
+  mo.setAttribute("aria-expanded", "false");
+  nv.appendChild(mo);
+  nv.appendChild(pan);
+  mo.onclick = (e) => {
+    e.stopPropagation();
+    const o = nv.classList.toggle("open");
+    nv.classList.remove("sq");
+    mo.setAttribute("aria-expanded", o);
+  };
+  pan.addEventListener("click", () => nv.classList.remove("open"));
+  document.addEventListener("click", (e) => {
+    if (!nv.contains(e.target)) nv.classList.remove("open");
+  });
+}
 function draw() {
   document.body.classList.add("dk");
   frSync();
@@ -1278,11 +1323,14 @@ function draw() {
     o.textContent = "Sign in";
     o.onclick = () => toLogin("", "in");
     const su = document.createElement("button");
+    su.id = "sup";
     su.className = "btn";
     su.style.padding = ".4rem .8rem";
     su.textContent = "Sign up";
     su.onclick = () => toLogin("", "up");
     o.after(su);
+    document.querySelector("nav").classList.add("g");
+    navPhone();
     $("#q").oninput = (e) => {
       S.q = e.target.value;
       body();
@@ -1314,6 +1362,7 @@ function draw() {
     S.q = e.target.value;
     body();
   };
+  navPhone();
   body();
   runDeep();
 }
