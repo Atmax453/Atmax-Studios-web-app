@@ -2712,7 +2712,7 @@ function showQR() {
   m.className = "mod";
   m.setAttribute("role", "dialog");
   m.setAttribute("aria-modal", "true");
-  m.innerHTML = '<div class="qrbox">'.concat(q.createSvgTag({ cellSize: 8, margin: 2, scalable: true }), '<h3 style="margin:.2rem 0">Scan with your phone</h3><p style="margin:.3rem 0 1rem">Point your phone camera at the code to open ').concat(esc(S.set.brand || "ATMAX"), ' on your phone.</p><button class="btn" id="g3">Close</button></div>');
+  m.innerHTML = '<div class="qrbox">'.concat(q.createSvgTag({ cellSize: 8, margin: 2, scalable: true })).concat(TV ? '<h3 style="margin:.2rem 0">Scan with your phone</h3><p style="margin:.3rem 0 1rem">Point your phone camera at the code to open '.concat(esc(S.set.brand || "ATMAX"), " on your phone.</p>") : '<h3 style="margin:.2rem 0">Scan to open '.concat(esc(S.set.brand || "ATMAX"), '</h3><p style="margin:.3rem 0 1rem">Let a friend scan this code with their phone camera, or open it on a TV or another screen.</p>'), '<button class="btn" id="g3">Close</button></div>');
   document.body.appendChild(m);
   const c = () => m.remove();
   m.onclick = (e) => {
@@ -2724,6 +2724,18 @@ function showQR() {
 const _draw = draw;
 draw = function() {
   _draw();
+  if (typeof isPhone === "function" && isPhone() && !(typeof TV !== "undefined" && TV) && !document.querySelector("#qrb")) {
+    const sr = document.querySelector("nav #nsr");
+    if (sr) {
+      const b = document.createElement("button");
+      b.id = "qrb";
+      b.className = "nic";
+      b.setAttribute("aria-label", "Scan QR");
+      b.title = "Scan QR";
+      b.onclick = showQR;
+      sr.after(b);
+    }
+  }
   if (typeof TV !== "undefined" && TV) {
     const o = document.querySelector("nav #out");
     if (o && !document.querySelector("#qrb")) {

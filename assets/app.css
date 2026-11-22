@@ -350,6 +350,7 @@ body.fr .mbody.pyl{background:rgba(255,255,255,.12);border:1px solid rgba(255,25
  body nav .tabs button[data-v="home"]::before{content:"\2302"}
  body nav #nsr::before{content:"\2315";font-size:1.5rem}
  body nav #nmo::before{content:"\2630"}
+ body nav #qrb::before{content:"\25A6"}
  body nav.g #out::before{content:"\1F464"}
  body nav.g #sup::before{content:"\FF0B";font-weight:800}
  body nav .tabs .on{background:rgba(255,255,255,.28)}
