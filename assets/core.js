@@ -2810,7 +2810,7 @@ async function scanQR() {
   m.style.cssText = "background:#000;padding:0;place-items:stretch";
   m.setAttribute("role", "dialog");
   m.setAttribute("aria-modal", "true");
-  m.innerHTML = '<div style="position:relative;width:100%;height:100%;display:flex;flex-direction:column;color:#fff"><video playsinline muted style="flex:1;width:100%;min-height:0;object-fit:cover"></video><div style="position:absolute;left:0;right:0;top:0;padding:1rem;text-align:center;background:linear-gradient(rgba(0,0,0,.7),transparent)" id="sq">Point the camera at the code on your TV</div><button class="btn" id="sc" style="position:absolute;left:50%;bottom:max(1.5rem,env(safe-area-inset-bottom));transform:translateX(-50%)">Cancel</button></div>';
+  m.innerHTML = '<div style="position:relative;width:100%;height:100%;display:flex;flex-direction:column;color:#fff"><video playsinline muted style="flex:1;width:100%;min-height:0;object-fit:cover"></video><div class="vf" aria-hidden="true"><i></i><i></i><i></i><i></i></div><div style="position:absolute;left:0;right:0;top:0;padding:1rem;padding-top:max(1rem,env(safe-area-inset-top));text-align:center;background:linear-gradient(rgba(0,0,0,.75),transparent);font-weight:600" id="sq">Fit the code inside the box, about 30 cm away. If it looks blurry, move back a little.</div><button class="btn" id="sc" style="position:absolute;left:50%;bottom:max(1.5rem,env(safe-area-inset-bottom));transform:translateX(-50%)">Cancel</button></div>';
   document.body.appendChild(m);
   const v = m.querySelector("video"), msg = m.querySelector("#sq");
   let st = null, on = true, iv = null;
@@ -2825,6 +2825,18 @@ async function scanQR() {
     st = await navigator.mediaDevices.getUserMedia({ video: { facingMode: { ideal: "environment" }, width: { ideal: 1280 }, height: { ideal: 720 } }, audio: false });
     v.srcObject = st;
     await v.play();
+    try {
+      const tk = st.getVideoTracks()[0], cp = tk.getCapabilities ? tk.getCapabilities() : {};
+      if (cp.focusMode && cp.focusMode.indexOf("continuous") > -1) await tk.applyConstraints({ advanced: [{ focusMode: "continuous" }] });
+    } catch (e) {
+    }
+    v.onclick = async () => {
+      try {
+        const tk = st.getVideoTracks()[0], cp = tk.getCapabilities ? tk.getCapabilities() : {};
+        if (cp.focusMode && cp.focusMode.indexOf("single-shot") > -1) await tk.applyConstraints({ advanced: [{ focusMode: "single-shot" }] });
+      } catch (e) {
+      }
+    };
   } catch (e) {
     msg.textContent = "The camera is blocked. Allow camera access for this site in your browser settings, then try again.";
     return;
@@ -2849,7 +2861,7 @@ async function scanQR() {
   };
   if (!det && !await needJq()) return;
   const cv = document.createElement("canvas"), cx = cv.getContext("2d", { willReadFrequently: true });
-  let t0 = Date.now(), busy = false;
+  let t0 = Date.now(), busy = false, fr = 0;
   const hit = async (txt) => {
     const code = pairCode(txt);
     if (code) {
@@ -2878,10 +2890,13 @@ async function scanQR() {
       if (!det && jq && !txt) {
         const w = v.videoWidth, h = v.videoHeight;
         if (w) {
-          const k = Math.min(1, 1100 / w);
-          cv.width = Math.round(w * k);
-          cv.height = Math.round(h * k);
-          cx.drawImage(v, 0, 0, cv.width, cv.height);
+          const side = Math.round(Math.min(w, h) * 0.8), sx = Math.round((w - side) / 2), sy = Math.round((h - side) / 2), tries = [[sx, sy, side, side, 640], [sx, sy, side, side, 380], [0, 0, w, h, 900], [sx, sy, side, side, 960], [0, 0, w, h, 420]], tr = tries[fr++ % tries.length];
+          cv.width = cv.height = 0;
+          const k = tr[4] / tr[2];
+          cv.width = Math.round(tr[2] * k);
+          cv.height = Math.round(tr[3] * k);
+          cx.imageSmoothingEnabled = true;
+          cx.drawImage(v, tr[0], tr[1], tr[2], tr[3], 0, 0, cv.width, cv.height);
           const d = cx.getImageData(0, 0, cv.width, cv.height), r = window.jsQR(d.data, d.width, d.height, { inversionAttempts: "attemptBoth" });
           if (r && r.data) txt = r.data;
         }
@@ -2890,12 +2905,12 @@ async function scanQR() {
         if (await hit(txt)) return;
       } else if (Date.now() - t0 > 8e3 && msg.dataset.h !== "1") {
         msg.dataset.h = "1";
-        msg.textContent = "Still looking. Hold the phone steady about 30 cm from the TV and avoid glare.";
+        msg.textContent = "Still looking. Tap the screen to refocus, hold steady about 30 cm away, and avoid glare.";
       }
     } catch (e) {
     }
     busy = false;
-  }, 250);
+  }, 140);
 }
 function pairCheck() {
   let c = null;
