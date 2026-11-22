@@ -121,13 +121,56 @@ function applyAnim(d) {
   } catch (e) {
   }
 }
+const lumOf = (h) => {
+  h = String(h || "").replace("#", "");
+  if (h.length == 3) h = h.split("").map((c) => c + c).join("");
+  if (!/^[0-9a-f]{6}$/i.test(h)) return null;
+  const n = parseInt(h, 16), f = (v) => {
+    v /= 255;
+    return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4);
+  };
+  return 0.2126 * f(n >> 16 & 255) + 0.7152 * f(n >> 8 & 255) + 0.0722 * f(n & 255);
+};
+const contrastOf = (a, b) => {
+  const x = lumOf(a), y = lumOf(b);
+  if (x == null || y == null) return 21;
+  const hi = Math.max(x, y), lo = Math.min(x, y);
+  return (hi + 0.05) / (lo + 0.05);
+};
+const readable = (fg, bg, min) => {
+  const l = lumOf(bg);
+  if (l == null || contrastOf(fg, bg) >= (min || 3.5)) return fg;
+  return l > 0.4 ? "#141012" : "#ffffff";
+};
 function theme() {
   var _a, _b;
   const d = eff(S.set), r = document.documentElement.style, b = document.body;
+  const lt = (lumOf(d.pg || "#0a0809") || 0) > 0.55;
+  b.classList.toggle("lt", lt);
+  const barL = (lumOf(d.dark || "#0e0b0c") || 0) > 0.55;
+  d.tx = readable(d.tx || "#f4ecef", d.pg || "#0a0809");
+  d.mu = readable(d.mu || "#a89aa0", d.pg || "#0a0809", 3);
+  d.nt = readable(d.nt || "#ffffff", d.nb == "clear" ? d.pg || "#0a0809" : d.dark || "#0e0b0c");
+  d.sx = readable(d.sx || "#141012", d.sf || "#ffffff");
+  const dv = (k, v) => {
+    if (v) r.setProperty(k, v);
+    else r.removeProperty(k);
+  };
+  dv("--ht", readable(d.ht || "#ffffff", lt ? "#ffffff" : d.dark || "#0e0b0c"));
+  dv("--hb", d.hb || (lt ? d.accent || "#9b2c4b" : ""));
+  dv("--hbt", d.hbt || (lt ? "#ffffff" : ""));
+  dv("--qb", d.qb || (lt ? "#f5f0f2" : ""));
+  dv("--qt", readable(d.qt || (lt ? "#141012" : "#ffffff"), d.qb || (lt ? "#f5f0f2" : "#2a2527")));
+  dv("--qbd", lt ? "#dccfd4" : "");
+  dv("--cb", d.cb || (lt ? "#ffffff" : ""));
+  dv("--ct", readable(d.ct || (lt ? "#141012" : "#ffffff"), d.cb || (lt ? "#ffffff" : "#1c1518")));
+  dv("--cbd", lt ? "#eadde1" : "");
+  dv("--cav", lt ? "#efe6e9" : "");
+  dv("--pt", readable(d.tx || "#ffffff", d.dark || "#0e0b0c"));
   r.setProperty("--wine", d.accent || "#9b2c4b");
-  r.setProperty("--bar", d.dark || "#ffffff");
-  r.setProperty("--pg", d.pg || "#ffffff");
-  r.setProperty("--tx", d.tx || "#141012");
+  r.setProperty("--bar", d.dark || "#0e0b0c");
+  r.setProperty("--pg", d.pg || "#0a0809");
+  r.setProperty("--tx", d.tx || "#f4ecef");
   r.setProperty("--fb", FONTS[d.fb] || FONTS.clean);
   r.setProperty("--ft", FONTS[d.ft] || FONTS[d.fb] || FONTS.clean);
   if (d.fs && !TV) r.fontSize = { s: "90%", m: "100%", l: "112%" }[d.fs] || "100%";
@@ -135,10 +178,10 @@ function theme() {
   r.setProperty("--tw", { s: "150px", m: "200px", l: "250px" }[d.ts] || "200px");
   r.setProperty("--ar", { wide: "16/9", sq: "1/1" }[d.tsh] || "2/3");
   r.setProperty("--hh", { s: "38vh", m: "55vh", l: "85vh" }[d.hh] || "55vh");
-  r.setProperty("--navbg", d.nb == "clear" ? "transparent" : d.nb == "solid" ? d.dark || "#ffffff" : rgbaOf(d.dark || "#ffffff", 0.72));
-  r.setProperty("--nt2", rgbaOf(d.nt || "#141012", 0.7));
+  r.setProperty("--navbg", d.nb == "clear" ? "transparent" : d.nb == "solid" ? d.dark || "#0e0b0c" : rgbaOf(d.dark || "#0e0b0c", 0.72));
+  r.setProperty("--nt2", rgbaOf(d.nt || "#ffffff", 0.7));
   r.setProperty("--phc", rgbaOf(d.accent || "#9b2c4b", 0.45));
-  r.setProperty("--hov", rgbaOf(d.dark || "#ffffff", d.ho == null || d.ho === "" ? 1 : d.ho / 100));
+  r.setProperty("--hov", rgbaOf(lt ? "#ffffff" : d.dark || "#0e0b0c", d.ho == null || d.ho === "" ? 1 : d.ho / 100));
   r.setProperty("--glc", rgbaOf(d.accent || "#9b2c4b", d.glw == null || d.glw === "" ? 0.55 : d.glw / 100));
   r.setProperty("--arn", { wide: ".5625", sq: "1" }[d.tsh] || "1.5");
   b.classList.toggle("noanim", !!d.noanim);
@@ -152,7 +195,7 @@ function theme() {
     }
     if (d.icon) l.href = dimg(d.icon);
   });
-  const G = d.pg2 && d.pgd && d.pgd !== "none" ? d.pgd === "radial" ? "radial-gradient(circle at 50% 0%,".concat(d.pg2, ",").concat(d.pg || "#ffffff", ")") : "linear-gradient(".concat(d.pgd === "diag" ? "135deg" : "180deg", ",").concat(d.pg || "#ffffff", ",").concat(d.pg2, ")") : "";
+  const G = d.pg2 && d.pgd && d.pgd !== "none" ? d.pgd === "radial" ? "radial-gradient(circle at 50% 0%,".concat(d.pg2, ",").concat(d.pg || "#0a0809", ")") : "linear-gradient(".concat(d.pgd === "diag" ? "135deg" : "180deg", ",").concat(d.pg || "#0a0809", ",").concat(d.pg2, ")") : "";
   b.style.backgroundImage = d.bgImage ? "url('".concat(dimg(String(d.bgImage)).replace(/'/g, "%27"), "')") : G;
   r.setProperty("--ac2", d.ac2 || d.accent || "#9b2c4b");
   r.setProperty("--btx", d.btx || "#fff");
@@ -611,7 +654,7 @@ const art = (t, k) => {
   const i = pick(t, k || "poster");
   return i.src ? "linear-gradient(transparent 45%,rgba(0,0,0,.85)),url('".concat(esc(i.src.replace(/'/g, "%27")), "')") : null;
 };
-const artf = (t, k) => art(t, k) || "linear-gradient(160deg,hsl(".concat(t.id * 37 % 24 + 346, " 85% 46%),hsl(").concat(t.id * 37 % 24 + 346, " 80% 30%))");
+const artf = (t, k) => art(t, k) || "linear-gradient(160deg,hsl(".concat(t.id * 37 % 40 + 330, " 55% 30%),hsl(").concat(t.id * 37 % 40 + 330, " 60% 14%))");
 const bar = (t) => {
   const h = S.H.find((x) => x.title_id == t.id);
   return h && h.duration > 0 && h.position > 5 ? '<i class="bar" style="width:'.concat(Math.min(100, Math.round(h.position / h.duration * 100)), '%"></i>') : "";
