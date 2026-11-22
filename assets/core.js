@@ -1372,6 +1372,7 @@ const FR = () => S.set.look === "frosted";
 function frSync() {
   const b = document.body, on = FR();
   b.classList.toggle("fr", on);
+  b.classList.toggle("frlow", on && (isPhone() || typeof TV !== "undefined" && TV || (navigator.hardwareConcurrency || 8) <= 2 || (navigator.deviceMemory || 8) <= 2));
   let e = document.getElementById("frbg");
   if (on) {
     b.style.setProperty("--fr", /^#[0-9a-f]{6}$/i.test(S.set.ac2 || "") ? S.set.ac2 : /^#[0-9a-f]{6}$/i.test(S.set.accent || "") ? S.set.accent : "#c0182f");

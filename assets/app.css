@@ -276,14 +276,20 @@ body.tv .gl,body.tv .rt,body.tv.dk nav{backdrop-filter:none!important;-webkit-ba
 body.fr{background:var(--fr,#c0182f)!important;color:#fff}
 body.fr #app{position:relative;z-index:1}
 .frbg{position:fixed;top:0;right:0;bottom:0;left:0;z-index:0;overflow:hidden;pointer-events:none;background:radial-gradient(120% 90% at 20% 0%,var(--fr,#c0182f),#4a0710 100%)}
-.frbg i{position:absolute;border-radius:50%;filter:blur(64px);will-change:transform}
-.frbg i:nth-child(1){width:56vmax;height:56vmax;left:-16vmax;top:-12vmax;background:#ff3d52;opacity:.7;animation:frA 24s ease-in-out infinite alternate}
-.frbg i:nth-child(2){width:52vmax;height:52vmax;right:-14vmax;bottom:-18vmax;background:#6d0a1a;opacity:.85;animation:frB 30s ease-in-out infinite alternate}
-.frbg i:nth-child(3){width:38vmax;height:38vmax;left:38%;top:34%;background:#ff7a59;opacity:.4;animation:frC 20s ease-in-out infinite alternate}
+.frbg i{position:absolute;border-radius:50%;will-change:transform;transform:translateZ(0)}
+.frbg i:nth-child(1){width:70vmax;height:70vmax;left:-24vmax;top:-20vmax;background:radial-gradient(circle,#ff3d52 0,rgba(255,61,82,0) 68%);opacity:.75;animation:frA 30s ease-in-out infinite alternate}
+.frbg i:nth-child(2){width:66vmax;height:66vmax;right:-22vmax;bottom:-26vmax;background:radial-gradient(circle,#6d0a1a 0,rgba(109,10,26,0) 68%);opacity:.9;animation:frB 38s ease-in-out infinite alternate}
+.frbg i:nth-child(3){width:50vmax;height:50vmax;left:30%;top:26%;background:radial-gradient(circle,#ff7a59 0,rgba(255,122,89,0) 68%);opacity:.45;animation:frC 26s ease-in-out infinite alternate}
 @keyframes frA{to{transform:translate(34vmax,24vmax) scale(1.25)}}
 @keyframes frB{to{transform:translate(-36vmax,-22vmax) scale(1.15)}}
 @keyframes frC{to{transform:translate(-22vmax,18vmax) scale(.8)}}
 @media(prefers-reduced-motion:reduce){.frbg i{animation:none}}
+body.frlow .frbg i{animation:none!important}
+body.frlow nav,body.frlow .frc,body.frlow.fr .frr .rw,body.frlow .mbody.pyl{backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
+body.tv.fr nav,body.tv .frc,body.tv.fr .frr .rw,body.tv .mbody.pyl{backdrop-filter:none!important;-webkit-backdrop-filter:none!important;background:rgba(40,8,14,.55)!important}
+body:has(.mod) .frbg i,body:has(.player) .frbg i{animation-play-state:paused}
+body:has(.mod.py) .frbg,body:has(.player) .frbg{visibility:hidden}
+
 body.fr nav{position:sticky;top:max(.6rem,env(safe-area-inset-top,0px));margin:.7rem 3% 0;padding:.55rem 1rem;border-radius:22px;background:rgba(255,255,255,.13)!important;border:1px solid rgba(255,255,255,.24);backdrop-filter:blur(22px) saturate(1.4);-webkit-backdrop-filter:blur(22px) saturate(1.4);box-shadow:0 8px 30px rgba(0,0,0,.22);color:#fff}
 body.fr nav .tabs button{color:rgba(255,255,255,.75);border:0;border-radius:999px;padding:.4rem .9rem}
 body.fr nav .tabs .on{color:#fff;background:rgba(255,255,255,.2)}
