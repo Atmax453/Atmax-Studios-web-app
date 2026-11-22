@@ -24,7 +24,16 @@ const $ = (s) => document.querySelector(s), app = $("#app");
 const ROLE_OPTS = '<optgroup label="Cast"><option>Lead Actor</option><option>Lead Actress</option><option>Supporting Actor</option><option>Supporting Actress</option><option>Co-Star</option><option>Guest Star</option><option>Cameo</option><option>Special Appearance</option><option>Voice Actor</option><option>Narrator</option><option>Motion Capture Performer</option><option>Stand-in</option><option>Body Double</option><option>Photo Double</option><option>Background Actor / Extra</option><option>Child Actor</option><option>Stunt Performer</option><option>Stunt Double</option></optgroup><optgroup label="Directing"><option>Director</option><option>Co-Director</option><option>Second Unit Director</option><option>Assistant Director (1st AD)</option><option>Second Assistant Director (2nd AD)</option><option>Third Assistant Director</option><option>Script Supervisor</option><option>Director\'s Assistant</option><option>Creative Director</option></optgroup><optgroup label="Producing"><option>Executive Producer</option><option>Producer</option><option>Co-Producer</option><option>Associate Producer</option><option>Line Producer</option><option>Supervising Producer</option><option>Consulting Producer</option><option>Production Manager</option><option>Unit Production Manager</option><option>Production Supervisor</option><option>Production Coordinator</option><option>Assistant Production Coordinator</option><option>Production Assistant</option><option>Production Accountant</option><option>Post-Production Supervisor</option><option>Post-Production Coordinator</option><option>Development Executive</option><option>Studio Executive</option><option>Showrunner</option></optgroup><optgroup label="Writing"><option>Writer</option><option>Screenplay</option><option>Story By</option><option>Screenwriter</option><option>Co-Writer</option><option>Staff Writer</option><option>Script Editor</option><option>Script Consultant</option><option>Story Editor</option><option>Adapted From (Source Author)</option><option>Dialogue Writer</option><option>Original Concept By</option></optgroup><optgroup label="Casting"><option>Casting Director</option><option>Casting Associate</option><option>Casting Assistant</option><option>Extras Casting</option></optgroup><optgroup label="Camera"><option>Director of Photography (DP)</option><option>Cinematographer</option><option>Camera Operator</option><option>A-Camera Operator</option><option>B-Camera Operator</option><option>First Assistant Camera (Focus Puller)</option><option>Second Assistant Camera (Clapper Loader)</option><option>DIT (Digital Imaging Technician)</option><option>Data Wrangler</option><option>Steadicam Operator</option><option>Drone Operator</option><option>Aerial Cinematographer</option><option>Underwater Cinematographer</option><option>Still Photographer</option><option>Camera Trainee</option><option>Video Assist Operator</option><option>Colour Grading Consultant</option></optgroup><optgroup label="Lighting & Grip"><option>Gaffer</option><option>Best Boy Electric</option><option>Electrician</option><option>Lighting Technician</option><option>Lighting Director</option><option>Key Grip</option><option>Best Boy Grip</option><option>Dolly Grip</option><option>Grip</option><option>Rigging Gaffer</option><option>Generator Operator</option></optgroup><optgroup label="Sound"><option>Production Sound Mixer</option><option>Boom Operator</option><option>Sound Assistant</option><option>Sound Designer</option><option>Supervising Sound Editor</option><option>Sound Editor</option><option>Dialogue Editor</option><option>ADR Editor</option><option>ADR Mixer</option><option>Foley Artist</option><option>Foley Mixer</option><option>Re-recording Mixer</option><option>Sound Effects Editor</option><option>Music Editor</option><option>Sound Recordist</option></optgroup><optgroup label="Art Department"><option>Production Designer</option><option>Art Director</option><option>Assistant Art Director</option><option>Set Decorator</option><option>Set Dresser</option><option>Leadman</option><option>Property Master</option><option>Prop Maker</option><option>Props Assistant</option><option>Scenic Artist</option><option>Graphic Designer</option><option>Concept Artist</option><option>Storyboard Artist</option><option>Illustrator</option><option>Draughtsperson</option><option>Construction Coordinator</option><option>Carpenter</option><option>Painter</option><option>Greensman</option><option>Model Maker</option><option>Art Department Coordinator</option></optgroup><optgroup label="Costume"><option>Costume Designer</option><option>Assistant Costume Designer</option><option>Costume Supervisor</option><option>Wardrobe Supervisor</option><option>Wardrobe Assistant</option><option>Costume Standby</option><option>Tailor / Seamstress</option><option>Costume Cutter</option><option>Costume Buyer</option></optgroup><optgroup label="Hair & Makeup"><option>Makeup Artist</option><option>Key Makeup Artist</option><option>Makeup Designer</option><option>Special Effects Makeup Artist</option><option>Prosthetics Designer</option><option>Hair Stylist</option><option>Key Hairstylist</option><option>Hair Designer</option><option>Wig Maker</option><option>Makeup Assistant</option></optgroup><optgroup label="Visual Effects & Animation"><option>VFX Supervisor</option><option>VFX Producer</option><option>VFX Artist</option><option>Compositor</option><option>CGI Artist</option><option>3D Artist</option><option>Animator</option><option>Lead Animator</option><option>Character Animator</option><option>Motion Graphics Artist</option><option>Matte Painter</option><option>Title Designer</option><option>Rotoscope Artist</option><option>Previs Artist</option><option>Colourist</option><option>Creature Designer</option><option>Rigging Artist</option><option>Lighting Artist (CG)</option></optgroup><optgroup label="Special Effects & Stunts"><option>Special Effects Supervisor</option><option>Special Effects Coordinator</option><option>Pyrotechnician</option><option>Armourer</option><option>Weapons Master</option><option>Stunt Coordinator</option><option>Fight Choreographer</option><option>Stunt Rigger</option><option>Safety Officer</option><option>Animal Trainer</option><option>Animal Wrangler</option><option>Intimacy Coordinator</option><option>Dance Choreographer</option><option>Choreographer</option></optgroup><optgroup label="Editing & Post"><option>Editor</option><option>Film Editor</option><option>Supervising Editor</option><option>Assistant Editor</option><option>Online Editor</option><option>Offline Editor</option><option>Trailer Editor</option><option>Post Production Sound</option><option>Subtitle Translator</option><option>Subtitler</option><option>Digital Intermediate Producer</option><option>Dailies Technician</option><option>Conform Editor</option><option>Archive Researcher</option><option>Footage Archivist</option></optgroup><optgroup label="Music"><option>Composer</option><option>Original Score By</option><option>Music Supervisor</option><option>Orchestrator</option><option>Conductor</option><option>Songwriter</option><option>Lyricist</option><option>Music Producer</option><option>Music Arranger</option><option>Sound Mixer (Music)</option><option>Soloist</option><option>Performed By</option><option>Soundtrack Artist</option><option>Song Performed By</option><option>Music Coordinator</option><option>Music Clearance</option></optgroup><optgroup label="Locations & Transport"><option>Location Manager</option><option>Assistant Location Manager</option><option>Location Scout</option><option>Location Assistant</option><option>Unit Manager</option><option>Transportation Coordinator</option><option>Transport Captain</option><option>Driver</option><option>Picture Car Coordinator</option><option>Marine Coordinator</option><option>Aerial Coordinator</option></optgroup><optgroup label="Set Operations"><option>Unit Publicist</option><option>Set Medic</option><option>Health &amp; Safety Officer</option><option>Security</option><option>Craft Services</option><option>Catering</option><option>Production Runner</option><option>Set Production Assistant</option><option>Cleaner</option><option>Fixer</option><option>Interpreter</option><option>Dialect Coach</option><option>Dialogue Coach</option><option>Acting Coach</option><option>Child Wrangler</option><option>Tutor</option></optgroup><optgroup label="Marketing & Distribution"><option>Distributor</option><option>Sales Agent</option><option>Publicist</option><option>Marketing Manager</option><option>Poster Designer</option><option>Trailer House</option><option>Social Media Manager</option><option>EPK Producer</option><option>Behind the Scenes Videographer</option><option>Making-of Producer</option></optgroup><optgroup label="Business & Legal"><option>Production Company</option><option>Financier</option><option>Completion Guarantor</option><option>Entertainment Lawyer</option><option>Insurance Broker</option><option>Clearance Coordinator</option><option>Executive in Charge of Production</option><option>Talent Agent</option><option>Manager</option></optgroup><optgroup label="Special Thanks"><option>Special Thanks</option><option>In Loving Memory Of</option><option>Sponsor</option><option>Partner</option><option>Supported By</option><option>Filmed At</option></optgroup>';
 window.DEEP = (() => {
   const m = location.search.match(/[?&](film|person|house)=(\d+)/);
-  return m ? m[1] == "film" ? { f: m[2] } : m[1] == "house" ? { h: m[2] } : { p: m[2] } : null;
+  let d = m ? m[1] == "film" ? { f: m[2] } : m[1] == "house" ? { h: m[2] } : { p: m[2] } : null;
+  try {
+    if (d) localStorage.setItem("atmax_deep", JSON.stringify({ d, t: Date.now() }));
+    else {
+      const o = JSON.parse(localStorage.getItem("atmax_deep") || "null");
+      if (o && Date.now() - o.t < 18e5) d = o.d;
+    }
+  } catch (e) {
+  }
+  return d;
 })();
 const PAGE = window.ATMAX_PAGE || "home", navTo = (p) => {
   location.href = p;
@@ -1092,6 +1101,36 @@ const rail = (n, a, min) => {
   if (!a.length && !k) return "";
   return '<section class="rw"><h3 class="rowt">'.concat(esc(n), '</h3><div class="rc"><button class="ar l" aria-label="Scroll left">\u2039</button><div class="rail">').concat(a.map(tile).join("")).concat(Array.from({ length: k }, () => ph(n)).join(""), '</div><button class="ar r" aria-label="Scroll right">\u203A</button></div></section>');
 };
+function runDeep() {
+  if (window.DEEP) {
+    const dd = window.DEEP;
+    window.DEEP = null;
+    try {
+      localStorage.removeItem("atmax_deep");
+    } catch (e) {
+    }
+    let tries = 0;
+    const go2 = () => {
+      try {
+        if (dd.f && (S.T || []).find((x) => x.id == dd.f)) {
+          detail(+dd.f);
+          return;
+        }
+        if (dd.p && window.PPL && window.PPL[dd.p]) {
+          personSheet(String(dd.p));
+          return;
+        }
+        if (dd.h && window.HS && window.HS[dd.h]) {
+          houseSheet(dd.h);
+          return;
+        }
+      } catch (e) {
+      }
+      if (++tries < 25) setTimeout(go2, 300);
+    };
+    setTimeout(go2, 300);
+  }
+}
 function draw() {
   document.body.classList.add("dk");
   app.innerHTML = "<nav>".concat(brand(), '<div class="tabs"><button data-v="home" class="').concat(S.view == "home" ? "on" : "", '">Home</button><button data-v="list" class="').concat(S.view == "list" ? "on" : "", '">My list (').concat(S.L.length, ')</button><button data-v="history" class="').concat(S.view == "history" ? "on" : "", '">Watched</button></div>\n <input id="q" type="search" placeholder="Search titles" aria-label="Search titles" value="').concat(esc(S.q), '"><button class="btn ghost" id="sw" style="padding:.4rem .8rem">').concat(esc(S.sub.name), "</button>").concat(S.mh ? '<button class="btn ghost" id="tohs" style="padding:.4rem .8rem">Production house</button>' : "").concat(S.me ? '<button class="btn ghost" id="tocr" style="padding:.4rem .8rem">Creator</button>' : "").concat(S.isAdmin ? '<button class="btn ghost" id="toadm" style="padding:.4rem .8rem">Admin panel</button>' : "", '<button class="btn ghost" id="out" style="padding:.4rem .8rem">Sign out</button></nav>').concat(S.view === "home" ? homeMark() : "").concat(S.DX && (S.DX.re || S.DX.te || !S.T.length) ? '<div class="ann" style="background:#5a1a1a;color:#fff" role="alert">No films loaded. Rows found: '.concat(S.DX.rn, ", films found: ").concat(S.DX.tn, ", shown: ").concat(S.T.length, ". ").concat(esc(S.DX.te || S.DX.re || (S.DX.tn ? "All films are hidden (draft, future publish date, or row switched off)." : "Database returned no films for this visitor (check Row Level Security policy on titles).")), "</div>") : "").concat(S.set.announceOn && S.set.announce ? '<div class="ann" role="status">'.concat(esc(S.set.announce), "</div>") : "", '<div id="body"></div>');
@@ -1119,6 +1158,7 @@ function draw() {
       body();
     };
     body();
+    runDeep();
     return;
   }
   $("#sw").onclick = () => {
@@ -1145,18 +1185,7 @@ function draw() {
     body();
   };
   body();
-  if (window.DEEP) {
-    const dd = window.DEEP;
-    window.DEEP = null;
-    setTimeout(() => {
-      try {
-        if (dd.f && S.T.find((x) => x.id == dd.f)) detail(+dd.f);
-        else if (dd.p && window.PPL[dd.p]) personSheet(String(dd.p));
-        else if (dd.h && window.HS[dd.h]) houseSheet(dd.h);
-      } catch (e) {
-      }
-    }, 300);
-  }
+  runDeep();
 }
 const bn = (f) => pick(f, isPhone() ? "phone" : "pc");
 const heroHTML = (f) => '<section class="hero" style="background-image:linear-gradient(100deg,var(--hov,var(--bar)) 5%,transparent 90%),'.concat(bn(f).src ? "url('".concat(esc(bn(f).src.replace(/'/g, "%27")), "'),") : "", 'linear-gradient(100deg,var(--bar),var(--wine))" data-bp="').concat(bn(f).pos, '"><h2>').concat(esc(f.title), '</h2><p class="hm">').concat(heroMeta(f), "</p><p>").concat(esc(f.description), '</p><div class="b"><button class="btn" data-play="').concat(f.id, '">Play</button><button class="btn ghost" data-id="').concat(f.id, '">More info</button></div></section>');
