@@ -2111,9 +2111,15 @@ const fixHero = () => document.querySelectorAll(".hero[data-bp]").forEach((h) =>
   h.style.backgroundPosition = "center," + h.dataset.bp + ",center";
 });
 new MutationObserver(fixHero).observe(document.body, { childList: true, subtree: true });
+let _lw = innerWidth, _rt = 0;
 addEventListener("resize", () => {
-  const h = document.querySelector(".hero[data-bp]");
-  if (h && S.T && S.T.length && S.view === "home" && !S.q) body();
+  if (innerWidth === _lw) return;
+  _lw = innerWidth;
+  clearTimeout(_rt);
+  _rt = setTimeout(() => {
+    const h = document.querySelector(".hero[data-bp]");
+    if (h && S.T && S.T.length && S.view === "home" && !S.q) body();
+  }, 250);
 });
 const _browse = browse;
 browse = async function() {

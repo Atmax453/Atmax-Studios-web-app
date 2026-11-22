@@ -205,7 +205,7 @@
     ambLayers = $$('i', amb);
   }
   function setAmbient(t) {
-    if (!CFG.ambient || animOff() || isLite() || !t || ambFilm === t.id) return;   // page tint off on phones/TV: repainting the page background while scrolling made it blink
+    if (!CFG.ambient || animOff() || !t || ambFilm === t.id) return;
     ambFilm = t.id;
     ensureAmbient();
     filmColor(t, function (c) {
@@ -414,14 +414,11 @@
       clearTimeout(hoverTimer);
     }, true);
     // phones: the tile that settles in the middle of a row after a swipe
-    var lastPageScroll = 0;
     document.addEventListener('scroll', function (e) {
       var tg = e.target;
-      if (!tg || !tg.classList || !tg.classList.contains('rail')) lastPageScroll = Date.now();   // page (up/down) scrolling
       if (spot) endSpot(false);
       clearTimeout(hoverTimer);
-      if (!isTouch() || !tg || !tg.classList || !tg.classList.contains('rail')) { clearTimeout(railTimer); return; }
-      if (Date.now() - lastPageScroll < 900) return;   // up/down scrolling that nudged a row: do not flash a spotlight
+      if (!isTouch() || !tg || !tg.classList || !tg.classList.contains('rail')) return;
       clearTimeout(railTimer);
       railTimer = setTimeout(function () {
         var mid = innerWidth / 2, best = null, bd = 1e9;
