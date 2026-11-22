@@ -736,6 +736,10 @@ const peopleIdx = () => {
     if (isCast(x.r)) e.cast = true;
     if (!e.films.some((f) => f.t.id === t.id)) e.films.push({ t, r: x.r || "" });
   }));
+  Object.values(window.PPL || {}).forEach((pp) => {
+    const k = String(pp.id);
+    if (!m.has(k)) m.set(k, { k, id: pp.id, n: pp.name, l: pp.label || "", p: pp.photo_url || "", roles: /* @__PURE__ */ new Set(), films: [], cast: false });
+  });
   return m;
 };
 async function personSheet(key) {
@@ -1078,6 +1082,10 @@ function searchHTML(q) {
   if (f == "genre" && genres.length) h += '<div class="sfg">'.concat(genres.map((g) => '<button data-g="'.concat(esc(g), '">').concat(esc(g), "</button>")).join(""), "</div>");
   if ((f == "all" || f == "films" || f == "genre") && films.length) h += rail(f == "genre" ? "Films in this genre" : "Films", films);
   if ((f == "all" || f == "cast" || f == "crew") && ppl.length) h += '<section class="rw"><h3 class="rowt">'.concat(f == "cast" ? "Cast" : f == "crew" ? "Crew" : "People", '</h3><div class="lbs">').concat(ppl.slice(0, 40).map((e) => '<button class="lbc r0 ppc'.concat(vcl(e.id), '" data-pp="').concat(esc(e.k), '"><span class="lba" style="').concat(e.p ? "background-image:url('".concat(esc(e.p), "')") : "", '">').concat(e.p ? "" : esc(e.n.charAt(0).toUpperCase()), "</span><b>").concat(esc(e.n)).concat(vb(e.id), "</b><small>").concat(esc(e.l || [...e.roles].slice(0, 2).join(" \xB7 ")), '</small><span class="lbr" style="font-size:.7rem;color:#fff;opacity:.7">').concat(e.films.length, " film").concat(e.films.length == 1 ? "" : "s", "</span></button>")).join(""), "</div></section>");
+  if (f == "all") {
+    const hs = Object.values(window.HS || {}).filter((x) => String(x.name || "").toLowerCase().includes(q));
+    if (hs.length) h += '<section class="rw"><h3 class="rowt">Production houses</h3><div class="lbs">'.concat(hs.slice(0, 20).map((x) => '<button class="lbc r0 ppc" data-hh="'.concat(esc(x.id), '"><span class="lba" style="').concat(x.logo_url ? "background-image:url('".concat(esc(x.logo_url), "')") : "", '">').concat(x.logo_url ? "" : esc(String(x.name).charAt(0).toUpperCase()), "</span><b>").concat(esc(x.name), "</b><small>Production house</small></button>")).join(""), "</div></section>");
+  }
   if (h === chips || h.length === chips.length + (f == "genre" && genres.length ? 1 : 0) && 0) h += '<p class="empty">Nothing matches \u201C'.concat(esc(S.q), "\u201D. Try a film, a person or a genre.</p>");
   return h;
 }
@@ -1087,6 +1095,7 @@ function searchBind() {
     body();
   });
   document.querySelectorAll("[data-pp]").forEach((b) => b.onclick = () => personSheet(b.dataset.pp));
+  document.querySelectorAll("[data-hh]").forEach((b) => b.onclick = () => houseSheet(b.dataset.hh));
   document.querySelectorAll("[data-g]").forEach((b) => b.onclick = () => {
     S.q = b.dataset.g;
     S.sf = "genre";
