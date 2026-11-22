@@ -2726,7 +2726,7 @@ async function tvPair() {
   const q = qrcode(0, "M");
   q.addData(location.origin + "/?pair=" + code);
   q.make();
-  m.innerHTML = '<div class="qrbox">'.concat(q.createSvgTag({ cellSize: 8, margin: 2, scalable: true }), '<h3 style="margin:.2rem 0">Sign in with your phone</h3><p style="margin:.3rem 0 1rem" id="qs">On your phone, sign in to ').concat(esc(S.set.brand || "ATMAX"), ', tap the Scan QR icon at the top and point the camera at this code.</p><button class="btn" id="g3">Close</button></div>');
+  m.innerHTML = '<div class="qrbox qrtv">'.concat(q.createSvgTag({ cellSize: 8, margin: 4, scalable: true }), '<h3 style="margin:.2rem 0">Sign in with your phone</h3><p style="margin:.3rem 0 1rem" id="qs">On your phone, sign in to ').concat(esc(S.set.brand || "ATMAX"), ', tap the Scan QR icon at the top and point the camera at this code.</p><button class="btn" id="g3">Close</button></div>');
   document.body.appendChild(m);
   m.onclick = (e) => {
     if (e.target === m) stop();
@@ -2822,7 +2822,7 @@ async function scanQR() {
   };
   m.querySelector("#sc").onclick = stop;
   try {
-    st = await navigator.mediaDevices.getUserMedia({ video: { facingMode: { ideal: "environment" } }, audio: false });
+    st = await navigator.mediaDevices.getUserMedia({ video: { facingMode: { ideal: "environment" }, width: { ideal: 1280 }, height: { ideal: 720 } }, audio: false });
     v.srcObject = st;
     await v.play();
   } catch (e) {
@@ -2833,45 +2833,69 @@ async function scanQR() {
   try {
     if (window.BarcodeDetector) det = new BarcodeDetector({ formats: ["qr_code"] });
   } catch (e) {
+    det = null;
   }
-  if (!det) {
+  let jq = false;
+  const needJq = async () => {
+    if (jq) return true;
     try {
       await loadJsQR();
+      jq = true;
+      return true;
     } catch (e) {
       msg.textContent = "Could not load the scanner. Check your connection and try again.";
-      return;
-    }
-  }
-  const cv = document.createElement("canvas"), cx = cv.getContext("2d", { willReadFrequently: true });
-  const hit = async (txt) => {
-    const code = pairCode(txt);
-    if (!code) {
-      msg.textContent = "That is not a TV code. Point at the code on your TV.";
       return false;
     }
-    stop();
-    approveTV(code);
-    return true;
+  };
+  if (!det && !await needJq()) return;
+  const cv = document.createElement("canvas"), cx = cv.getContext("2d", { willReadFrequently: true });
+  let t0 = Date.now(), busy = false;
+  const hit = async (txt) => {
+    const code = pairCode(txt);
+    if (code) {
+      stop();
+      approveTV(code);
+      return true;
+    }
+    const t = String(txt || "").trim();
+    msg.textContent = /^https?:\/\/[^/]*atmax/i.test(t) ? "This TV is showing an old version. On the TV, reload the page, then press Scan QR again." : "That is not a TV code. Point at the code on your TV.";
+    return false;
   };
   iv = setInterval(async () => {
-    if (!on || v.readyState < 2) return;
+    if (!on || busy || v.readyState < 2) return;
+    busy = true;
     try {
+      let txt = null;
       if (det) {
-        const r = await det.detect(v);
-        if (r.length && await hit(r[0].rawValue)) return;
-      } else {
+        try {
+          const r = await det.detect(v);
+          if (r.length) txt = r[0].rawValue;
+        } catch (e) {
+          det = null;
+          await needJq();
+        }
+      }
+      if (!det && jq && !txt) {
         const w = v.videoWidth, h = v.videoHeight;
-        if (!w) return;
-        const k = Math.min(1, 640 / w);
-        cv.width = Math.round(w * k);
-        cv.height = Math.round(h * k);
-        cx.drawImage(v, 0, 0, cv.width, cv.height);
-        const d = cx.getImageData(0, 0, cv.width, cv.height), r = window.jsQR(d.data, d.width, d.height);
-        if (r && r.data) await hit(r.data);
+        if (w) {
+          const k = Math.min(1, 1100 / w);
+          cv.width = Math.round(w * k);
+          cv.height = Math.round(h * k);
+          cx.drawImage(v, 0, 0, cv.width, cv.height);
+          const d = cx.getImageData(0, 0, cv.width, cv.height), r = window.jsQR(d.data, d.width, d.height, { inversionAttempts: "attemptBoth" });
+          if (r && r.data) txt = r.data;
+        }
+      }
+      if (txt) {
+        if (await hit(txt)) return;
+      } else if (Date.now() - t0 > 8e3 && msg.dataset.h !== "1") {
+        msg.dataset.h = "1";
+        msg.textContent = "Still looking. Hold the phone steady about 30 cm from the TV and avoid glare.";
       }
     } catch (e) {
     }
-  }, 300);
+    busy = false;
+  }, 250);
 }
 function pairCheck() {
   let c = null;
