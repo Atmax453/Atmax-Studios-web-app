@@ -2695,6 +2695,7 @@ const _browse = browse;
 browse = async function() {
   await _browse();
   openHash();
+  pairCheck();
 };
 addEventListener("hashchange", openHash);
 document.addEventListener("click", async (e) => {
@@ -2703,7 +2704,195 @@ document.addEventListener("click", async (e) => {
   const { error } = await sb.rpc("reset_device", { uid: b.dataset.rd });
   b.textContent = error ? "Failed" : "Device reset";
 });
+const _hex = (n) => {
+  const a = new Uint8Array(n);
+  crypto.getRandomValues ? crypto.getRandomValues(a) : a.forEach((_, i) => a[i] = Math.random() * 256);
+  return [...a].map((x) => ("0" + x.toString(16)).slice(-2)).join("");
+};
+async function tvPair() {
+  if (typeof qrcode === "undefined") return alert("QR code could not be created on this device.");
+  const code = _hex(16), m = document.createElement("div");
+  m.className = "mod";
+  m.setAttribute("role", "dialog");
+  m.setAttribute("aria-modal", "true");
+  let alive = true, tm = null;
+  const stop = () => {
+    alive = false;
+    clearTimeout(tm);
+    m.remove();
+  };
+  const r0 = await sb.rpc("tv_pair_start", { c: code, d: devId() });
+  if (r0.error) return alert("Could not start TV sign-in. Please try again.");
+  const q = qrcode(0, "M");
+  q.addData(location.origin + "/?pair=" + code);
+  q.make();
+  m.innerHTML = '<div class="qrbox">'.concat(q.createSvgTag({ cellSize: 8, margin: 2, scalable: true }), '<h3 style="margin:.2rem 0">Sign in with your phone</h3><p style="margin:.3rem 0 1rem" id="qs">On your phone, sign in to ').concat(esc(S.set.brand || "ATMAX"), ', tap the Scan QR icon at the top and point the camera at this code.</p><button class="btn" id="g3">Close</button></div>');
+  document.body.appendChild(m);
+  m.onclick = (e) => {
+    if (e.target === m) stop();
+  };
+  m.querySelector("#g3").onclick = stop;
+  m.querySelector("#g3").focus();
+  const end = Date.now() + 9 * 60 * 1e3;
+  const tick = async () => {
+    if (!alive) return;
+    if (Date.now() > end) {
+      m.querySelector("#qs").textContent = "This code expired. Close and press Scan QR again.";
+      return;
+    }
+    try {
+      const r = await sb.rpc("tv_pair_poll", { c: code });
+      if (r.data) {
+        m.querySelector("#qs").textContent = "Approved. Signing in\u2026";
+        const v = await sb.auth.verifyOtp({ token_hash: r.data, type: "magiclink" });
+        if (v.error) {
+          m.querySelector("#qs").textContent = "Sign-in failed. Close and try again.";
+          return;
+        }
+        alive = false;
+        location.href = "/";
+        return;
+      }
+    } catch (e) {
+    }
+    tm = setTimeout(tick, 2e3);
+  };
+  tm = setTimeout(tick, 2e3);
+}
+function pairCode(t) {
+  const m = String(t || "").match(/[?&]pair=([a-f0-9]{20,64})/i) || String(t || "").trim().match(/^([a-f0-9]{32})$/i);
+  return m ? m[1].toLowerCase() : null;
+}
+async function approveTV(code) {
+  const m = document.createElement("div");
+  m.className = "mod";
+  m.setAttribute("role", "dialog");
+  m.setAttribute("aria-modal", "true");
+  m.innerHTML = '<div class="qrbox"><h3 style="margin:.2rem 0">Sign in this TV?</h3><p style="margin:.3rem 0 1rem" id="as">This signs the TV in to your '.concat(esc(S.set.brand || "ATMAX"), ' account. Only approve it if you are looking at your own TV right now.</p><button class="btn" id="ay">Approve</button> <button class="btn ghost" id="an" style="color:#141012">Cancel</button></div>');
+  document.body.appendChild(m);
+  const c = () => m.remove();
+  m.querySelector("#an").onclick = c;
+  m.querySelector("#ay").onclick = async () => {
+    const b = m.querySelector("#ay"), t = m.querySelector("#as");
+    b.disabled = true;
+    t.textContent = "Approving\u2026";
+    try {
+      const ss = await sb.auth.getSession(), tok = ss.data && ss.data.session && ss.data.session.access_token;
+      const r = await fetch(SUPABASE_URL + "/functions/v1/tv-login", { method: "POST", headers: { "content-type": "application/json", apikey: SUPABASE_KEY, authorization: "Bearer " + tok }, body: JSON.stringify({ code }) }), j = await r.json().catch(() => ({}));
+      if (r.ok && j.ok) {
+        t.textContent = "Done. Your TV is signing in.";
+        b.remove();
+        m.querySelector("#an").textContent = "Close";
+      } else {
+        t.textContent = j.error || "Could not approve. Try again.";
+        b.disabled = false;
+      }
+    } catch (e) {
+      t.textContent = "No connection. Try again.";
+      b.disabled = false;
+    }
+  };
+}
+function loadJsQR() {
+  return new Promise((res, rej) => {
+    if (window.jsQR) return res();
+    const s = document.createElement("script");
+    s.src = "https://cdnjs.cloudflare.com/ajax/libs/jsQR/1.4.0/jsQR.min.js";
+    s.onload = res;
+    s.onerror = rej;
+    document.head.appendChild(s);
+  });
+}
+async function scanQR() {
+  if (!S.user) return gate("scan a TV code");
+  const m = document.createElement("div");
+  m.className = "mod";
+  m.style.cssText = "background:#000;padding:0;place-items:stretch";
+  m.setAttribute("role", "dialog");
+  m.setAttribute("aria-modal", "true");
+  m.innerHTML = '<div style="position:relative;width:100%;height:100%;display:flex;flex-direction:column;color:#fff"><video playsinline muted style="flex:1;width:100%;min-height:0;object-fit:cover"></video><div style="position:absolute;left:0;right:0;top:0;padding:1rem;text-align:center;background:linear-gradient(rgba(0,0,0,.7),transparent)" id="sq">Point the camera at the code on your TV</div><button class="btn" id="sc" style="position:absolute;left:50%;bottom:max(1.5rem,env(safe-area-inset-bottom));transform:translateX(-50%)">Cancel</button></div>';
+  document.body.appendChild(m);
+  const v = m.querySelector("video"), msg = m.querySelector("#sq");
+  let st = null, on = true, iv = null;
+  const stop = () => {
+    on = false;
+    clearInterval(iv);
+    if (st) st.getTracks().forEach((t) => t.stop());
+    m.remove();
+  };
+  m.querySelector("#sc").onclick = stop;
+  try {
+    st = await navigator.mediaDevices.getUserMedia({ video: { facingMode: { ideal: "environment" } }, audio: false });
+    v.srcObject = st;
+    await v.play();
+  } catch (e) {
+    msg.textContent = "The camera is blocked. Allow camera access for this site in your browser settings, then try again.";
+    return;
+  }
+  let det = null;
+  try {
+    if (window.BarcodeDetector) det = new BarcodeDetector({ formats: ["qr_code"] });
+  } catch (e) {
+  }
+  if (!det) {
+    try {
+      await loadJsQR();
+    } catch (e) {
+      msg.textContent = "Could not load the scanner. Check your connection and try again.";
+      return;
+    }
+  }
+  const cv = document.createElement("canvas"), cx = cv.getContext("2d", { willReadFrequently: true });
+  const hit = async (txt) => {
+    const code = pairCode(txt);
+    if (!code) {
+      msg.textContent = "That is not a TV code. Point at the code on your TV.";
+      return false;
+    }
+    stop();
+    approveTV(code);
+    return true;
+  };
+  iv = setInterval(async () => {
+    if (!on || v.readyState < 2) return;
+    try {
+      if (det) {
+        const r = await det.detect(v);
+        if (r.length && await hit(r[0].rawValue)) return;
+      } else {
+        const w = v.videoWidth, h = v.videoHeight;
+        if (!w) return;
+        const k = Math.min(1, 640 / w);
+        cv.width = Math.round(w * k);
+        cv.height = Math.round(h * k);
+        cx.drawImage(v, 0, 0, cv.width, cv.height);
+        const d = cx.getImageData(0, 0, cv.width, cv.height), r = window.jsQR(d.data, d.width, d.height);
+        if (r && r.data) await hit(r.data);
+      }
+    } catch (e) {
+    }
+  }, 300);
+}
+function pairCheck() {
+  let c = null;
+  try {
+    c = pairCode(location.search);
+    if (c) {
+      history.replaceState(null, "", location.pathname);
+      if (S.user) return approveTV(c);
+      sessionStorage.setItem("atmax_pair", JSON.stringify({ c, t: Date.now() }));
+      return gate("approve the TV sign-in");
+    }
+    if (S.user) {
+      const o = JSON.parse(sessionStorage.getItem("atmax_pair") || "null");
+      sessionStorage.removeItem("atmax_pair");
+      if (o && Date.now() - o.t < 6e5) approveTV(o.c);
+    }
+  } catch (e) {
+  }
+}
 function showQR() {
+  if (typeof TV !== "undefined" && TV && !S.user) return tvPair();
   if (typeof qrcode === "undefined") return alert("QR code could not be created on this device.");
   const url = location.origin + location.pathname, q = qrcode(0, "M");
   q.addData(url);
@@ -2724,7 +2913,7 @@ function showQR() {
 const _draw = draw;
 draw = function() {
   _draw();
-  if (typeof isPhone === "function" && isPhone() && !(typeof TV !== "undefined" && TV) && !document.querySelector("#qrb")) {
+  if (S.user && typeof isPhone === "function" && isPhone() && !(typeof TV !== "undefined" && TV) && !document.querySelector("#qrb")) {
     const sr = document.querySelector("nav #nsr");
     if (sr) {
       const b = document.createElement("button");
@@ -2732,7 +2921,7 @@ draw = function() {
       b.className = "nic";
       b.setAttribute("aria-label", "Scan QR");
       b.title = "Scan QR";
-      b.onclick = showQR;
+      b.onclick = scanQR;
       sr.after(b);
     }
   }
