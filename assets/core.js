@@ -22,6 +22,7 @@ const GOOGLE_LOGIN = true;
 const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 const $ = (s) => document.querySelector(s), app = $("#app");
 const ROLE_OPTS = '<optgroup label="Cast"><option>Lead Actor</option><option>Lead Actress</option><option>Supporting Actor</option><option>Supporting Actress</option><option>Co-Star</option><option>Guest Star</option><option>Cameo</option><option>Special Appearance</option><option>Voice Actor</option><option>Narrator</option><option>Motion Capture Performer</option><option>Stand-in</option><option>Body Double</option><option>Photo Double</option><option>Background Actor / Extra</option><option>Child Actor</option><option>Stunt Performer</option><option>Stunt Double</option></optgroup><optgroup label="Directing"><option>Director</option><option>Co-Director</option><option>Second Unit Director</option><option>Assistant Director (1st AD)</option><option>Second Assistant Director (2nd AD)</option><option>Third Assistant Director</option><option>Script Supervisor</option><option>Director\'s Assistant</option><option>Creative Director</option></optgroup><optgroup label="Producing"><option>Executive Producer</option><option>Producer</option><option>Co-Producer</option><option>Associate Producer</option><option>Line Producer</option><option>Supervising Producer</option><option>Consulting Producer</option><option>Production Manager</option><option>Unit Production Manager</option><option>Production Supervisor</option><option>Production Coordinator</option><option>Assistant Production Coordinator</option><option>Production Assistant</option><option>Production Accountant</option><option>Post-Production Supervisor</option><option>Post-Production Coordinator</option><option>Development Executive</option><option>Studio Executive</option><option>Showrunner</option></optgroup><optgroup label="Writing"><option>Writer</option><option>Screenplay</option><option>Story By</option><option>Screenwriter</option><option>Co-Writer</option><option>Staff Writer</option><option>Script Editor</option><option>Script Consultant</option><option>Story Editor</option><option>Adapted From (Source Author)</option><option>Dialogue Writer</option><option>Original Concept By</option></optgroup><optgroup label="Casting"><option>Casting Director</option><option>Casting Associate</option><option>Casting Assistant</option><option>Extras Casting</option></optgroup><optgroup label="Camera"><option>Director of Photography (DP)</option><option>Cinematographer</option><option>Camera Operator</option><option>A-Camera Operator</option><option>B-Camera Operator</option><option>First Assistant Camera (Focus Puller)</option><option>Second Assistant Camera (Clapper Loader)</option><option>DIT (Digital Imaging Technician)</option><option>Data Wrangler</option><option>Steadicam Operator</option><option>Drone Operator</option><option>Aerial Cinematographer</option><option>Underwater Cinematographer</option><option>Still Photographer</option><option>Camera Trainee</option><option>Video Assist Operator</option><option>Colour Grading Consultant</option></optgroup><optgroup label="Lighting & Grip"><option>Gaffer</option><option>Best Boy Electric</option><option>Electrician</option><option>Lighting Technician</option><option>Lighting Director</option><option>Key Grip</option><option>Best Boy Grip</option><option>Dolly Grip</option><option>Grip</option><option>Rigging Gaffer</option><option>Generator Operator</option></optgroup><optgroup label="Sound"><option>Production Sound Mixer</option><option>Boom Operator</option><option>Sound Assistant</option><option>Sound Designer</option><option>Supervising Sound Editor</option><option>Sound Editor</option><option>Dialogue Editor</option><option>ADR Editor</option><option>ADR Mixer</option><option>Foley Artist</option><option>Foley Mixer</option><option>Re-recording Mixer</option><option>Sound Effects Editor</option><option>Music Editor</option><option>Sound Recordist</option></optgroup><optgroup label="Art Department"><option>Production Designer</option><option>Art Director</option><option>Assistant Art Director</option><option>Set Decorator</option><option>Set Dresser</option><option>Leadman</option><option>Property Master</option><option>Prop Maker</option><option>Props Assistant</option><option>Scenic Artist</option><option>Graphic Designer</option><option>Concept Artist</option><option>Storyboard Artist</option><option>Illustrator</option><option>Draughtsperson</option><option>Construction Coordinator</option><option>Carpenter</option><option>Painter</option><option>Greensman</option><option>Model Maker</option><option>Art Department Coordinator</option></optgroup><optgroup label="Costume"><option>Costume Designer</option><option>Assistant Costume Designer</option><option>Costume Supervisor</option><option>Wardrobe Supervisor</option><option>Wardrobe Assistant</option><option>Costume Standby</option><option>Tailor / Seamstress</option><option>Costume Cutter</option><option>Costume Buyer</option></optgroup><optgroup label="Hair & Makeup"><option>Makeup Artist</option><option>Key Makeup Artist</option><option>Makeup Designer</option><option>Special Effects Makeup Artist</option><option>Prosthetics Designer</option><option>Hair Stylist</option><option>Key Hairstylist</option><option>Hair Designer</option><option>Wig Maker</option><option>Makeup Assistant</option></optgroup><optgroup label="Visual Effects & Animation"><option>VFX Supervisor</option><option>VFX Producer</option><option>VFX Artist</option><option>Compositor</option><option>CGI Artist</option><option>3D Artist</option><option>Animator</option><option>Lead Animator</option><option>Character Animator</option><option>Motion Graphics Artist</option><option>Matte Painter</option><option>Title Designer</option><option>Rotoscope Artist</option><option>Previs Artist</option><option>Colourist</option><option>Creature Designer</option><option>Rigging Artist</option><option>Lighting Artist (CG)</option></optgroup><optgroup label="Special Effects & Stunts"><option>Special Effects Supervisor</option><option>Special Effects Coordinator</option><option>Pyrotechnician</option><option>Armourer</option><option>Weapons Master</option><option>Stunt Coordinator</option><option>Fight Choreographer</option><option>Stunt Rigger</option><option>Safety Officer</option><option>Animal Trainer</option><option>Animal Wrangler</option><option>Intimacy Coordinator</option><option>Dance Choreographer</option><option>Choreographer</option></optgroup><optgroup label="Editing & Post"><option>Editor</option><option>Film Editor</option><option>Supervising Editor</option><option>Assistant Editor</option><option>Online Editor</option><option>Offline Editor</option><option>Trailer Editor</option><option>Post Production Sound</option><option>Subtitle Translator</option><option>Subtitler</option><option>Digital Intermediate Producer</option><option>Dailies Technician</option><option>Conform Editor</option><option>Archive Researcher</option><option>Footage Archivist</option></optgroup><optgroup label="Music"><option>Composer</option><option>Original Score By</option><option>Music Supervisor</option><option>Orchestrator</option><option>Conductor</option><option>Songwriter</option><option>Lyricist</option><option>Music Producer</option><option>Music Arranger</option><option>Sound Mixer (Music)</option><option>Soloist</option><option>Performed By</option><option>Soundtrack Artist</option><option>Song Performed By</option><option>Music Coordinator</option><option>Music Clearance</option></optgroup><optgroup label="Locations & Transport"><option>Location Manager</option><option>Assistant Location Manager</option><option>Location Scout</option><option>Location Assistant</option><option>Unit Manager</option><option>Transportation Coordinator</option><option>Transport Captain</option><option>Driver</option><option>Picture Car Coordinator</option><option>Marine Coordinator</option><option>Aerial Coordinator</option></optgroup><optgroup label="Set Operations"><option>Unit Publicist</option><option>Set Medic</option><option>Health &amp; Safety Officer</option><option>Security</option><option>Craft Services</option><option>Catering</option><option>Production Runner</option><option>Set Production Assistant</option><option>Cleaner</option><option>Fixer</option><option>Interpreter</option><option>Dialect Coach</option><option>Dialogue Coach</option><option>Acting Coach</option><option>Child Wrangler</option><option>Tutor</option></optgroup><optgroup label="Marketing & Distribution"><option>Distributor</option><option>Sales Agent</option><option>Publicist</option><option>Marketing Manager</option><option>Poster Designer</option><option>Trailer House</option><option>Social Media Manager</option><option>EPK Producer</option><option>Behind the Scenes Videographer</option><option>Making-of Producer</option></optgroup><optgroup label="Business & Legal"><option>Production Company</option><option>Financier</option><option>Completion Guarantor</option><option>Entertainment Lawyer</option><option>Insurance Broker</option><option>Clearance Coordinator</option><option>Executive in Charge of Production</option><option>Talent Agent</option><option>Manager</option></optgroup><optgroup label="Special Thanks"><option>Special Thanks</option><option>In Loving Memory Of</option><option>Sponsor</option><option>Partner</option><option>Supported By</option><option>Filmed At</option></optgroup>';
+window.ATMAX_REC = /[#&?]type=recovery/.test(location.hash + location.search);
 window.DEEP = (() => {
   const m = location.search.match(/[?&](film|person|house)=(\d+)/);
   let d = m ? m[1] == "film" ? { f: m[2] } : m[1] == "house" ? { h: m[2] } : { p: m[2] } : null;
@@ -190,6 +191,10 @@ async function init() {
   } catch (e) {
   }
   const { data: { session } } = await sb.auth.getSession();
+  if (window.ATMAX_REC && session) {
+    window.ATMAX_REC = false;
+    return resetScreen(session.user);
+  }
   S.user = (session == null ? void 0 : session.user) || null;
   S.sub = S.user ? loadSub(S.user.id) : null;
   try {
@@ -266,6 +271,40 @@ async function go(msg) {
     }, 400);
   }
 }
+function resetScreen(user) {
+  app.innerHTML = '<div class="login"><div class="card"><h1>Choose a new password</h1>\n <label for="np">New password</label><input id="np" type="password" autocomplete="new-password" minlength="6">\n <label for="np2">Repeat password</label><input id="np2" type="password" autocomplete="new-password" minlength="6">\n <div class="err" id="err" role="alert"></div>\n <button class="btn" id="sv">Save new password</button></div><div class="lbrand">'.concat(studioMark() || brand(), "</div></div>");
+  $("#sv").onclick = async () => {
+    const a = $("#np").value, b = $("#np2").value, er = $("#err");
+    er.style.color = "";
+    if (a.length < 6) {
+      er.textContent = "Use at least 6 characters.";
+      return;
+    }
+    if (a !== b) {
+      er.textContent = "The two passwords don't match.";
+      return;
+    }
+    const bt = $("#sv");
+    bt.disabled = true;
+    const { error } = await sb.auth.updateUser({ password: a });
+    if (error) {
+      er.textContent = error.message;
+      bt.disabled = false;
+      return;
+    }
+    try {
+      history.replaceState(null, "", location.pathname);
+    } catch (e) {
+    }
+    S.user = user;
+    S.sub = loadSub(user.id);
+    try {
+      await go();
+    } catch (e) {
+      location.href = "/";
+    }
+  };
+}
 function sentScreen(email, again) {
   const gm = /@(gmail|googlemail)\./i.test(email);
   app.innerHTML = '<div class="login"><div class="card"><h1>'.concat(again ? "Confirm your email" : "Account created", '</h1>\n <p style="margin:.4rem 0 1rem;line-height:1.5">').concat(again ? "This account isn't confirmed yet." : "Your account has been created.", " We sent a confirmation link to <b>").concat(esc(email), '</b>. Open that email, tap the link, then come back and sign in.</p>\n <p style="margin:0 0 1rem;font-size:.9rem;opacity:.75">Can\'t find it? Check Spam or Promotions. It can take a few minutes.</p>\n <div class="err" id="err" role="status" style="color:#1c8a3c"></div>\n ').concat(gm ? '<a class="btn" href="https://mail.google.com/" style="display:block;text-align:center;text-decoration:none;margin-bottom:.6rem">Open Gmail</a>' : "", '\n <button class="btn').concat(gm ? " ghost" : "", '" id="si">I\'ve confirmed, sign in</button>\n <button class="btn ghost" id="rs">Send the email again</button></div><div class="lbrand">').concat(studioMark() || brand(), "</div></div>");
@@ -288,10 +327,26 @@ function sentScreen(email, again) {
 }
 function login(msg) {
   const up = S.mode === "up";
-  app.innerHTML = '<div class="login"><div class="card"><h1>'.concat(up ? "Create account" : "Sign in", '</h1>\n <label for="em">Email</label><input id="em" type="email" autocomplete="email">\n <label for="pw">Password</label><div class="pwrap"><input id="pw" type="password" autocomplete="').concat(up ? "new-password" : "current-password", '"><button type="button" class="eye" id="eye" aria-label="Show password" aria-pressed="false"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path class="e1" d="M1.5 12S5.5 5 12 5s10.5 7 10.5 7-4 7-10.5 7S1.5 12 1.5 12z"/><circle class="e1" cx="12" cy="12" r="3"/><path class="e2" d="M3 3l18 18M10.6 5.1A10.7 10.7 0 0 1 12 5c6.5 0 10.5 7 10.5 7a17 17 0 0 1-3.1 3.9M6.6 6.6A16.6 16.6 0 0 0 1.5 12S5.5 19 12 19a10.6 10.6 0 0 0 5.4-1.5"/></svg></button></div>\n <div class="err" id="err" role="alert">').concat(esc(msg || ""), '</div>\n <button class="btn" id="go">').concat(up ? "Create account" : "Sign in", "</button>").concat(GOOGLE_LOGIN ? '<button class="btn ghost" id="gg">Continue with Google</button>' : "", '\n <div class="alt">').concat(up ? "Have an account?" : "New here?", ' <button id="sw">').concat(up ? "Sign in" : "Create account", '</button></div></div><div class="lbrand">').concat(studioMark() || brand(), '</div><div class="llegal"><a href="/about.html">About</a> \xB7 <a href="/privacy.html">Privacy Policy</a> \xB7 <a href="/terms.html">Terms of Service</a></div></div>');
+  app.innerHTML = '<div class="login"><div class="card"><h1>'.concat(up ? "Create account" : "Sign in", '</h1>\n <label for="em">Email</label><input id="em" type="email" autocomplete="email">\n <label for="pw">Password</label><div class="pwrap"><input id="pw" type="password" autocomplete="').concat(up ? "new-password" : "current-password", '"><button type="button" class="eye" id="eye" aria-label="Show password" aria-pressed="false"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path class="e1" d="M1.5 12S5.5 5 12 5s10.5 7 10.5 7-4 7-10.5 7S1.5 12 1.5 12z"/><circle class="e1" cx="12" cy="12" r="3"/><path class="e2" d="M3 3l18 18M10.6 5.1A10.7 10.7 0 0 1 12 5c6.5 0 10.5 7 10.5 7a17 17 0 0 1-3.1 3.9M6.6 6.6A16.6 16.6 0 0 0 1.5 12S5.5 19 12 19a10.6 10.6 0 0 0 5.4-1.5"/></svg></button></div>\n ').concat(up ? "" : '<div style="text-align:right;margin:-.2rem 0 .3rem"><button type="button" id="fg" style="background:none;border:0;color:inherit;opacity:.75;font-size:.85rem;text-decoration:underline;cursor:pointer;padding:.2rem 0">Forgot password?</button></div>', '\n <div class="err" id="err" role="alert">').concat(esc(msg || ""), '</div>\n <button class="btn" id="go">').concat(up ? "Create account" : "Sign in", "</button>").concat(GOOGLE_LOGIN ? '<button class="btn ghost" id="gg">Continue with Google</button>' : "", '\n <div class="alt">').concat(up ? "Have an account?" : "New here?", ' <button id="sw">').concat(up ? "Sign in" : "Create account", '</button></div></div><div class="lbrand">').concat(studioMark() || brand(), '</div><div class="llegal"><a href="/about.html">About</a> \xB7 <a href="/privacy.html">Privacy Policy</a> \xB7 <a href="/terms.html">Terms of Service</a></div></div>');
   $("#sw").onclick = () => {
     S.mode = up ? "in" : "up";
     login();
+  };
+  const fgb = $("#fg");
+  if (fgb) fgb.onclick = async () => {
+    const email = $("#em").value.trim(), er = $("#err");
+    if (!email) {
+      er.style.color = "";
+      er.textContent = "Type your email above first, then tap Forgot password.";
+      return;
+    }
+    fgb.disabled = true;
+    const { error } = await sb.auth.resetPasswordForEmail(email, { redirectTo: location.origin + "/" });
+    er.style.color = error ? "" : "#1c8a3c";
+    er.textContent = error ? error.message : "If an account exists for " + email + ", we sent a link to reset your password. Check Spam too.";
+    setTimeout(() => {
+      fgb.disabled = false;
+    }, 3e4);
   };
   $("#eye").onclick = () => {
     const i = $("#pw"), h = i.type === "password";
@@ -328,7 +383,8 @@ function login(msg) {
     const { data, error } = await (up ? sb.auth.signUp({ email, password }) : sb.auth.signInWithPassword({ email, password }));
     if (error) {
       if (/not confirmed/i.test(error.message)) return sentScreen(email, true);
-      return $("#err").textContent = error.message;
+      $("#err").style.color = "";
+      return $("#err").textContent = /invalid login/i.test(error.message) ? "Wrong email or password. Tap Forgot password to reset it." : error.message;
     }
     if (up && data.user && Array.isArray(data.user.identities) && !data.user.identities.length) {
       S.mode = "in";
