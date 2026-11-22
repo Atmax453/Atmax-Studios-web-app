@@ -673,6 +673,7 @@ const ADMIN = (() => {
     setTimeout(() => r(null), 8e3);
   });
   async function upload(file, folder) {
+    file = await shrinkImg(file, 2e3);
     const ext = (file.name.split(".").pop() || "bin").toLowerCase(), path = "".concat(folder, "/").concat(Date.now(), "-").concat(Math.random().toString(36).slice(2, 8), ".").concat(ext);
     const { error } = await sb.storage.from("films").upload(path, file, { cacheControl: "3600", contentType: file.type || "text/plain" });
     if (error) throw error;

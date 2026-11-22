@@ -848,6 +848,7 @@ async function houseDash() {
       try {
         let poster = null;
         if (v.poster && v.poster.size) {
+          v.poster = await shrinkImg(v.poster, 1600);
           if (v.poster.size > 5e6) throw new Error("Poster is too big (max 5 MB).");
           const ext = (v.poster.name.split(".").pop() || "jpg").toLowerCase(), path = "houses-own/".concat(S.user.id, "/").concat(Date.now(), "-poster.").concat(ext);
           const u = await sb.storage.from("films").upload(path, v.poster, { cacheControl: "3600", contentType: v.poster.type });
@@ -873,6 +874,7 @@ async function houseDash() {
       try {
         let logo = h.logo_url || "";
         if (v.logo && v.logo.size) {
+          v.logo = await shrinkImg(v.logo, 1600);
           if (v.logo.size > 5e6) throw new Error("Logo is too big (max 5 MB).");
           const ext = (v.logo.name.split(".").pop() || "png").toLowerCase(), path = "houses-own/".concat(S.user.id, "/").concat(Date.now(), ".").concat(ext);
           const u = await sb.storage.from("films").upload(path, v.logo, { cacheControl: "3600", contentType: v.logo.type });
@@ -964,6 +966,7 @@ async function creatorSheet() {
       try {
         let photo = me.photo_url || "";
         if (v.photo && v.photo.size) {
+          v.photo = await shrinkImg(v.photo, 1600);
           if (v.photo.size > 5e6) throw new Error("Photo is too big (max 5 MB).");
           const ext = (v.photo.name.split(".").pop() || "jpg").toLowerCase(), path = "creators/".concat(S.user.id, "/").concat(Date.now(), ".").concat(ext);
           const u = await sb.storage.from("films").upload(path, v.photo, { cacheControl: "3600", contentType: v.photo.type });
@@ -1200,6 +1203,65 @@ function guest() {
   S.sub = { id: 0, name: "Guest" };
   browse();
 }
+function shrinkImg(file, max) {
+  return new Promise((res) => {
+    try {
+      if (!/^image\//.test(file.type || "") || /svg|gif/.test(file.type)) {
+        return res(file);
+      }
+      const u = URL.createObjectURL(file), im = new Image();
+      im.onload = () => {
+        try {
+          let w = im.naturalWidth, h = im.naturalHeight;
+          if (!w || !h) {
+            URL.revokeObjectURL(u);
+            return res(file);
+          }
+          const k = Math.min(1, max / Math.max(w, h));
+          w = Math.round(w * k);
+          h = Math.round(h * k);
+          const c = document.createElement("canvas");
+          c.width = w;
+          c.height = h;
+          const x = c.getContext("2d");
+          x.fillStyle = "#fff";
+          x.fillRect(0, 0, w, h);
+          x.drawImage(im, 0, 0, w, h);
+          URL.revokeObjectURL(u);
+          c.toBlob((b) => {
+            if (!b) return res(file);
+            try {
+              res(new File([b], (file.name || "photo").replace(/\.[^.]+$/, "") + ".jpg", { type: "image/jpeg" }));
+            } catch (e) {
+              b.name = "photo.jpg";
+              res(b);
+            }
+          }, "image/jpeg", 0.88);
+        } catch (e) {
+          res(file);
+        }
+      };
+      im.onerror = () => {
+        URL.revokeObjectURL(u);
+        res(file);
+      };
+      im.src = u;
+    } catch (e) {
+      res(file);
+    }
+  });
+}
+document.addEventListener("change", (e) => {
+  const i = e.target;
+  if (!i || i.type !== "file" || !i.closest) return;
+  const p = i.closest(".crp");
+  if (p && i.files && i.files[0] && /^image\//.test(i.files[0].type || "")) {
+    p.style.backgroundImage = "url('" + URL.createObjectURL(i.files[0]) + "')";
+    [].forEach.call(p.childNodes, (n) => {
+      if (n.nodeType === 3) n.textContent = "";
+    });
+  }
+});
 const DON_MIN = () => Math.max(1, +S.set.donMin || 5);
 const donOn = (t) => S.set.donate !== false && (!t || t.donate_on !== false && t.status !== "draft");
 const donBtn = (t) => donOn(t) ? '<button class="don" data-don="'.concat(t.id, '">').concat(t.in_production ? "Fund this film" : "Donate", "</button>") : "";
