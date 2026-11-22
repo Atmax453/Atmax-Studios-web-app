@@ -186,15 +186,6 @@ function theme() {
   r.setProperty("--arn", { wide: ".5625", sq: "1" }[d.tsh] || "1.5");
   b.classList.toggle("noanim", !!d.noanim);
   b.classList.toggle("noarr", !!d.noarr);
-  ["icon", "apple-touch-icon"].forEach((k) => {
-    let l = document.querySelector('link[rel="'.concat(k, '"]'));
-    if (!l) {
-      l = document.createElement("link");
-      l.rel = k;
-      document.head.appendChild(l);
-    }
-    if (d.icon) l.href = dimg(d.icon);
-  });
   const G = d.pg2 && d.pgd && d.pgd !== "none" ? d.pgd === "radial" ? "radial-gradient(circle at 50% 0%,".concat(d.pg2, ",").concat(d.pg || "#0a0809", ")") : "linear-gradient(".concat(d.pgd === "diag" ? "135deg" : "180deg", ",").concat(d.pg || "#0a0809", ",").concat(d.pg2, ")") : "";
   b.style.backgroundImage = d.bgImage ? "url('".concat(dimg(String(d.bgImage)).replace(/'/g, "%27"), "')") : G;
   r.setProperty("--ac2", d.ac2 || d.accent || "#9b2c4b");
