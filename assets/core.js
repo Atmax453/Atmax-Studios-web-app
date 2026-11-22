@@ -125,9 +125,9 @@ function theme() {
   var _a, _b;
   const d = eff(S.set), r = document.documentElement.style, b = document.body;
   r.setProperty("--wine", d.accent || "#9b2c4b");
-  r.setProperty("--bar", d.dark || "#0e0b0c");
-  r.setProperty("--pg", d.pg || "#0a0809");
-  r.setProperty("--tx", d.tx || "#f4ecef");
+  r.setProperty("--bar", d.dark || "#ffffff");
+  r.setProperty("--pg", d.pg || "#ffffff");
+  r.setProperty("--tx", d.tx || "#141012");
   r.setProperty("--fb", FONTS[d.fb] || FONTS.clean);
   r.setProperty("--ft", FONTS[d.ft] || FONTS[d.fb] || FONTS.clean);
   if (d.fs && !TV) r.fontSize = { s: "90%", m: "100%", l: "112%" }[d.fs] || "100%";
@@ -135,10 +135,10 @@ function theme() {
   r.setProperty("--tw", { s: "150px", m: "200px", l: "250px" }[d.ts] || "200px");
   r.setProperty("--ar", { wide: "16/9", sq: "1/1" }[d.tsh] || "2/3");
   r.setProperty("--hh", { s: "38vh", m: "55vh", l: "85vh" }[d.hh] || "55vh");
-  r.setProperty("--navbg", d.nb == "clear" ? "transparent" : d.nb == "solid" ? d.dark || "#0e0b0c" : rgbaOf(d.dark || "#0e0b0c", 0.72));
-  r.setProperty("--nt2", rgbaOf(d.nt || "#ffffff", 0.7));
+  r.setProperty("--navbg", d.nb == "clear" ? "transparent" : d.nb == "solid" ? d.dark || "#ffffff" : rgbaOf(d.dark || "#ffffff", 0.72));
+  r.setProperty("--nt2", rgbaOf(d.nt || "#141012", 0.7));
   r.setProperty("--phc", rgbaOf(d.accent || "#9b2c4b", 0.45));
-  r.setProperty("--hov", rgbaOf(d.dark || "#0e0b0c", d.ho == null || d.ho === "" ? 1 : d.ho / 100));
+  r.setProperty("--hov", rgbaOf(d.dark || "#ffffff", d.ho == null || d.ho === "" ? 1 : d.ho / 100));
   r.setProperty("--glc", rgbaOf(d.accent || "#9b2c4b", d.glw == null || d.glw === "" ? 0.55 : d.glw / 100));
   r.setProperty("--arn", { wide: ".5625", sq: "1" }[d.tsh] || "1.5");
   b.classList.toggle("noanim", !!d.noanim);
@@ -152,7 +152,7 @@ function theme() {
     }
     if (d.icon) l.href = dimg(d.icon);
   });
-  const G = d.pg2 && d.pgd && d.pgd !== "none" ? d.pgd === "radial" ? "radial-gradient(circle at 50% 0%,".concat(d.pg2, ",").concat(d.pg || "#0a0809", ")") : "linear-gradient(".concat(d.pgd === "diag" ? "135deg" : "180deg", ",").concat(d.pg || "#0a0809", ",").concat(d.pg2, ")") : "";
+  const G = d.pg2 && d.pgd && d.pgd !== "none" ? d.pgd === "radial" ? "radial-gradient(circle at 50% 0%,".concat(d.pg2, ",").concat(d.pg || "#ffffff", ")") : "linear-gradient(".concat(d.pgd === "diag" ? "135deg" : "180deg", ",").concat(d.pg || "#ffffff", ",").concat(d.pg2, ")") : "";
   b.style.backgroundImage = d.bgImage ? "url('".concat(dimg(String(d.bgImage)).replace(/'/g, "%27"), "')") : G;
   r.setProperty("--ac2", d.ac2 || d.accent || "#9b2c4b");
   r.setProperty("--btx", d.btx || "#fff");
@@ -611,7 +611,7 @@ const art = (t, k) => {
   const i = pick(t, k || "poster");
   return i.src ? "linear-gradient(transparent 45%,rgba(0,0,0,.85)),url('".concat(esc(i.src.replace(/'/g, "%27")), "')") : null;
 };
-const artf = (t, k) => art(t, k) || "linear-gradient(160deg,hsl(".concat(t.id * 37 % 40 + 330, " 55% 30%),hsl(").concat(t.id * 37 % 40 + 330, " 60% 14%))");
+const artf = (t, k) => art(t, k) || "linear-gradient(160deg,hsl(".concat(t.id * 37 % 24 + 346, " 85% 46%),hsl(").concat(t.id * 37 % 24 + 346, " 80% 30%))");
 const bar = (t) => {
   const h = S.H.find((x) => x.title_id == t.id);
   return h && h.duration > 0 && h.position > 5 ? '<i class="bar" style="width:'.concat(Math.min(100, Math.round(h.position / h.duration * 100)), '%"></i>') : "";
@@ -1137,7 +1137,7 @@ function searchHTML(q) {
   const ppl = [...peopleIdx().values()].filter((e) => (e.n.toLowerCase().includes(q) || has(e.l)) && (f == "all" || f == "cast" && e.cast || f == "crew" && [...e.roles].some((r) => !isCast(r))));
   if (f == "genre" && genres.length) h += '<div class="sfg">'.concat(genres.map((g) => '<button data-g="'.concat(esc(g), '">').concat(esc(g), "</button>")).join(""), "</div>");
   if ((f == "all" || f == "films" || f == "genre") && films.length) h += rail(f == "genre" ? "Films in this genre" : "Films", films);
-  if ((f == "all" || f == "cast" || f == "crew") && ppl.length) h += '<section class="rw"><h3 class="rowt">'.concat(f == "cast" ? "Cast" : f == "crew" ? "Crew" : "People", '</h3><div class="lbs">').concat(ppl.slice(0, 40).map((e) => '<button class="lbc r0 ppc'.concat(vcl(e.id), '" data-pp="').concat(esc(e.k), '"><span class="lba" style="').concat(e.p ? "background-image:url('".concat(esc(e.p), "')") : "", '">').concat(e.p ? "" : esc(e.n.charAt(0).toUpperCase()), "</span><b>").concat(esc(e.n)).concat(vb(e.id), "</b><small>").concat(esc(e.l || [...e.roles].slice(0, 2).join(" \xB7 ")), '</small><span class="lbr" style="font-size:.7rem;color:#fff;opacity:.7">').concat(e.films.length, " film").concat(e.films.length == 1 ? "" : "s", "</span></button>")).join(""), "</div></section>");
+  if ((f == "all" || f == "cast" || f == "crew") && ppl.length) h += '<section class="rw"><h3 class="rowt">'.concat(f == "cast" ? "Cast" : f == "crew" ? "Crew" : "People", '</h3><div class="lbs">').concat(ppl.slice(0, 40).map((e) => '<button class="lbc r0 ppc'.concat(vcl(e.id), '" data-pp="').concat(esc(e.k), '"><span class="lba" style="').concat(e.p ? "background-image:url('".concat(esc(e.p), "')") : "", '">').concat(e.p ? "" : esc(e.n.charAt(0).toUpperCase()), "</span><b>").concat(esc(e.n)).concat(vb(e.id), "</b><small>").concat(esc(e.l || [...e.roles].slice(0, 2).join(" \xB7 ")), '</small><span class="lbr" style="font-size:.7rem;opacity:.7">').concat(e.films.length, " film").concat(e.films.length == 1 ? "" : "s", "</span></button>")).join(""), "</div></section>");
   if (f == "all") {
     const hs = Object.values(window.HS || {}).filter((x) => String(x.name || "").toLowerCase().includes(q));
     if (hs.length) h += '<section class="rw"><h3 class="rowt">Production houses</h3><div class="lbs">'.concat(hs.slice(0, 20).map((x) => '<button class="lbc r0 ppc" data-hh="'.concat(esc(x.id), '"><span class="lba" style="').concat(x.logo_url ? "background-image:url('".concat(esc(x.logo_url), "')") : "", '">').concat(x.logo_url ? "" : esc(String(x.name).charAt(0).toUpperCase()), "</span><b>").concat(esc(x.name), "</b><small>Production house</small></button>")).join(""), "</div></section>");
