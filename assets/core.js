@@ -1301,8 +1301,8 @@ document.addEventListener("change", (e) => {
 });
 function focusPick(root, url0, f0) {
   const form = root.closest("form"), fi = form && form.querySelector("input[type=file][name=photo]");
-  root.innerHTML = '<div class="fpb" style="display:none"><div class="fpw"><img alt="" class="fpm"><i class="fpd"></i></div><div class="fpp"><span class="fpa"></span><span class="fpq"></span></div><small style="opacity:.75">Tap the face in the photo to centre it. The two previews show how it will look.</small><input type="hidden" name="focus"></div>';
-  const box = root.querySelector(".fpb"), w = root.querySelector(".fpw"), im = root.querySelector(".fpm"), dot = root.querySelector(".fpd"), pa = root.querySelector(".fpa"), pq = root.querySelector(".fpq"), hid = root.querySelector("input[name=focus]");
+  root.innerHTML = '<div class="fpb" style="display:none"><div class="fpw"><img alt="" class="fpm"><i class="fpd"></i></div><div class="fpp"><span class="fpa"></span><span class="fpq"></span></div><small style="opacity:.75">Tap the face in the photo to centre it. The two previews show how it will look.</small><input type="hidden" name="focus"><small class="fph" style="opacity:.75;display:none">Choose a photo above, then tap the face here to set the focus.</small></div>';
+  const box = root.querySelector(".fpb"), w = root.querySelector(".fpw"), im = root.querySelector(".fpm"), dot = root.querySelector(".fpd"), pa = root.querySelector(".fpa"), pq = root.querySelector(".fpq"), hid = root.querySelector("input[name=focus]"), hint = root.querySelector(".fph");
   let x = 50, y = 50;
   const m0 = /^([\d.]+)% ([\d.]+)%$/.exec(f0 || "");
   if (m0) {
@@ -1319,9 +1319,15 @@ function focusPick(root, url0, f0) {
   };
   const show = (u) => {
     if (!u) {
-      box.style.display = "none";
+      box.style.display = "block";
+      w.style.display = "none";
+      pa.parentNode.style.display = "none";
+      hint.style.display = "block";
       return;
     }
+    w.style.display = "";
+    pa.parentNode.style.display = "";
+    hint.style.display = "none";
     im.src = u;
     pa.style.backgroundImage = pq.style.backgroundImage = "url('" + u + "')";
     box.style.display = "block";
@@ -1354,7 +1360,7 @@ function focusPick(root, url0, f0) {
   });
   if (fi) fi.addEventListener("change", () => {
     const f = fi.files && fi.files[0];
-    if (f && /^image\//.test(f.type || "")) {
+    if (f && (!f.type || /^image\//.test(f.type))) {
       x = 50;
       y = 50;
       show(URL.createObjectURL(f));
