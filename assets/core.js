@@ -621,8 +621,41 @@ async function crewWire(m, t) {
     if (x && b) b.textContent = "\u2605 " + x.avg_stars + " (" + x.votes + ")";
   });
 }
+const RC = {};
+async function canRate(id) {
+  if (!S.user) return false;
+  if (RC[id]) return true;
+  let ok = false;
+  try {
+    const r = await sb.rpc("can_rate", { p_title: id });
+    ok = r.data === true;
+  } catch (e) {
+  }
+  if (ok) RC[id] = 1;
+  return ok;
+}
+function lockSheet(t, what) {
+  const paid = typeof isPaid === "function" && isPaid(t.id), d = document.createElement("div");
+  d.className = "mod";
+  d.style.zIndex = 100002;
+  d.setAttribute("role", "dialog");
+  d.setAttribute("aria-modal", "true");
+  d.innerHTML = '<div class="mbox" style="max-width:400px"><div class="mbody" style="text-align:center"><h3 style="margin:.2rem 0">'.concat(paid ? "Buy the film to " : "Watch the film to ").concat(esc(what || "rate it"), '</h3><p style="opacity:.8">Ratings and comments on ').concat(esc(t.title), " come only from people who ").concat(paid ? "have bought it" : "have watched it", ". That keeps them honest. ").concat(paid ? "If you have bought it before, even if your time has run out, you can still rate it." : "Watch a few minutes and you can rate it.", '</p><div class="acts" style="justify-content:center"><button class="btn" id="lkg">').concat(paid ? "See prices" : "Watch now", '</button><button class="btn ghost" id="lkc">Not now</button></div></div></div>');
+  document.body.appendChild(d);
+  d.onclick = (e) => {
+    if (e.target === d) d.remove();
+  };
+  d.querySelector("#lkc").onclick = () => d.remove();
+  d.querySelector("#lkg").onclick = () => {
+    document.querySelectorAll(".mod").forEach((m) => m.remove());
+    paid ? detail(t.id) : play(t.id);
+  };
+}
 function rateSheet(t, pid, name, role, cur, parent) {
   if (!S.user) return gate("rate cast and crew");
+  canRate(t.id).then((ok) => ok ? rateSheet0(t, pid, name, role, cur, parent) : lockSheet(t, "rate " + name));
+}
+function rateSheet0(t, pid, name, role, cur, parent) {
   const d = document.createElement("div");
   d.className = "mod";
   d.style.zIndex = 100001;
@@ -637,7 +670,7 @@ function rateSheet(t, pid, name, role, cur, parent) {
   d.querySelectorAll(".rs").forEach((b) => b.onclick = async () => {
     const n = +b.dataset.s, x = await sb.from("char_votes").upsert({ title_id: t.id, person_id: pid, stars: n, updated_at: (/* @__PURE__ */ new Date()).toISOString() }, { onConflict: "user_id,title_id,person_id" });
     if (x.error) {
-      d.querySelector("#rse").textContent = "Could not save your rating. Try again.";
+      d.querySelector("#rse").textContent = /row-level|policy|permission/i.test(x.error.message || "") ? "You need to buy or watch this film before you can rate it." : "Could not save your rating. Try again.";
       return;
     }
     S.LB = {};
@@ -1408,7 +1441,7 @@ function avg(id) {
 }
 function rc(t) {
   const mine = S.user && (S.RT || []).find((x) => x.title_id == t.id && x.user_id == S.user.id), NR = S.set.noRate || t.allow_rate === false, NC = S.set.noCom || t.allow_comment === false;
-  return "<hr><p><b>".concat(avg(t.id), "</b></p>").concat(NR ? "" : "<div>".concat([1, 2, 3, 4, 5].map((n) => '<button class="sb" data-s="'.concat(n, '" aria-label="').concat(n, ' stars">').concat(mine && mine.stars >= n ? "\u2605" : "\u2606", "</button>")).join(""), "</div>")).concat(NC ? "" : '<form class="cf"><input name="b" maxlength="500" placeholder="'.concat(S.user ? "Write a comment" : "Sign in to comment", '" style="flex:1;padding:.5rem"><button class="btn">Post</button></form>'), '<div class="cl">').concat((S.CM || []).filter((c) => c.title_id == t.id).slice(0, 20).map((c) => "<p><b>".concat(esc(c.name), "</b> ").concat(esc(c.body)).concat(S.isAdmin || S.user && c.user_id == S.user.id ? ' <button class="sb" data-dc="'.concat(c.id, '" aria-label="Delete comment">\u2715</button>') : "", "</p>")).join(""), "</div>");
+  return "<hr><p><b>".concat(avg(t.id), "</b></p>").concat(NR ? "" : "<div>".concat([1, 2, 3, 4, 5].map((n) => '<button class="sb" data-s="'.concat(n, '" aria-label="').concat(n, ' stars">').concat(mine && mine.stars >= n ? "\u2605" : "\u2606", "</button>")).join(""), "</div>")).concat(NC ? "" : '<form class="cf"><input name="b" maxlength="500" placeholder="'.concat(S.user ? "Write a comment" : "Sign in to comment", '" style="flex:1;padding:.5rem"><button class="btn">Post</button></form>'), '<p style="font-size:.78rem;opacity:.65;margin:.5rem 0">Only people who have bought or watched this film can rate it or comment.</p><div class="cl">').concat((S.CM || []).filter((c) => c.title_id == t.id).slice(0, 20).map((c) => "<p><b>".concat(esc(c.name), "</b> ").concat(esc(c.body)).concat(S.isAdmin || S.user && c.user_id == S.user.id ? ' <button class="sb" data-dc="'.concat(c.id, '" aria-label="Delete comment">\u2715</button>') : "", "</p>")).join(""), "</div>");
 }
 function detail(id) {
   const t = S.T.find((x) => x.id == id), has = S.L.includes(id), m = document.createElement("div");
@@ -1454,16 +1487,19 @@ function detail(id) {
     close();
     detail(id);
   };
-  m.querySelectorAll(".sb[data-s]").forEach((b) => b.onclick = () => {
+  m.querySelectorAll(".sb[data-s]").forEach((b) => b.onclick = async () => {
     if (!S.user) return gate("rate films");
+    if (!await canRate(id)) return lockSheet(t, "rate it");
     re(sb.from("ratings").upsert({ title_id: id, stars: +b.dataset.s }, { onConflict: "title_id,user_id" }));
   });
   const cf = m.querySelector(".cf");
-  if (cf) cf.onsubmit = (e) => {
+  if (cf) cf.onsubmit = async (e) => {
     e.preventDefault();
     if (!S.user) return gate("comment");
     const b = cf.elements.b.value.trim();
-    if (b) re(sb.from("comments").insert({ title_id: id, name: (S.user.email || "user").split("@")[0], body: b }));
+    if (!b) return;
+    if (!await canRate(id)) return lockSheet(t, "comment on it");
+    re(sb.from("comments").insert({ title_id: id, name: (S.user.email || "user").split("@")[0], body: b }));
   };
   m.querySelectorAll("[data-dc]").forEach((b) => b.onclick = () => re(sb.from("comments").delete().eq("id", b.dataset.dc)));
   m.querySelector("#ls").onclick = async () => {
@@ -1489,6 +1525,7 @@ async function mark(t, pos, dur) {
   if (pos != null && dur > 0) {
     row.position = pos > dur - 15 ? 0 : Math.floor(pos);
     row.duration = Math.floor(dur);
+    row.max_pos = pos > dur - 15 ? Math.floor(dur) : Math.floor(pos);
   }
   const h = S.H.find((x) => x.title_id == t.id);
   h ? Object.assign(h, row) : S.H.unshift(__spreadValues({ position: 0, duration: 0 }, row));
