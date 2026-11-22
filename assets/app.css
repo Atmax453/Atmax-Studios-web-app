@@ -268,6 +268,32 @@ body.tv .gl,body.tv .rt,body.tv.dk nav{backdrop-filter:none!important;-webkit-ba
 .mod.sheetp .mbox{max-width:620px;border-radius:24px 24px 0 0;max-height:94vh;max-height:94dvh;overscroll-behavior:contain;animation:shUp .28s cubic-bezier(.2,.8,.2,1)}
 @media(min-width:700px){.mod.sheetp{place-items:center;padding:1rem}.mod.sheetp .mbox{border-radius:22px}}
 .mod.sheetp .mbody{padding:1.1rem 1.1rem calc(1.4rem + env(safe-area-inset-bottom,0px))}
+/* PY film page */
+.mod.py{place-items:stretch;padding:0;background:#000}
+.mod.py .mbox.pyb{max-width:none;width:100%;height:100%;max-height:none;border-radius:0;animation:none;overflow-y:auto;overflow-x:hidden;overscroll-behavior:contain}
+.pyh{position:relative;min-height:100vh;min-height:100dvh;display:flex;flex-direction:column;justify-content:flex-end;color:#fff;background:#000 var(--bp) var(--pp,center)/cover no-repeat;isolation:isolate}
+.pyh::before{content:"";position:absolute;inset:0;z-index:-1;background:linear-gradient(0deg,rgba(0,0,0,.92) 0,rgba(0,0,0,.55) 38%,rgba(0,0,0,.05) 70%),linear-gradient(90deg,rgba(0,0,0,.55),transparent 70%)}
+.mod.py .x{position:fixed;top:max(14px,env(safe-area-inset-top));right:14px;z-index:5;width:42px;height:42px;border-radius:50%;border:1px solid rgba(255,255,255,.28);background:rgba(10,8,9,.55);color:#fff;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);font-size:1rem}
+.pyc{padding:0 1.2rem 1rem;max-width:760px}
+.pym{font-size:.95rem;opacity:.9;margin-bottom:.35rem}
+.pyt{margin:0;font-size:clamp(2.3rem,9vw,4.6rem);line-height:1;font-weight:800;letter-spacing:-.01em;text-wrap:balance}
+.pys{margin:.7rem 0 1rem;opacity:.85;font-size:1rem}
+.pya{display:flex;gap:.6rem;flex-wrap:wrap}
+.pyw,.pyg{border:0;border-radius:999px;padding:.8rem 1.5rem;font:inherit;font-weight:700;cursor:pointer}
+.pyw{background:#fff;color:#141012}
+.pyg{background:rgba(255,255,255,.16);color:#fff;border:1px solid rgba(255,255,255,.28);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
+.pyw:focus-visible,.pyg:focus-visible,.pyp:focus-visible{outline:3px solid var(--wine);outline-offset:2px}
+.pyd0{margin:1rem 0 0;max-width:56ch;line-height:1.55;opacity:.88;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.pyh .cd{margin:.2rem 0 1rem}
+.pyr{padding:0 1.2rem 1.4rem}
+.pyrt{font-size:.85rem;opacity:.75;margin-bottom:.5rem}
+.pyrs{display:flex;gap:.6rem;overflow-x:auto;padding:.4rem .4rem .5rem;margin:0 -.4rem;scrollbar-width:none;-webkit-overflow-scrolling:touch}.pyrs::-webkit-scrollbar{display:none}
+.pyp{flex:0 0 auto;width:64px;height:92px;border-radius:10px;border:0;padding:0;background-size:cover;background-position:center;opacity:.8;cursor:pointer;transition:transform .15s,opacity .15s}
+.pyp:hover{opacity:1;transform:translateY(-3px)}
+.pyp.on{opacity:1;outline:2px solid var(--wine);outline-offset:2px;cursor:default}
+.mbody.pyl{max-width:860px;margin:0 auto;padding:1.4rem 1.2rem calc(2rem + env(safe-area-inset-bottom,0px))}
+@media(min-width:760px){.pyc{padding:0 3rem 1.4rem}.pyr{padding:0 3rem 2rem}.pyp{width:84px;height:122px}.pyh{background-image:var(--bd);background-position:var(--pd,center)}.mod.py .x{right:24px;top:20px}}
+@media(prefers-reduced-motion:reduce){.pyp{transition:none}}
 .mod.sheetp .mart{min-height:200px}
 .mod.sheetp .acts .btn,.mod.sheetp .acts .ghost{flex:1 1 auto}
 .mod.sheetp .mchips em{font-size:.78rem;padding:.2rem .7rem}
