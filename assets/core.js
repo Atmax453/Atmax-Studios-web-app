@@ -266,6 +266,26 @@ async function go(msg) {
     }, 400);
   }
 }
+function sentScreen(email, again) {
+  const gm = /@(gmail|googlemail)\./i.test(email);
+  app.innerHTML = '<div class="login"><div class="card"><h1>'.concat(again ? "Confirm your email" : "Account created", '</h1>\n <p style="margin:.4rem 0 1rem;line-height:1.5">').concat(again ? "This account isn't confirmed yet." : "Your account has been created.", " We sent a confirmation link to <b>").concat(esc(email), '</b>. Open that email, tap the link, then come back and sign in.</p>\n <p style="margin:0 0 1rem;font-size:.9rem;opacity:.75">Can\'t find it? Check Spam or Promotions. It can take a few minutes.</p>\n <div class="err" id="err" role="status" style="color:#1c8a3c"></div>\n ').concat(gm ? '<a class="btn" href="https://mail.google.com/" style="display:block;text-align:center;text-decoration:none;margin-bottom:.6rem">Open Gmail</a>' : "", '\n <button class="btn').concat(gm ? " ghost" : "", '" id="si">I\'ve confirmed, sign in</button>\n <button class="btn ghost" id="rs">Send the email again</button></div><div class="lbrand">').concat(studioMark() || brand(), "</div></div>");
+  $("#si").onclick = () => {
+    S.mode = "in";
+    login();
+    const e2 = $("#em");
+    if (e2) e2.value = email;
+  };
+  $("#rs").onclick = async () => {
+    const b = $("#rs");
+    b.disabled = true;
+    const { error } = await sb.auth.resend({ type: "signup", email });
+    $("#err").style.color = error ? "" : "#1c8a3c";
+    $("#err").textContent = error ? error.message : "Sent again. Check your inbox and spam.";
+    setTimeout(() => {
+      b.disabled = false;
+    }, 3e4);
+  };
+}
 function login(msg) {
   const up = S.mode === "up";
   app.innerHTML = '<div class="login"><div class="card"><h1>'.concat(up ? "Create account" : "Sign in", '</h1>\n <label for="em">Email</label><input id="em" type="email" autocomplete="email">\n <label for="pw">Password</label><div class="pwrap"><input id="pw" type="password" autocomplete="').concat(up ? "new-password" : "current-password", '"><button type="button" class="eye" id="eye" aria-label="Show password" aria-pressed="false"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path class="e1" d="M1.5 12S5.5 5 12 5s10.5 7 10.5 7-4 7-10.5 7S1.5 12 1.5 12z"/><circle class="e1" cx="12" cy="12" r="3"/><path class="e2" d="M3 3l18 18M10.6 5.1A10.7 10.7 0 0 1 12 5c6.5 0 10.5 7 10.5 7a17 17 0 0 1-3.1 3.9M6.6 6.6A16.6 16.6 0 0 0 1.5 12S5.5 19 12 19a10.6 10.6 0 0 0 5.4-1.5"/></svg></button></div>\n <div class="err" id="err" role="alert">').concat(esc(msg || ""), '</div>\n <button class="btn" id="go">').concat(up ? "Create account" : "Sign in", "</button>").concat(GOOGLE_LOGIN ? '<button class="btn ghost" id="gg">Continue with Google</button>' : "", '\n <div class="alt">').concat(up ? "Have an account?" : "New here?", ' <button id="sw">').concat(up ? "Sign in" : "Create account", '</button></div></div><div class="lbrand">').concat(studioMark() || brand(), '</div><div class="llegal"><a href="/about.html">About</a> \xB7 <a href="/privacy.html">Privacy Policy</a> \xB7 <a href="/terms.html">Terms of Service</a></div></div>');
@@ -306,8 +326,18 @@ function login(msg) {
   $("#go").onclick = async () => {
     const email = $("#em").value.trim(), password = $("#pw").value;
     const { data, error } = await (up ? sb.auth.signUp({ email, password }) : sb.auth.signInWithPassword({ email, password }));
-    if (error) return $("#err").textContent = error.message;
-    if (!data.session) return $("#err").textContent = "Check your email to confirm your account, then sign in.";
+    if (error) {
+      if (/not confirmed/i.test(error.message)) return sentScreen(email, true);
+      return $("#err").textContent = error.message;
+    }
+    if (up && data.user && Array.isArray(data.user.identities) && !data.user.identities.length) {
+      S.mode = "in";
+      login("You already have an account with this email. Sign in below.");
+      const e2 = $("#em");
+      if (e2) e2.value = email;
+      return;
+    }
+    if (!data.session) return sentScreen(email);
     S.user = data.user;
     S.sub = null;
     saveSub();
