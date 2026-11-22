@@ -1262,6 +1262,7 @@ function runDeep() {
 }
 function draw() {
   document.body.classList.add("dk");
+  frSync();
   app.innerHTML = "<nav>".concat(brand(), '<div class="tabs"><button data-v="home" class="').concat(S.view == "home" ? "on" : "", '">Home</button><button data-v="list" class="').concat(S.view == "list" ? "on" : "", '">My list (').concat(S.L.length, ')</button><button data-v="history" class="').concat(S.view == "history" ? "on" : "", '">Watched</button></div>\n <input id="q" type="search" placeholder="Search titles" aria-label="Search titles" value="').concat(esc(S.q), '"><button class="btn ghost" id="sw" style="padding:.4rem .8rem">').concat(esc(S.sub.name), "</button>").concat(S.mh ? '<button class="btn ghost" id="tohs" style="padding:.4rem .8rem">Production house</button>' : "").concat(S.me ? '<button class="btn ghost" id="tocr" style="padding:.4rem .8rem">Creator</button>' : "").concat(S.isAdmin ? '<button class="btn ghost" id="toadm" style="padding:.4rem .8rem">Admin panel</button>' : "", '<button class="btn ghost" id="out" style="padding:.4rem .8rem">Sign out</button></nav>').concat(S.view === "home" ? homeMark() : "").concat(S.DX && (S.DX.re || S.DX.te || !S.T.length) ? '<div class="ann" style="background:#5a1a1a;color:#fff" role="alert">No films loaded. Rows found: '.concat(S.DX.rn, ", films found: ").concat(S.DX.tn, ", shown: ").concat(S.T.length, ". ").concat(esc(S.DX.te || S.DX.re || (S.DX.tn ? "All films are hidden (draft, future publish date, or row switched off)." : "Database returned no films for this visitor (check Row Level Security policy on titles).")), "</div>") : "").concat(S.set.announceOn && S.set.announce ? '<div class="ann" role="status">'.concat(esc(S.set.announce), "</div>") : "", '<div id="body"></div>');
   document.querySelectorAll("[data-v]").forEach((b) => b.onclick = () => {
     if (b.dataset.v === S.view) {
@@ -1318,6 +1319,37 @@ function draw() {
 }
 const bn = (f) => pick(f, isPhone() ? "phone" : "pc");
 const heroHTML = (f) => '<section class="hero" style="background-image:linear-gradient(100deg,var(--hov,var(--bar)) 5%,transparent 90%),'.concat(bn(f).src ? "url('".concat(esc(bn(f).src.replace(/'/g, "%27")), "'),") : "", 'linear-gradient(100deg,var(--bar),var(--wine))" data-bp="').concat(bn(f).pos, '"><h2>').concat(esc(f.title), '</h2><p class="hm">').concat(heroMeta(f), "</p><p>").concat(esc(f.description), '</p><div class="b"><button class="btn" data-play="').concat(f.id, '">Play</button><button class="btn ghost" data-id="').concat(f.id, '">More info</button></div></section>');
+const FR = () => S.set.look === "frosted";
+function frSync() {
+  const b = document.body, on = FR();
+  b.classList.toggle("fr", on);
+  let e = document.getElementById("frbg");
+  if (on) {
+    b.style.setProperty("--fr", /^#[0-9a-f]{6}$/i.test(S.set.ac2 || "") ? S.set.ac2 : /^#[0-9a-f]{6}$/i.test(S.set.accent || "") ? S.set.accent : "#c0182f");
+    if (!e) {
+      e = document.createElement("div");
+      e.id = "frbg";
+      e.className = "frbg";
+      e.setAttribute("aria-hidden", "true");
+      e.innerHTML = "<i></i><i></i><i></i>";
+      b.insertBefore(e, b.firstChild);
+    }
+  } else if (e) e.remove();
+}
+function frHome(f, hh, rest) {
+  const dd = (t) => {
+    try {
+      return new Date(t.publish_at).toLocaleDateString(void 0, { day: "numeric", month: "short", year: "numeric" });
+    } catch (e) {
+      return "";
+    }
+  }, gl = (t) => String(t.genre || "").split(/[,/|]/).map((x) => x.trim()).filter(Boolean).slice(0, 2).join(" | "), soon = S.T.filter((t) => t.status === "soon" || cdOn(t)).slice(0, 4), latest = [...S.T].filter((t) => t.status !== "soon").sort((a, b) => b.id - a.id).slice(0, 6), gm = {};
+  S.T.forEach((t) => genreSet(t).forEach((g) => {
+    (gm[g] = gm[g] || []).push(t);
+  }));
+  const gen = Object.keys(gm).sort((a, b) => gm[b].length - gm[a].length).slice(0, 5), mini = (t, sub) => '<button class="frm1" data-id="'.concat(t.id, '"><i style="background-image:').concat(artf(t), ";background-position:").concat(pick(t, "poster").pos, '"></i><span><b>').concat(esc(t.title), "</b><small>").concat(esc(sub || [t.year, gl(t)].filter(Boolean).join(" \xB7 ")), "</small></span></button>");
+  return '<div class="frw"><section class="frm">'.concat(hh).concat(gen.length ? '<div class="frc frg"><h3>Genres for you</h3><div class="frgs">'.concat(gen.map((g) => '<button class="frgt" data-fg="'.concat(esc(g), '" style="background-image:').concat(artf(gm[g][0]), ";background-position:").concat(pick(gm[g][0], "poster").pos, '"><span>').concat(esc(g.replace(/\b\w/g, (c) => c.toUpperCase())), "</span></button>")).join(""), "</div></div>") : "", '</section><aside class="frl">').concat(soon.length ? '<div class="frc"><h3>Coming soon</h3>'.concat(soon.map((t) => mini(t, t.publish_at ? "Releases " + dd(t) : "Coming soon")).join(""), "</div>") : "").concat(latest.length ? '<div class="frc"><h3>Latest</h3>'.concat(latest.map((t) => mini(t)).join(""), "</div>") : "", '</aside></div><div class="frr">').concat(rest, "</div>");
+}
 function body() {
   const q = S.q.trim().toLowerCase();
   let h = "";
@@ -1331,7 +1363,8 @@ function body() {
     h = r.length ? rail("My list", r) : '<p class="empty">Your list is empty. Open a title and select Add to list.</p>';
   } else {
     const fl = S.T.filter((t) => t.featured), f = fl.length ? fl[(S.hi || 0) % fl.length] : S.T[0];
-    if (f) h += heroHTML(f);
+    const hh = f ? heroHTML(f) : "";
+    if (!FR() && f) h += hh;
     if (!f) h += '<section class="hero" style="background-image:linear-gradient(100deg,var(--hov,var(--bar)) 5%,transparent 90%),'.concat(S.set.heroImg ? "url('".concat(esc(dimg(S.set.heroImg).replace(/'/g, "%27")), "'),") : "", 'linear-gradient(100deg,var(--bar),var(--wine))"><h2>').concat(esc(S.set.heroT || "Coming soon"), "</h2><p>").concat(esc(S.set.heroD || "New films are on the way. Check back shortly."), "</p></section>");
     h += lbHTML();
     h += rail("Continue watching", hist().filter((t) => {
@@ -1352,6 +1385,7 @@ function body() {
     h += dn.filter((n) => !have.includes(n.toLowerCase())).map((n) => rail(n, n == "Trending Now" ? [...S.T].reverse().slice(0, 10) : S.T.filter((t) => (t.genre || "").toLowerCase().includes(n.toLowerCase())), 7)).join("");
     const loose = S.T.filter((t) => !t.row_id);
     h += rail("More to watch", loose);
+    if (FR() && f) h = frHome(f, hh, h);
   }
   $("#body").innerHTML = "<main>" + h + "</main>" + LEGAL;
   lbInit();
@@ -1377,6 +1411,12 @@ function body() {
     const r = c.querySelector(".rail");
     c.querySelector(".l").onclick = () => r.scrollBy({ left: -r.clientWidth * 0.9, behavior: "smooth" });
     c.querySelector(".r").onclick = () => r.scrollBy({ left: r.clientWidth * 0.9, behavior: "smooth" });
+  });
+  document.querySelectorAll("[data-fg]").forEach((b) => b.onclick = () => {
+    S.q = b.dataset.fg;
+    const i = $("#q");
+    if (i) i.value = S.q;
+    body();
   });
   document.querySelectorAll("[data-id]").forEach((b) => b.onclick = () => detail(+b.dataset.id));
   document.querySelectorAll("[data-play]").forEach((b) => b.onclick = () => play(+b.dataset.play));
