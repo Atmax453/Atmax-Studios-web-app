@@ -247,7 +247,7 @@ const ADMIN = (() => {
   }
   function shell() {
     const cur = T9.find((t) => t[0] == S.tab);
-    app.innerHTML = '<div id="adm"><header><b>'.concat(esc(S.set.brand || "Admin"), " admin").concat(cur ? ": " + cur[1] : "", "</b>").concat(cur ? '<button class="btn ghost" data-t="home">Dashboard</button>' : "", '<button class="btn ghost" id="vs">View site</button><button class="btn ghost" id="out">Sign out</button></header><main id="pane"></main></div>');
+    app.innerHTML = '<div id="adm"><header><b>'.concat(esc(S.set.brand || "Admin"), " admin").concat(cur ? ": " + cur[1] : "", '<small style="font-weight:400;opacity:.6;margin-left:.5rem">v').concat(window.ATMAX_V || "?", "</small></b>").concat(cur ? '<button class="btn ghost" data-t="home">Dashboard</button>' : "", '<button class="btn ghost" id="vs">View site</button><button class="btn ghost" id="out">Sign out</button></header><main id="pane"></main></div>');
     const U = users().split('<div class="panel scroll">'), P = { home, films, rows, pay: payTab, house: houseTab, people: peopleTab, profit: profitTab, houses: housesTab, look, users: () => '<div class="panel scroll">' + U[1], team: () => U[0], site, ann, stats, backup, pics };
     $("#pane").innerHTML = (P[S.tab] || home)();
     document.querySelectorAll("[data-t]").forEach((b) => b.onclick = () => {
