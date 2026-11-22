@@ -2495,6 +2495,103 @@ const fixHero = () => document.querySelectorAll(".hero[data-bp]").forEach((h) =>
   h.style.backgroundPosition = "center," + h.dataset.bp + ",center";
 });
 new MutationObserver(fixHero).observe(document.body, { childList: true, subtree: true });
+(() => {
+  const P = (c) => {
+    const m = String(c).match(/rgba?\(([^)]+)\)/);
+    if (!m) return null;
+    const a = m[1].split(/[ ,\/]+/).filter(Boolean).map(Number);
+    return { r: a[0], g: a[1], b: a[2], a: a.length > 3 ? a[3] : 1 };
+  };
+  const L = (c) => {
+    const f = (v) => {
+      v /= 255;
+      return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4);
+    };
+    return 0.2126 * f(c.r) + 0.7152 * f(c.g) + 0.0722 * f(c.b);
+  };
+  const CR = (x, y) => {
+    const a = L(x), b = L(y);
+    return (Math.max(a, b) + 0.05) / (Math.min(a, b) + 0.05);
+  };
+  const mix = (t, u) => ({ r: t.r * t.a + u.r * (1 - t.a), g: t.g * t.a + u.g * (1 - t.a), b: t.b * t.a + u.b * (1 - t.a), a: 1 });
+  let busy = 0, tm = 0;
+  function bgOf(el, cache) {
+    let layers = [], n = el;
+    while (n && n.nodeType === 1) {
+      if (cache.has(n)) {
+        const c2 = cache.get(n);
+        if (c2 === null) return null;
+        layers.push(c2);
+        break;
+      }
+      const cs = getComputedStyle(n);
+      if (cs.backgroundImage && cs.backgroundImage !== "none") {
+        cache.set(n, null);
+        return null;
+      }
+      const c = P(cs.backgroundColor);
+      if (c && c.a > 0) {
+        if (c.a >= 0.97) {
+          cache.set(n, c);
+          layers.push(c);
+          break;
+        }
+        layers.push(c);
+      }
+      n = n.parentElement;
+    }
+    let base = { r: 255, g: 255, b: 255, a: 1 };
+    const bc = P(getComputedStyle(document.body).backgroundColor);
+    if (bc && bc.a > 0) base = bc;
+    let out2 = layers.length && layers[layers.length - 1].a >= 0.97 ? layers.pop() : base;
+    for (let i = layers.length - 1; i >= 0; i--) out2 = mix(layers[i], out2);
+    return out2;
+  }
+  function run() {
+    busy = 1;
+    try {
+      const cache = /* @__PURE__ */ new Map(), els = document.querySelectorAll("body *");
+      let n = 0;
+      for (const el of els) {
+        if (++n > 6e3) break;
+        if (!el.firstChild) continue;
+        let has = false;
+        for (const k of el.childNodes) {
+          if (k.nodeType === 3 && k.nodeValue.trim()) {
+            has = true;
+            break;
+          }
+        }
+        if (!has) continue;
+        if (el.closest(".player,.ptoast,.ytw,script,style,svg,#adm header,#lpv")) continue;
+        const cs = getComputedStyle(el);
+        if (cs.visibility === "hidden" || cs.display === "none") continue;
+        const fg = P(cs.color);
+        if (!fg) continue;
+        const bg = bgOf(el, cache);
+        if (!bg) continue;
+        const eff2 = fg.a < 1 ? mix(fg, bg) : fg;
+        if (CR(eff2, bg) < 3.2) {
+          const dk = { r: 20, g: 16, b: 18, a: 1 }, wt = { r: 255, g: 255, b: 255, a: 1 };
+          el.style.color = CR(dk, bg) >= CR(wt, bg) ? "#141012" : "#ffffff";
+        }
+      }
+    } catch (e) {
+    }
+    busy = 0;
+  }
+  const sched = () => {
+    if (busy) return;
+    clearTimeout(tm);
+    tm = setTimeout(run, 160);
+  };
+  try {
+    new MutationObserver(sched).observe(document.body, { childList: true, subtree: true, characterData: true });
+  } catch (e) {
+  }
+  window.ATMAX_CONTRAST = run;
+  setTimeout(run, 600);
+})();
 let _lw = innerWidth, _rt = 0;
 addEventListener("resize", () => {
   if (innerWidth === _lw) return;
