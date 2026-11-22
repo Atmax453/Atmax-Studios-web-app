@@ -2794,14 +2794,15 @@ async function approveTV(code) {
   };
 }
 function loadJsQR() {
-  return new Promise((res, rej) => {
-    if (window.jsQR) return res();
-    const s = document.createElement("script");
-    s.src = "https://cdnjs.cloudflare.com/ajax/libs/jsQR/1.4.0/jsQR.min.js";
-    s.onload = res;
-    s.onerror = rej;
-    document.head.appendChild(s);
+  if (window.jsQR) return Promise.resolve();
+  const one = (u) => new Promise((res, rej) => {
+    const t = document.createElement("script");
+    t.src = u;
+    t.onload = () => window.jsQR ? res() : rej();
+    t.onerror = rej;
+    document.head.appendChild(t);
   });
+  return one("/jsqr.js?v=" + (window.ATMAX_V || "1")).catch(() => one("https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js")).catch(() => one("https://cdnjs.cloudflare.com/ajax/libs/jsQR/1.4.0/jsQR.min.js"));
 }
 async function scanQR() {
   if (!S.user) return gate("scan a TV code");
