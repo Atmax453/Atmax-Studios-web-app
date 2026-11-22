@@ -588,7 +588,7 @@ async function loadPeople() {
     (v.data || []).forEach((x) => window.VER[x.id] = x.how);
   } catch (e) {
   }
-  const r = await sb.from("people").select("id,name,label,photo_url,bio,links,verified,unverified").order("name");
+  const r = await sb.from("people").select("id,name,label,photo_url,photo_focus,bio,links,verified,unverified").order("name");
   window.PPL = {};
   (r.data || []).forEach((p) => window.PPL[p.id] = p);
 }
@@ -986,11 +986,15 @@ async function creatorSheet() {
     d.innerHTML = '<div class="mbox"><div class="mbody"><button class="x" aria-label="Close">\u2715</button>\n '.concat(tcHero({ img: me.photo_url, name: me.name, v: window.VER && window.VER[me.id], vt: "Verified creator", sub: "Creator account", chips: myRoles() }), '\n <div class="cst"><div><b>').concat(ov.avg ? (+ov.avg).toFixed(1) : "\u2013", "</b><small>\u2605 average</small></div><div><b>").concat(ov.votes || 0, "</b><small>ratings</small></div><div><b>").concat(tv, "</b><small>views</small></div><div><b>").concat(tu, '</b><small>viewers</small></div></div>\n <h4 style="margin:1rem 0 .4rem">Ratings over the last 12 months</h4>').concat(tr.length ? '<div class="ctr">'.concat(tr.map((x) => '<span title="'.concat(esc(x.m), ": ").concat(x.avg, "\u2605 (").concat(x.votes, ')"><b>').concat((+x.avg).toFixed(1), '</b><div class="ctb"><i style="height:').concat(Math.max(6, x.avg / mx * 100), '%"></i></div><small>').concat(esc(x.m.slice(5)), "</small></span>")).join(""), "</div>") : '<p class="empty" style="margin:.3rem 0">No ratings yet.</p>', '\n <h4 style="margin:1rem 0 .4rem">Your films</h4>').concat((st.films || []).map(T).filter(Boolean).map((t) => {
       const a = rt[t.id], v = vw[t.id];
       return '<div class="pfm"><span class="pfo" style="cursor:default"><span><b>'.concat(esc(t.title), '</b><span class="mchips"><em>').concat(a ? "\u2605 ".concat((+a.avg).toFixed(1), " \xB7 ").concat(a.votes) : "No ratings yet", "</em><em>").concat(v ? v.total : 0, " views</em><em>").concat(v ? v.uniq : 0, " viewers</em></span></span></span></div>");
-    }).join("") || '<p class="empty">No published films yet.</p>', '\n <h4 style="margin:1.2rem 0 .4rem">Edit your public profile</h4>\n <form id="cpf"><div style="display:flex;align-items:center;margin:.4rem 0"><div class="crp" style="width:70px;height:70px;margin-right:.8rem;background-image:').concat(me.photo_url ? "url('".concat(esc(me.photo_url), "')") : "none", '">').concat(me.photo_url ? "" : "+", '<input type="file" name="photo" accept="image/jpeg,image/png,image/webp"></div><small style="opacity:.7">Tap the circle to change your photo (JPG, PNG or WebP).</small></div>\n <label>About you (max 1,200 characters)<textarea name="bio" rows="5" maxlength="1200">').concat(esc(me.bio || ""), '</textarea></label>\n <label>Links, one per line (website, Instagram, IMDb\u2026)<textarea name="links" rows="3" placeholder="https://">').concat(esc(linksOf(me).join("\n")), '</textarea></label>\n <div class="acts"><button class="btn">Save profile</button>').concat((st.films || []).length ? '<button type="button" class="btn ghost" id="cps">Share my page</button>' : "", '<button type="button" class="btn ghost" id="cpc">Close</button></div><div class="ok" id="cpm" role="status"></div></form></div></div>');
+    }).join("") || '<p class="empty">No published films yet.</p>', '\n <h4 style="margin:1.2rem 0 .4rem">Edit your public profile</h4>\n <form id="cpf"><div style="display:flex;align-items:center;margin:.4rem 0"><div class="crp" style="width:70px;height:70px;margin-right:.8rem;background-image:').concat(me.photo_url ? "url('".concat(esc(me.photo_url), "')") : "none", '">').concat(me.photo_url ? "" : "+", '<input type="file" name="photo" accept="image/jpeg,image/png,image/webp"></div><small style="opacity:.7">Tap the circle to change your photo (JPG, PNG or WebP).</small></div><div class="fpk" id="cfpk"></div>\n <label>About you (max 1,200 characters)<textarea name="bio" rows="5" maxlength="1200">').concat(esc(me.bio || ""), '</textarea></label>\n <label>Links, one per line (website, Instagram, IMDb\u2026)<textarea name="links" rows="3" placeholder="https://">').concat(esc(linksOf(me).join("\n")), '</textarea></label>\n <div class="acts"><button class="btn">Save profile</button>').concat((st.films || []).length ? '<button type="button" class="btn ghost" id="cps">Share my page</button>' : "", '<button type="button" class="btn ghost" id="cpc">Close</button></div><div class="ok" id="cpm" role="status"></div></form></div></div>');
     d.querySelector(".x").onclick = d.querySelector("#cpc").onclick = () => d.remove();
     const cps = d.querySelector("#cps");
     if (cps) cps.onclick = () => shareLink(pageUrl("people", me.id, me.name), me.name + " on ATMAX STUDIOS", d.querySelector("#cpm"));
     const f = d.querySelector("#cpf"), m = d.querySelector("#cpm");
+    {
+      const pk = d.querySelector("#cfpk");
+      if (pk) focusPick(pk, me.photo_url, me.photo_focus);
+    }
     f.onsubmit = async (ev) => {
       ev.preventDefault();
       const v = Object.fromEntries(new FormData(f)), b = f.querySelector("button");
@@ -1009,10 +1013,10 @@ async function creatorSheet() {
         const ls = (v.links || "").split(/\n+/).map((x) => x.trim()).filter(Boolean);
         if (ls.some((u) => !/^https?:\/\/[^\s]+$/i.test(u))) throw new Error("Each link must start with https://");
         const links = ls.slice(0, 5).map((u) => ({ u })), bio = (v.bio || "").trim();
-        const q = await sb.rpc("update_my_profile", { p_bio: bio, p_photo: photo, p_links: links.length ? links : null });
+        const q = await sb.rpc("update_my_profile", { p_bio: bio, p_photo: photo, p_links: links.length ? links : null, p_focus: photo ? v.focus || null : null });
         if (q.error) throw q.error;
-        Object.assign(me, { bio: bio || null, photo_url: photo || null, links: links.length ? links : null });
-        if (window.PPL[me.id]) Object.assign(window.PPL[me.id], { bio: me.bio, photo_url: me.photo_url, links: me.links });
+        Object.assign(me, { bio: bio || null, photo_url: photo || null, photo_focus: photo ? v.focus || null : null, links: links.length ? links : null });
+        if (window.PPL[me.id]) Object.assign(window.PPL[me.id], { bio: me.bio, photo_url: me.photo_url, photo_focus: me.photo_focus, links: me.links });
         m.textContent = "Saved. Your public profile is updated.";
         draw2();
         d.querySelector("#cpm").textContent = "Saved. Your public profile is updated.";
@@ -1295,6 +1299,103 @@ document.addEventListener("change", (e) => {
     });
   }
 });
+function focusPick(root, url0, f0) {
+  const form = root.closest("form"), fi = form && form.querySelector("input[type=file][name=photo]");
+  root.innerHTML = '<div class="fpb" style="display:none"><div class="fpw"><img alt="" class="fpm"><i class="fpd"></i></div><div class="fpp"><span class="fpa"></span><span class="fpq"></span></div><small style="opacity:.75">Tap the face in the photo to centre it. The two previews show how it will look.</small><input type="hidden" name="focus"></div>';
+  const box = root.querySelector(".fpb"), w = root.querySelector(".fpw"), im = root.querySelector(".fpm"), dot = root.querySelector(".fpd"), pa = root.querySelector(".fpa"), pq = root.querySelector(".fpq"), hid = root.querySelector("input[name=focus]");
+  let x = 50, y = 50;
+  const m0 = /^([\d.]+)% ([\d.]+)%$/.exec(f0 || "");
+  if (m0) {
+    x = +m0[1];
+    y = +m0[2];
+  }
+  const paint = () => {
+    const v = Math.round(x) + "% " + Math.round(y) + "%";
+    hid.value = v;
+    dot.style.left = x + "%";
+    dot.style.top = y + "%";
+    pa.style.backgroundPosition = v;
+    pq.style.backgroundPosition = v;
+  };
+  const show = (u) => {
+    if (!u) {
+      box.style.display = "none";
+      return;
+    }
+    im.src = u;
+    pa.style.backgroundImage = pq.style.backgroundImage = "url('" + u + "')";
+    box.style.display = "block";
+    paint();
+  };
+  const at = (e) => {
+    const r = w.getBoundingClientRect();
+    x = Math.max(0, Math.min(100, (e.clientX - r.left) / r.width * 100));
+    y = Math.max(0, Math.min(100, (e.clientY - r.top) / r.height * 100));
+    paint();
+  };
+  let dn = false;
+  w.addEventListener("pointerdown", (e) => {
+    dn = true;
+    try {
+      w.setPointerCapture(e.pointerId);
+    } catch (er) {
+    }
+    at(e);
+    e.preventDefault();
+  });
+  w.addEventListener("pointermove", (e) => {
+    if (dn) at(e);
+  });
+  w.addEventListener("pointerup", () => {
+    dn = false;
+  });
+  w.addEventListener("pointercancel", () => {
+    dn = false;
+  });
+  if (fi) fi.addEventListener("change", () => {
+    const f = fi.files && fi.files[0];
+    if (f && /^image\//.test(f.type || "")) {
+      x = 50;
+      y = 50;
+      show(URL.createObjectURL(f));
+    }
+  });
+  show(url0);
+}
+(function() {
+  let q = 0;
+  const run = () => {
+    q = 0;
+    const M = {};
+    Object.values(window.PPL || {}).forEach((p) => {
+      if (p && p.photo_url && p.photo_focus) M[p.photo_url] = p.photo_focus;
+    });
+    if (!Object.keys(M).length) return;
+    document.querySelectorAll('[style*="background-image"]').forEach((el) => {
+      const m = /url\(["']?([^"')]+)["']?\)/.exec(el.style.backgroundImage || "");
+      if (m && M[m[1]] && el.dataset.fx !== M[m[1]]) {
+        el.dataset.fx = M[m[1]];
+        el.style.backgroundPosition = M[m[1]];
+      }
+    });
+    document.querySelectorAll("img[src]").forEach((el) => {
+      const f = M[el.getAttribute("src")];
+      if (f && el.dataset.fx !== f && !el.classList.contains("fpm")) {
+        el.dataset.fx = f;
+        el.style.objectPosition = f;
+      }
+    });
+  };
+  try {
+    new MutationObserver(() => {
+      if (!q) {
+        q = 1;
+        requestAnimationFrame(run);
+      }
+    }).observe(document.documentElement, { childList: true, subtree: true, attributes: true, attributeFilter: ["style"] });
+  } catch (e) {
+  }
+})();
 const DON_MIN = () => Math.max(1, +S.set.donMin || 5);
 const donOn = (t) => S.set.donate !== false && (!t || t.donate_on !== false && t.status !== "draft");
 const donBtn = (t) => donOn(t) ? '<button class="don" data-don="'.concat(t.id, '">').concat(t.in_production ? "Fund this film" : "Donate", "</button>") : "";
